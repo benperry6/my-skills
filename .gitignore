@@ -1,0 +1,45 @@
+# Ignore skills installed from external packages
+# Only track personal/custom skills in this repo
+
+# Marketing skills from coreyhaines31/marketingskills
+ab-test-setup/
+analytics-tracking/
+competitor-alternatives/
+content-strategy/
+copy-editing/
+copywriting/
+email-sequence/
+form-cro/
+free-tool-strategy/
+launch-strategy/
+marketing-ideas/
+marketing-psychology/
+onboarding-cro/
+page-cro/
+paid-ads/
+paywall-upgrade-cro/
+popup-cro/
+pricing-strategy/
+product-marketing-context/
+programmatic-seo/
+referral-program/
+schema-markup/
+seo-audit/
+signup-flow-cro/
+social-content/
+
+# Supabase security skills
+supabase-*/
+
+# Other external skills
+challenge/
+copywriting-tugan/
+interview/
+resend/
+skill-creator/
+techdebt/
+vercel-react-best-practices/
+web-design-guidelines/
+
+# OS files
+.DS_Store
