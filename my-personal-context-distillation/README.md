@@ -1,178 +1,301 @@
 # My Personal Context Distillation
 
-`my-personal-context-distillation` est un skill personnel conçu pour transformer du contexte brut en contexte exploitable.
+`my-personal-context-distillation` n'est pas un skill de documentation.
 
-Son rôle n'est pas d'écrire directement des landing pages, des pubs, des emails ou des articles. Son rôle est plus fondamental : construire la mémoire métier d'un projet pour que les autres skills marketing puissent ensuite travailler avec un niveau de contexte suffisant.
+C'est une brique d'infrastructure conçue pour résoudre ce qui reste, à mes yeux, le principal problème de la production de contenu par agents IA : le manque de contexte propriétaire sur le business.
 
-## Pourquoi ce skill existe
+## La thèse derrière ce skill
 
-Les agents IA savent aujourd'hui exécuter, naviguer, lire, écrire, coder, rechercher et produire.
+J'opère plusieurs types de business :
 
-Le vrai problème n'est plus seulement l'exécution.
+- des SaaS
+- des sites d'affiliation
+- quelques activités physiques
 
-Le vrai problème, c'est le manque de contexte propriétaire.
+Leur point commun est simple : chacun dépend d'un site web.
 
-Sans contexte métier, même un très bon agent finit par produire :
+Et un site web sans trafic ne produit pas de business.
 
-- du contenu générique
-- des hypothèses non vérifiées
-- une compréhension approximative du business
-- une mauvaise lecture de l'audience réelle
+Dans la pratique, ce trafic vient surtout de deux grandes mécaniques :
 
-Ce skill a été créé pour résoudre précisément ce problème.
+- les gens nous trouvent via la recherche, y compris Google et les moteurs de réponse IA
+- nous amenons les gens à nous via les ads et le media buying
 
-## Le problème qu'il adresse
+Dans les deux cas, la matière première reste la même :
 
-Dans un repo, les informations utiles au marketing sont souvent dispersées :
+- du contenu
+
+Du contenu pour être trouvé.
+Du contenu pour être cliqué.
+Du contenu pour convertir.
+
+## Le problème historique
+
+Pendant longtemps, ce contenu était produit par des équipes humaines.
+
+Ces équipes ne se contentaient pas d'écrire.
+
+Elles apportaient trois choses en même temps :
+
+- une capacité d'exécution
+- une expertise sur le format ou le canal
+- une connaissance intime du business, de l'offre, de l'audience et du langage du marché
+
+C'est ce troisième point qui faisait la différence.
+
+Les équipes savaient :
+
+- quoi raconter
+- comment le raconter
+- à qui parler
+- quoi mettre en avant
+- quoi éviter
+
+Autrement dit, elles savaient produire du contenu qui ne sonnait pas générique.
+
+## Ce qui a changé avec les agents IA
+
+Les outils de type ChatGPT ont d'abord été très utiles pour répondre à des questions.
+
+Puis des agents comme Codex ou Claude Code ont fait sauter une autre barrière : ils peuvent maintenant agir, chercher, lire, écrire, coder, naviguer et exécuter.
+
+Ensuite, les skills ont ajouté une autre couche :
+
+- une spécialisation réutilisable
+- des workflows dédiés
+- de la méthode
+- des garde-fous
+
+Donc aujourd'hui, les agents savent déjà beaucoup mieux produire qu'avant.
+
+Mais il restait un manque.
+
+## Le manque qui restait
+
+Même avec de bons agents et de bons skills, le contenu produit reste souvent :
+
+- propre
+- rapide
+- techniquement acceptable
+- mais trop générique
+
+Pourquoi ?
+
+Parce qu'un agent ne peut pas inventer le contexte réel d'un business.
+
+S'il ne connaît pas :
+
+- l'offre
+- le business model
+- la logique de monétisation
+- l'histoire de la marque
+- le langage réel du marché
+- les attentes et objections du client
+
+alors il guess.
+
+Et dès qu'il guess, la qualité chute.
+
+## L'idée fondatrice
+
+L'idée de départ est née autour d'un fichier `business-model.md` créé manuellement dans un projet.
+
+Au début, ce fichier paraissait simplement utile.
+
+Puis il est devenu évident qu'il ne s'agissait pas d'un besoin local à un seul projet, mais d'une brique générique qui manque à presque tous les repos où l'on demande ensuite aux agents de produire du contenu.
+
+Le constat a donc évolué :
+
+- un seul fichier n'est pas suffisant
+- ce besoin existe dans tous les business
+- si on veut que des agents remplacent une partie du travail des équipes humaines de contenu, il faut leur donner explicitement ce que ces équipes avaient implicitement
+
+D'où le framework de base :
+
+- `business-model.md`
+- `storytelling.md`
+- `know-your-customer.md`
+
+Puis une quatrième couche s'est imposée :
+
+- `performance-memory.md`
+
+## Ce que ce skill fait exactement
+
+Ce skill prend du matériau brut :
 
 - founder dumps
 - transcripts speech-to-text
-- exports ChatGPT
-- docs produit
-- notes de décision
-- intuition fondateur
-- débuts de recherche marché
-- learnings de campagnes
+- exports de conversations
+- notes produit
+- docs de repo
+- learnings marketing
+- signaux marché
 
-En l'état, tout cela n'est pas une mémoire exploitable.
+et le transforme en mémoire métier exploitable.
 
-Il faut une couche de distillation.
-
-## Ce que le skill produit
-
-Le skill maintient quatre fichiers canoniques dans `.agents/` :
+Il maintient les fichiers canoniques suivants dans `.agents/` :
 
 - `.agents/business-model.md`
 - `.agents/storytelling.md`
 - `.agents/know-your-customer.md`
 - `.agents/performance-memory.md`
 
-Et, lorsque la recherche client est en jeu, il maintient aussi :
+Et quand le sujet client est concerné, il maintient aussi :
 
 - `docs/context-sources/voc-bank.csv`
 
-Cette banque VoC sert de couche de preuves persistante derrière le KYC.
+## Pourquoi ces fichiers existent
 
-## La logique centrale
+### `business-model.md`
 
-Le skill repose sur une séparation volontaire entre plusieurs couches :
+Pour expliquer comment l'activité crée de la valeur et gagne de l'argent.
 
-### 1. Les sources brutes
+### `storytelling.md`
 
-Elles vivent dans `docs/context-sources/`.
+Pour expliquer d'où vient le business, ce qu'il défend, et comment il doit sonner.
 
-Exemples :
+### `know-your-customer.md`
 
-- transcripts fondateur
-- exports de conversations
-- notes d'exploration
-- matériaux de recherche
+Pour expliquer qui est le client, ce qu'il vit, ce qu'il veut, ce qu'il craint, et avec quels mots il l'exprime.
 
-### 2. Les fichiers canoniques
+### `performance-memory.md`
 
-Ils vivent dans `.agents/`.
+Pour éviter que les learnings réels disparaissent après une campagne, un test ou un run.
 
-Ce sont les fichiers source-of-truth qu'un autre agent ou qu'un autre skill doit pouvoir relire plus tard sans repartir de zéro.
+## Le cas spécial de Know Your Customer
 
-### 3. La compilation marketing
+C'est la partie la plus sensible du système.
 
-Ce skill ne compile pas lui-même le contexte marketing final utilisé par les autres skills.
+Sur le business model ou le storytelling, le fondateur reste souvent la meilleure source.
 
-Cette responsabilité appartient à un autre skill :
+Sur le client, ce n'est pas vrai.
 
-- `product-marketing-context`
+Le fondateur a souvent :
+
+- des intuitions utiles
+- des hypothèses plausibles
+- une direction de recherche
+
+mais pas nécessairement la vérité du marché.
+
+C'est pourquoi ce skill impose une discipline particulière sur le KYC :
+
+- le fondateur sert de point de départ, pas de vérité finale
+- les affirmations client doivent être soutenues par de la vraie VoC ou de la vraie recherche
+- rien ne doit être guessé
+- les zones non prouvées doivent rester partielles ou aller dans `Open Questions`
+
+La `VoC Bank` sert justement à garder la preuve derrière la synthèse.
+
+## Pourquoi la VoC Bank existe
+
+Refaire sans cesse la même recherche marché serait absurde.
+
+Cela coûte :
+
+- du temps
+- des ressources
+- de l'argent
+
+et cela augmente le risque de perdre des nuances au moment de la synthèse.
+
+La `VoC Bank` existe donc comme couche de persistance :
+
+- pour conserver les citations
+- pour garder les sources
+- pour éviter de repartir de zéro
+- pour appuyer le KYC sur une base traçable
+
+## Ce skill n'écrit pas le marketing final
+
+Ce point est volontaire.
+
+`my-personal-context-distillation` n'écrit pas directement :
+
+- les pages de vente
+- les ads
+- les emails
+- les plans CRO
+- les documents de messaging
+
+Son rôle est plus en amont.
+
+Il prépare le terrain.
+
+Il construit la mémoire.
+
+Il transforme un repo sans contexte en repo avec contexte.
+
+## La séparation clé du système
+
+Il y a une séparation volontaire entre :
+
+- la vérité canonique
+- la compilation opérationnelle
+
+Ce skill édite la vérité.
+
+Un autre skill, `product-marketing-context`, compile ensuite cette vérité en un contexte plus directement consommable par les skills marketing downstream.
 
 Autrement dit :
 
-- `my-personal-context-distillation` édite la vérité
-- `product-marketing-context` compile cette vérité pour l'exécution downstream
+- `my-personal-context-distillation` construit la mémoire durable
+- `product-marketing-context` prépare cette mémoire pour l'exécution
 
-## Pourquoi cette séparation est importante
+Cette séparation évite de mélanger :
 
-Un repo a besoin de deux choses différentes :
+- source de vérité
+- résumé de travail
+- exécution marketing
 
-- une mémoire durable, nuancée, maintenable
-- un résumé opérationnel compact pour les skills marketing
+## Ce que ce skill essaie de rendre possible
 
-Si on mélange les deux, on obtient soit :
+L'ambition derrière ce skill n'est pas simplement d'avoir de "meilleures notes de projet".
 
-- une doc trop pauvre
-- soit une doc trop lourde
-- soit une doc qui n'est plus vraiment source de vérité
+L'ambition est plus grande :
 
-La séparation entre distillation et compilation permet de garder le système propre.
+donner à des agents IA une partie de ce que les équipes humaines apportaient naturellement, afin qu'ils puissent produire un contenu réellement spécifique au business, à l'audience et au contexte.
 
-## Le cas particulier de Know Your Customer
+L'objectif n'est pas de produire plus de contenu générique.
 
-`know-your-customer.md` ne doit pas être fondé principalement sur l'intuition fondateur.
+L'objectif est de produire un contenu :
 
-Le skill applique donc une règle plus stricte sur cette partie :
+- plus spécifique
+- plus cohérent
+- plus traçable
+- plus réutilisable
+- plus proche du niveau d'une équipe humaine spécialisée
 
-- les croyances fondateur servent seulement de direction de recherche
-- les vérités client doivent venir de vraie VoC publique ou de vraie recherche utilisateur
-- rien ne doit être guessé
-- si une information n'est pas suffisamment prouvée, elle reste partielle ou va dans `Open Questions`
-
-La VoC Bank existe pour ça.
-
-Elle permet :
-
-- de ne pas refaire les mêmes recherches plus tard
-- de garder les citations et sources
-- de synthétiser le KYC sur une base traçable
-
-## Ce que le skill ne fait pas
-
-Ce skill ne sert pas à :
-
-- écrire la landing page finale
-- produire les ads
-- faire le messaging final
-- construire le plan d'expériences CRO
-- choisir la meilleure stratégie paid media
-
-Tout cela vient ensuite, avec les skills d'exécution.
-
-## Workflow type
+## Workflow
 
 1. On dépose les sources dans `docs/context-sources/`
-2. Le skill distille vers les fichiers canoniques
-3. Il maintient aussi `voc-bank.csv` si le KYC est concerné
-4. Une fois les fichiers canoniques assez solides, on lance `product-marketing-context`
-5. Ensuite seulement, on lance les autres skills marketing
+2. Le skill distille ces sources vers les fichiers canoniques
+3. Il maintient la `VoC Bank` si le KYC est concerné
+4. Une fois le contexte suffisamment solide, on lance `product-marketing-context`
+5. Ensuite seulement, on lance les skills d'exécution marketing
 
-## Pourquoi ce skill est important
+## Pourquoi ce skill compte dans cette stack
 
-Ce skill est important parce qu'il ferme une boucle.
+Sans lui :
 
-Avant :
+- les agents savent produire, mais sans mémoire fiable
+- les skills savent exécuter, mais sur une base trop pauvre
+- le contenu retombe vite dans le générique
 
-- les équipes humaines portaient implicitement le contexte business
-- les agents IA exécutaient sans ce contexte
-
-Après :
+Avec lui :
 
 - le contexte devient explicite
-- durable
 - versionné
-- réutilisable
+- durable
 - transmissible d'un repo à l'autre
+- exploitable par d'autres agents
 
-Ce n'est pas juste un skill de nettoyage documentaire.
+Ce skill ne remplace donc pas les autres skills.
 
-C'est une brique d'infrastructure pour la production marketing assistée par IA.
+Il les rend beaucoup plus utiles.
 
-## Story derrière le skill
-
-Ce skill est né d'un constat simple :
-
-les agents deviennent très bons pour produire, mais restent faibles dès qu'ils doivent produire quelque chose de vraiment spécifique à un business sans mémoire fiable.
-
-L'objectif n'était donc pas de créer "encore un skill marketing".
-
-L'objectif était de créer la couche qui permet aux autres skills marketing de ne plus travailler dans le vide.
-
-## Statut
+## Statut actuel
 
 Le skill a été :
 
@@ -182,9 +305,9 @@ Le skill a été :
 - renforcé sur :
   - la séparation vérité / compilation
   - la discipline KYC
-  - la VoC Bank persistante
+  - la `VoC Bank` persistante
   - le reporting final
-  - le niveau de prudence sur les claims partiellement soutenus
+  - la prudence sur les claims partiellement soutenus
 
 ## Fichiers principaux
 
@@ -195,4 +318,4 @@ Le skill a été :
 
 ## En une phrase
 
-`my-personal-context-distillation` transforme du contexte brut en mémoire métier durable, afin que les autres agents puissent produire du marketing réellement spécifique, traçable et exploitable.
+`my-personal-context-distillation` transforme du contexte brut en mémoire métier durable, pour que les agents puissent produire un marketing moins générique, plus spécifique, et plus proche du niveau d'une équipe humaine qui connaît réellement le business.
