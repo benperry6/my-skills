@@ -275,6 +275,79 @@ L'objectif est de produire un contenu :
 4. Une fois le contexte suffisamment solide, on lance `product-marketing-context`
 5. Ensuite seulement, on lance les skills d'exécution marketing
 
+## Comment l'utiliser concrètement
+
+Le skill ne demande pas une formule magique, mais il fonctionne mieux si la demande est explicite sur trois points :
+
+- le mode attendu : `bootstrap`, `update`, `performance-update`, ou `audit`
+- les sources à utiliser
+- le niveau d'exigence sur le KYC et la `VoC Bank`
+
+### Prompt simple pour lancer le skill
+
+```text
+Use the `my-personal-context-distillation` skill in bootstrap mode.
+
+Source material:
+- `docs/context-sources/...`
+
+Goal:
+- create or update:
+  - `.agents/business-model.md`
+  - `.agents/storytelling.md`
+  - `.agents/know-your-customer.md`
+  - `.agents/performance-memory.md`
+  - `docs/context-sources/voc-bank.csv`
+
+Rules:
+- do not invent
+- use founder material for business-model and storytelling
+- use real public voice-of-customer research for know-your-customer
+- persist meaningful customer evidence in `voc-bank.csv`
+- keep unsupported points in `Open Questions`
+- when finished, propose running `product-marketing-context`
+```
+
+### Prompt simple pour mettre à jour un repo déjà initialisé
+
+```text
+Use the `my-personal-context-distillation` skill in update mode.
+
+New source material:
+- `docs/context-sources/...`
+
+Goal:
+- update the canonical context files without flattening nuance
+- update `docs/context-sources/voc-bank.csv` if KYC is in scope
+- keep unsupported claims explicit
+- propose running `product-marketing-context` when done
+```
+
+### Prompt prêt à l'emploi pour re-générer `product-marketing-context`
+
+Si un `product-marketing-context` existe déjà mais a été généré trop tôt, sans vrai contexte, utilise un prompt explicite comme celui-ci :
+
+```text
+Use the `product-marketing-context` skill to re-create the compiled marketing context from the canonical `.agents` context files.
+
+Use these files as the only source-of-truth inputs:
+- `.agents/business-model.md`
+- `.agents/storytelling.md`
+- `.agents/know-your-customer.md`
+- `.agents/performance-memory.md`
+
+Goal:
+- create or fully refresh `.agents/product-marketing-context.md`
+
+Rules:
+- do not auto-draft from the repo at large if the canonical `.agents` files already exist
+- do not prefer README, landing pages, or stale marketing copy over the canonical context files
+- treat any existing `product-marketing-context` file as replaceable derivative context, not as the source of truth
+- preserve only what is consistent with the four canonical context files
+- if the files conflict, the four canonical `.agents` files win
+- when done, summarize what was kept, what changed, and what was removed from the previous compiled context
+```
+
 ## Pourquoi ce skill compte dans cette stack
 
 Sans lui :
