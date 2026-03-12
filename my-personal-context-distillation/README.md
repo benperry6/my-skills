@@ -145,6 +145,45 @@ Et quand le sujet client est concerné, il maintient aussi :
 
 - `docs/context-sources/voc-bank.csv`
 
+## Ce dont ce skill a besoin en input
+
+Pour bien fonctionner, ce skill a besoin d'un vrai matériau fondateur en entrée.
+
+Le meilleur input pour `business-model.md` et `storytelling.md` n'est pas un brief sec en 5 lignes.
+
+C'est un founder dump suffisamment riche pour expliquer :
+
+- ce que fait vraiment le business
+- comment il gagne de l'argent
+- ce qu'il vend
+- à qui
+- pourquoi il existe
+- comment il est né
+- ce qui compte vraiment dans l'offre
+- ce qu'il faut absolument éviter de déformer
+
+Le format recommandé est simple :
+
+- un ou plusieurs audios du fondateur
+- transformés en speech-to-text
+- déposés dans `docs/context-sources/`
+
+Si 30 minutes, 1 heure, ou davantage sont nécessaires pour raconter correctement le business, ce n'est pas un problème.
+
+Un input long mais réel vaut mieux qu'un contexte trop court, trop propre, ou trop abstrait.
+
+Pour `know-your-customer.md`, le fondateur peut aussi fournir un point de départ utile :
+
+- les segments visés
+- l'intuition du marché
+- les clients supposés
+- les problèmes supposés
+- les concurrents ou alternatives déjà connus
+
+Mais cet input n'est qu'un seed de recherche.
+
+La vérité client doit ensuite être soutenue par de la vraie VoC et de la vraie recherche publique.
+
 ## Pourquoi ces fichiers existent
 
 ### `business-model.md`
@@ -187,6 +226,25 @@ C'est pourquoi ce skill impose une discipline particulière sur le KYC :
 - les zones non prouvées doivent rester partielles ou aller dans `Open Questions`
 
 La `VoC Bank` sert justement à garder la preuve derrière la synthèse.
+
+## Ce qu'il ne faut pas faire
+
+Il ne faut pas lancer ce skill avec un contexte business trop léger puis espérer un bon résultat par magie.
+
+Si les matériaux fondateurs sont trop faibles, trop vagues, trop courts, ou trop incomplets, le bon comportement n'est pas de foncer tête baissée.
+
+Le bon comportement est :
+
+- de distiller uniquement ce qui est réellement soutenu
+- de pousser le reste dans `Open Questions`
+- de dire clairement que le repo n'est pas encore prêt pour une compilation marketing de qualité
+- et de demander au fondateur plus de contexte avant d'aller plus loin
+
+Autrement dit :
+
+- pas assez de contexte business fiable = pas de bon `business-model.md`
+- pas assez de contexte fondateur réel = pas de bon `storytelling.md`
+- pas assez de vraie VoC = pas de bon `know-your-customer.md`
 
 ## Pourquoi la VoC Bank existe
 
@@ -272,8 +330,9 @@ L'objectif est de produire un contenu :
 1. On dépose les sources dans `docs/context-sources/`
 2. Le skill distille ces sources vers les fichiers canoniques
 3. Il maintient la `VoC Bank` si le KYC est concerné
-4. Une fois le contexte suffisamment solide, on lance `product-marketing-context`
-5. Ensuite seulement, on lance les skills d'exécution marketing
+4. Si le contexte est encore trop faible, le skill doit le dire explicitement et demander davantage de matière avant d'aller plus loin
+5. Une fois le contexte suffisamment solide, on lance `product-marketing-context`
+6. Ensuite seulement, on lance les skills d'exécution marketing
 
 ## Comment l'utiliser concrètement
 
@@ -282,6 +341,14 @@ Le skill ne demande pas une formule magique, mais il fonctionne mieux si la dema
 - le mode attendu : `bootstrap`, `update`, `performance-update`, ou `audit`
 - les sources à utiliser
 - le niveau d'exigence sur le KYC et la `VoC Bank`
+
+Si tu sais déjà que le contexte fondateur est léger, la bonne demande n'est pas "fais au mieux".
+
+La bonne demande est plutôt :
+
+- distille uniquement ce qui est réellement soutenu
+- liste ce qu'il manque
+- et dis-moi explicitement si tu as besoin de plus de contexte fondateur avant de continuer
 
 ### Prompt simple pour lancer le skill
 
@@ -330,7 +397,7 @@ Si un `product-marketing-context` existe déjà mais a été généré trop tôt
 ```text
 Use the `product-marketing-context` skill to re-create the compiled marketing context from the canonical `.agents` context files.
 
-Use these files as the only source-of-truth inputs:
+Use these files as the primary source-of-truth inputs:
 - `.agents/business-model.md`
 - `.agents/storytelling.md`
 - `.agents/know-your-customer.md`
@@ -340,12 +407,14 @@ Goal:
 - create or fully refresh `.agents/product-marketing-context.md`
 
 Rules:
-- do not auto-draft from the repo at large if the canonical `.agents` files already exist
-- do not prefer README, landing pages, or stale marketing copy over the canonical context files
+- do not treat README, landing pages, stale marketing copy, or any existing compiled marketing context as the source of truth if the canonical `.agents` files already exist
+- limited repo discovery is allowed only as a secondary supporting input to find useful implementation-grounded or spec-grounded details that are missing from the compiled output
+- do not let repo-wide discovery override, weaken, or contradict the four canonical context files
 - treat any existing `product-marketing-context` file as replaceable derivative context, not as the source of truth
 - preserve only what is consistent with the four canonical context files
 - if the files conflict, the four canonical `.agents` files win
-- when done, summarize what was kept, what changed, and what was removed from the previous compiled context
+- when using secondary repo discovery, include only details that are clearly compatible with the canonical context and useful for downstream marketing work
+- when done, summarize what was kept, what changed, what was added from secondary repo discovery, and what was removed from the previous compiled context
 ```
 
 ## Pourquoi ce skill compte dans cette stack

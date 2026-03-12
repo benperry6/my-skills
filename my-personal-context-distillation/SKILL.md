@@ -187,6 +187,8 @@ Minimum acceptable source quality for `bootstrap`:
 - at least one substantial founder-originated source, or
 - multiple smaller sources that together cover business, customer, and offer logic
 
+If founder/business input is too thin to support a credible `business-model.md` or `storytelling.md`, do not push forward as if the context is sufficient. Write only what is actually supported, move the missing pieces into `Open Questions`, and say explicitly that more founder context is required before high-quality downstream work should continue.
+
 Minimum acceptable source quality for a meaningful `know-your-customer.md` update:
 
 - real public user voice from the web, or
