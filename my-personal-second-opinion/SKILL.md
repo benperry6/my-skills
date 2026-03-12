@@ -51,9 +51,7 @@ codex exec --dangerously-bypass-approvals-and-sandbox "Your query here"
 gemini -p "Your query here"
 ```
 - `-p` flag = headless/non-interactive mode (prints response to stdout)
-- Do NOT pass `--model` — use Auto routing (Gemini 3 Pro models return 404 in headless mode as of CLI v0.32.1, known bug)
-- Auto routing selects: `gemini-3-flash-preview` (simple) / `gemini-2.5-pro` (complex)
-- In interactive mode, Auto routing uses `gemini-3.1-pro` / `gemini-3-flash` — headless mode IDs differ
+- Do NOT pass `--model` — use Auto routing. Certains modèles du mode interactif (`gemini-3.1-pro`, `gemini-3-flash`) retournent 404 en headless (testé v0.32.1, 9 et 12 mars 2026). Les IDs avec `-preview` (`gemini-3-flash-preview`) fonctionnent en headless, mais auto routing gère ça tout seul.
 - Auth: OAuth personal (already configured)
 
 ### Output integrity — NEVER truncate, NEVER limit
