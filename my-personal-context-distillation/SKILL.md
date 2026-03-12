@@ -164,6 +164,26 @@ Output:
 - propose the next best source material to ingest
 - for KYC, evaluate against the checklist in [references/kyc-research.md](references/kyc-research.md)
 
+When the user's real question is "do I have enough context to use this skill properly?", answer in this order:
+
+1. `Bootstrap readiness`
+2. `KYC completion readiness`
+3. `What the skill is expected to build during the run`
+
+Default to launchability first, not final completeness first.
+
+If the founder/business materials clear the bootstrap threshold, say clearly that the skill can be launched properly in `bootstrap` mode even when KYC evidence is not yet collected.
+
+Do not present the initial absence of `voc-bank.csv`, pre-collected public VoC, or pre-written customer files as a bootstrap blocker. Those may block final KYC completion, but they are often exactly what the skill is supposed to create during execution.
+
+Preferred top-line answer pattern for this case:
+
+- `Yes, there is enough context to use the skill properly in bootstrap mode.`
+- `No, that does not mean KYC is already complete before the run.`
+- `The skill is expected to build the VoC bank and the customer evidence layer during execution.`
+
+If the bootstrap threshold is met, do not lead with insufficiency language. Lead with bootstrap readiness, then add the narrower KYC caveat second.
+
 ## Source Priority
 
 When multiple sources exist, use this order:
@@ -212,6 +232,16 @@ Do not confuse these two states:
 - enough audience evidence to declare KYC complete
 
 The first can be true even when the second is not.
+
+When a user asks whether the available materials are "sufficient to use the skill properly", interpret that primarily as:
+
+- sufficient to launch a credible `bootstrap` now
+
+not as:
+
+- sufficient to guarantee that every output file is already fully proveable before the run starts
+
+If a credible bootstrap can begin, say so plainly. Then add the narrower caveat that KYC strength still depends on what the skill can gather or what the user later provides.
 
 If the source material is too thin:
 
@@ -616,6 +646,17 @@ Use this before and after updates when you want a quick sanity check.
 ### Example request: update
 
 "Merge this new voice note transcript into the existing business context."
+
+### Example request: sufficiency check before launch
+
+"I want to use this skill in this repo. I think these founder/business docs are enough to use it properly. Verify and tell me whether that is true."
+
+Correct framing for this case:
+
+- answer first whether the available materials are enough to launch `bootstrap` properly
+- do not treat the absence of `voc-bank.csv` or pre-collected public VoC as a launch blocker
+- then state separately whether KYC can already be considered strong before the run begins
+- if the bootstrap threshold is met, the top-line answer should be "yes for bootstrap" rather than "no because KYC is not already complete"
 
 ### Example request: performance update
 
