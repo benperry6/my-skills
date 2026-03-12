@@ -58,12 +58,11 @@ GEMINI_MODEL=gemini-3.1-pro-preview gemini -p "$PROMPT" > /tmp/gemini-review.txt
 }
 ```
 - `-p` flag = headless/non-interactive mode (prints response to stdout)
-- First attempt: force the exact documented model ID `gemini-3.1-pro-preview`
-- Fallback to plain `gemini -p` only on model selection/access errors such as `ModelNotFoundError`, `Requested entity was not found`, `does not have access`, or `code: 404`
-- Do NOT fallback on unrelated failures (auth expired, network issues, rate limits, invalid prompt, local CLI errors). Those should surface as real failures
-- Prefer the explicit model name `gemini-3.1-pro-preview`. Do NOT rely on undocumented aliases such as `gemini-3-pro-preview`, even if they happen to work temporarily
-- Auth default for this skill: personal Google OAuth / Google AI Pro subscription. Do NOT switch to `GEMINI_API_KEY` unless the user explicitly wants billed API usage or OAuth is unavailable
-- If you need proof of which model actually answered, add `-o json` and inspect `stats.models`
+- First attempt: force `gemini-3.1-pro-preview`
+- Fallback to plain `gemini -p` only on model-not-found / no-access errors (`ModelNotFoundError`, `Requested entity was not found`, `does not have access`, `code: 404`)
+- Surface all other failures as real failures
+- Reuse the local Gemini CLI auth already configured
+- If you need proof of the actual answering model, add `-o json` and inspect `stats.models`
 
 ### Output integrity — NEVER truncate, NEVER limit
 These rules are non-negotiable when executing `codex exec` or `gemini -p`:
