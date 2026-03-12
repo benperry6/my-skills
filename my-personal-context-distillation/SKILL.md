@@ -160,29 +160,21 @@ Use when the user wants to know whether the context system is strong enough.
 
 Output:
 - no major rewrites by default
-- report missing sections, contradictions, weak areas, and stale learnings
+- determine whether the currently available material is enough to launch a credible `bootstrap` now
+- distinguish true blockers from work the skill is expected to perform during `bootstrap`
+- for full maturity audits, report contradictions, weak areas, and stale learnings
 - propose the next best source material to ingest
-- for KYC, evaluate against the checklist in [references/kyc-research.md](references/kyc-research.md)
+- for mature repos, or when the user explicitly asks whether KYC is already strong, evaluate KYC against the checklist in [references/kyc-research.md](references/kyc-research.md)
 
-When the user's real question is "do I have enough context to use this skill properly?", answer in this order:
+For first-launch sufficiency checks, keep the logic simple:
 
-1. `Bootstrap readiness`
-2. `KYC completion readiness`
-3. `What the skill is expected to build during the run`
-
-Default to launchability first, not final completeness first.
-
-If the founder/business materials clear the bootstrap threshold, say clearly that the skill can be launched properly in `bootstrap` mode even when KYC evidence is not yet collected.
-
-Do not present the initial absence of `voc-bank.csv`, pre-collected public VoC, or pre-written customer files as a bootstrap blocker. Those may block final KYC completion, but they are often exactly what the skill is supposed to create during execution.
-
-Preferred top-line answer pattern for this case:
-
-- `Yes, there is enough context to use the skill properly in bootstrap mode.`
-- `No, that does not mean KYC is already complete before the run.`
-- `The skill is expected to build the VoC bank and the customer evidence layer during execution.`
-
-If the bootstrap threshold is met, do not lead with insufficiency language. Lead with bootstrap readiness, then add the narrower KYC caveat second.
+- answer first whether `bootstrap` can start credibly now
+- do not classify files the skill is supposed to create during `bootstrap` as missing prerequisites
+- only call something a blocker if the missing input prevents a credible `business-model.md`, `storytelling.md`, or KYC research workflow from being carried out
+- if bootstrap can start, say so plainly before discussing what is still unproven or still to be built
+- treat missing KYC files, missing `voc-bank.csv`, and missing canonical files as expected bootstrap outputs unless the user is explicitly asking for a maturity audit
+- mention those layers under `what the skill is expected to build during bootstrap`, not under failed preconditions
+- keep the response focused on launchability, true blockers, and bootstrap-built outputs; do not expand into a full maturity audit unless the user asks for one
 
 ## Source Priority
 
@@ -214,7 +206,7 @@ Do not pretend the inputs are strong when they are weak.
 Minimum acceptable source quality for `bootstrap`:
 
 - at least one substantial founder-originated source, or
-- multiple smaller sources that together cover business, customer, and offer logic
+- multiple smaller sources that together cover business, offer, and narrative logic well enough to guide bootstrap work
 
 If founder/business input is too thin to support a credible `business-model.md` or `storytelling.md`, do not push forward as if the context is sufficient. Write only what is actually supported, move the missing pieces into `Open Questions`, and say explicitly that more founder context is required before high-quality downstream work should continue.
 
@@ -239,9 +231,14 @@ When a user asks whether the available materials are "sufficient to use the skil
 
 not as:
 
-- sufficient to guarantee that every output file is already fully proveable before the run starts
+- sufficient to guarantee that every output file already exists or is already fully proven before the run starts
 
-If a credible bootstrap can begin, say so plainly. Then add the narrower caveat that KYC strength still depends on what the skill can gather or what the user later provides.
+If a credible bootstrap can begin, say so plainly. Then separate:
+
+- what the skill is expected to build during bootstrap
+- what still lacks enough evidence even after accounting for that intended bootstrap work
+
+Do not use the KYC completion gate during a first-launch sufficiency check when the repo has no meaningful customer evidence layer yet. That gate applies after bootstrap work begins and customer evidence has actually been gathered.
 
 If the source material is too thin:
 
@@ -654,9 +651,9 @@ Use this before and after updates when you want a quick sanity check.
 Correct framing for this case:
 
 - answer first whether the available materials are enough to launch `bootstrap` properly
-- do not treat the absence of `voc-bank.csv` or pre-collected public VoC as a launch blocker
-- then state separately whether KYC can already be considered strong before the run begins
-- if the bootstrap threshold is met, the top-line answer should be "yes for bootstrap" rather than "no because KYC is not already complete"
+- treat missing files the skill is expected to create as part of the intended bootstrap work
+- only call something blocked if the missing input prevents the bootstrap itself from being credible
+- do not turn this answer into a maturity audit of files that do not exist yet
 
 ### Example request: performance update
 
