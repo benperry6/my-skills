@@ -184,6 +184,15 @@ Mais cet input n'est qu'un seed de recherche.
 
 La vérité client doit ensuite être soutenue par de la vraie VoC et de la vraie recherche publique.
 
+Important :
+
+- l'absence initiale de `docs/context-sources/voc-bank.csv`
+- l'absence initiale de vraie VoC déjà collectée dans le repo
+
+ne sont pas des bloqueurs pour lancer un `bootstrap`.
+
+En `bootstrap`, le skill est justement censé aller construire cette couche de preuve pendant son run si le KYC est dans le scope.
+
 ## Pourquoi ces fichiers existent
 
 ### `business-model.md`
@@ -239,6 +248,15 @@ Le bon comportement est :
 - de pousser le reste dans `Open Questions`
 - de dire clairement que le repo n'est pas encore prêt pour une compilation marketing de qualité
 - et de demander au fondateur plus de contexte avant d'aller plus loin
+
+Il faut aussi éviter une confusion fréquente :
+
+- avoir assez de contexte fondateur pour démarrer proprement un `bootstrap`
+- avoir déjà assez de matière client pour considérer le KYC comme terminé
+
+Ce ne sont pas la même chose.
+
+Le premier peut être vrai alors même que le second ne l'est pas encore.
 
 Autrement dit :
 

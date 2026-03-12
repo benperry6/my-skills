@@ -124,6 +124,15 @@ Output:
 - preserve uncertainty in `Open Questions`
 - propose running `product-marketing-context`
 
+Important clarification:
+
+- the initial absence of `docs/context-sources/voc-bank.csv`
+- the initial absence of pre-collected public VoC in the repo
+
+are not blockers for launching `bootstrap`.
+
+In `bootstrap`, this skill is expected to go build that customer evidence layer during the run when KYC is in scope.
+
 ### `update`
 
 Use when the canonical files already exist and the user provides new source material.
@@ -196,6 +205,13 @@ Minimum acceptable source quality for a meaningful `know-your-customer.md` updat
 - both
 
 If you do not have enough real audience language, do not fill the gaps by inference. Save only what is supported and push the rest into `Open Questions`.
+
+Do not confuse these two states:
+
+- enough founder/business context to start a repo bootstrap
+- enough audience evidence to declare KYC complete
+
+The first can be true even when the second is not.
 
 If the source material is too thin:
 
