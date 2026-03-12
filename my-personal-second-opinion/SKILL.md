@@ -48,11 +48,22 @@ codex exec --dangerously-bypass-approvals-and-sandbox "Your query here"
 
 ### Gemini
 ```bash
-gemini -p "Your query here"
+PROMPT="Your query here"
+GEMINI_MODEL=gemini-3.1-pro-preview gemini -p "$PROMPT" > /tmp/gemini-review.txt 2>&1 || {
+  if rg -q 'ModelNotFoundError|Requested entity was not found|does not have access|code: 404' /tmp/gemini-review.txt; then
+    gemini -p "$PROMPT" > /tmp/gemini-review.txt 2>&1
+  else
+    exit 1
+  fi
+}
 ```
 - `-p` flag = headless/non-interactive mode (prints response to stdout)
-- Do NOT pass `--model` — use Auto routing. Certains modèles du mode interactif (`gemini-3.1-pro`, `gemini-3-flash`) retournent 404 en headless (testé v0.32.1, 9 et 12 mars 2026). Les IDs avec `-preview` (`gemini-3-flash-preview`) fonctionnent en headless, mais auto routing gère ça tout seul.
-- Auth: OAuth personal (already configured)
+- First attempt: force the exact documented model ID `gemini-3.1-pro-preview`
+- Fallback to plain `gemini -p` only on model selection/access errors such as `ModelNotFoundError`, `Requested entity was not found`, `does not have access`, or `code: 404`
+- Do NOT fallback on unrelated failures (auth expired, network issues, rate limits, invalid prompt, local CLI errors). Those should surface as real failures
+- Prefer the explicit model name `gemini-3.1-pro-preview`. Do NOT rely on undocumented aliases such as `gemini-3-pro-preview`, even if they happen to work temporarily
+- Auth default for this skill: personal Google OAuth / Google AI Pro subscription. Do NOT switch to `GEMINI_API_KEY` unless the user explicitly wants billed API usage or OAuth is unavailable
+- If you need proof of which model actually answered, add `-o json` and inspect `stats.models`
 
 ### Output integrity — NEVER truncate, NEVER limit
 These rules are non-negotiable when executing `codex exec` or `gemini -p`:
@@ -79,13 +90,32 @@ codex exec --dangerously-bypass-approvals-and-sandbox "..." > /tmp/codex-review.
 codex exec --dangerously-bypass-approvals-and-sandbox "Context: ... Question: ..." > /tmp/codex-review.txt 2>&1
 
 # Gemini
-gemini -p "Context: ... Question: ..." > /tmp/gemini-review.txt 2>&1
+run_gemini_review() {
+  local prompt="$1"
+  local out="$2"
+
+  GEMINI_MODEL=gemini-3.1-pro-preview gemini -p "$prompt" > "$out" 2>&1
+  local status=$?
+
+  if [ "$status" -eq 0 ]; then
+    return 0
+  fi
+
+  if rg -q 'ModelNotFoundError|Requested entity was not found|does not have access|code: 404' "$out"; then
+    gemini -p "$prompt" > "$out" 2>&1
+    return $?
+  fi
+
+  return "$status"
+}
+
+run_gemini_review "Context: ... Question: ..." /tmp/gemini-review.txt
 ```
 
 ### Parallel (both engines)
 Launch BOTH via the Bash tool in a single message (two parallel Bash calls, both with `run_in_background: true`):
 - Call 1: Codex query → output to file
-- Call 2: Gemini query → output to file
+- Call 2: Gemini query via `run_gemini_review` → output to file
 - Then synthesize both responses, highlighting agreements and divergences
 
 ## Prompt Template (same for both engines)
