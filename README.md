@@ -169,6 +169,12 @@ Without that, even a strong agent tends to produce content that is still too gen
 
 So this skill was built as a foundational layer: it creates the durable memory that other skills can later consume.
 
+## Cross-tool setup
+
+This repo also contains the documentation for the cross-tool AI infrastructure that makes Claude Code, Codex CLI, and any future tool share the same rules, memory, and configuration.
+
+See [`setup/README.md`](./setup/README.md) for the full guide — including how to reproduce the entire setup on a new machine from scratch.
+
 ## Repo layout
 
 Each skill lives in its own folder.
