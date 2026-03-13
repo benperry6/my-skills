@@ -102,7 +102,7 @@ Default routing:
 
 Important:
 - do not use DataForSEO for French keyword discovery if Haloscan can do the job
-- do not stay blocked on Haloscan outside France if DataForSEO is the better international source
+- do not stay blocked on Haloscan outside France, DataForSEO is the better international source
 
 ### 4. Build the candidate keyword pool
 
@@ -151,7 +151,7 @@ Do not rank by keyword difficulty as the main sorting logic unless the user expl
 
 ### 6. Perform mandatory SERP validation
 
-For the best 2 to 4 candidates, inspect the real SERP.
+For the best candidates, inspect the real SERP.
 
 The goal is not only to see rankings. The goal is to reverse-engineer Google’s interpretation of intent.
 
@@ -199,46 +199,24 @@ Final output should contain:
 ## Default guardrails
 
 Always enforce these unless the user overrides them:
-- no hyphens by default
-- avoid obvious massive trademarks when the user wants a pragmatic filter
+- pragmatic trademark filter: reject names that directly include, combine, or closely mimic well-known third-party brands, especially for products in a related category. Treat obvious brand piggybacking as invalid by default and prefer neutral names.
 - do not let availability override SEO fit
 - do not let raw volume override intent
 - do not let SERP assumptions replace SERP inspection
-
-Default TLD fallback order:
-
-### Local-market businesses
-- local ccTLD
-- `.com`
-- `.co`
-- `.io`
-- `.app`
-- `.net`
-- `.org`
-
-### Global / SaaS style businesses
-- `.com`
-- `.io`
-- `.co`
-- `.app`
-- `.net`
-- `.org`
-
-Do not recommend weak or obscure TLDs unless the user explicitly wants that trade-off.
 
 ## Output requirements
 
 ### Chat response
 
 Use this structure:
-1. `Présupposés`
-2. `Contexte business retenu`
-3. `Shortlist de keywords-domaines`
-4. `Trade-off volume / pertinence`
-5. `Lecture SERP`
-6. `Résultats de disponibilité`
-7. `Top 10 final`
-8. `Vainqueur + pourquoi`
+1. `Assumptions`
+2. `Selected business context`
+3. `Shortlist of keyword domains`
+4. `Volume vs. relevance trade-off`
+5. `SERP analysis`
+6. `Availability results`
+7. `Final top 10`
+8. `Winner + why`
 
 ### Decision file
 
@@ -250,26 +228,25 @@ Write or update:
 
 Use this structure:
 - Date
-- Objectif
-- Contexte business retenu
-- Marché / pays / TLD visé
-- Source de données utilisée
-- Candidats étudiés
-- Signaux keyword
-- Analyse SERP
-- Résultats de disponibilité
-- Recommandation finale
-- Risques / incertitudes résiduelles
+- Objective
+- Business context retained
+- Target market / country / TLD targeted
+- Data source used
+- Candidates reviewed
+- Keyword signals
+- SERP analysis
+- Availability results
+- Final recommendation
+- Residual risks / uncertainties
 
 This file is a durable decision trace, not a raw dump of every tool response.
 
 ## Success criteria
 
 A good result from this skill means:
-- the winner comes from searched market language
-- volume is filtered by business relevance
+- volume is filtered by relevance
 - SERP intent was actually checked
-- availability was checked with the registrar-grade tool
+- domain availability was actually checked
 - the reasoning is durable and documented
 
 If the result is just “10 nice names,” the skill failed.
