@@ -1,11 +1,10 @@
----
-name: my-personal-domain-intent-selector
+name: my-personal-seo-first-domain-selector
 description: "[My Personal Skill] Use when the user wants to choose a domain name with a SEO-first EMD or quasi-EMD strategy, compare keyword-based domain options, validate an EMD theory, or rank shortlist candidates using keyword volume, SERP intent, and real registrar-backed availability. Not for pure branding, creative naming, trademark clearance, or simple raw availability checks on a fixed list."
 metadata:
   version: 1.0.0
 ---
 
-# Domain Intent Selector
+# SEO-First Domain Selector
 
 This skill selects the best **SEO-first keyword-domain**, not the prettiest brand.
 
