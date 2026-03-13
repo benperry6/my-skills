@@ -195,12 +195,12 @@ For multi-TLD checks:
 python3 "/Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/Registrar Domain Availability Checker/check-domains.py" --mode final --json --brand mailhoist --tlds com,fr,co,io,app,net,org
 ```
 
-Interpret results like this:
-- `checkout_confirmed` = strongest final signal
-- `registrar_confirmed` = usable but weaker
-- `registry_fallback` = research-only, not final certainty
+Use the checker with a simple decision rule:
+- if it confirms the domain is available strongly enough, it can be recommended
+- if it confirms the domain is taken, reject it
+- if it is not verified strongly enough, do not present it as really available
 
-Never say a domain is “really available” if it only has `registry_fallback`.
+The skill does not need to expose or explain the checker’s full internal certainty model unless the user explicitly asks.
 
 ### 8. Recommend a ranked shortlist and one winner
 
