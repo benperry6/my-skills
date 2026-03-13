@@ -151,9 +151,19 @@ Do not rank by keyword difficulty as the main sorting logic unless the user expl
 
 ### 6. Perform mandatory SERP validation
 
-For the best candidates, inspect the real SERP.
+This is a **hard gate**, not a nice-to-have.
 
-The goal is not only to see rankings. The goal is to reverse-engineer Google’s interpretation of intent.
+Keyword data generates candidates. SERP validation decides whether a candidate is actually admissible.
+
+Why this step is critical:
+- a keyword can have strong volume and still be the wrong domain if Google interprets the query differently from the offer
+- if the domain matches the keyword but the page does not match the SERP intent, users will disengage or bounce
+- that breaks the whole EMD theory: weak usage signals prevent Google from associating the keyword with the site in a brand-like way
+- therefore, if the SERP contradicts the offer, reject the candidate even if its keyword metrics look better
+
+For the best candidates, inspect the real SERP and the key pages behind it.
+
+The goal is not only to see rankings. The goal is to reverse-engineer Google’s interpretation of intent and verify that this keyword can realistically support the user’s EMD strategy.
 
 Check:
 - top results type
@@ -165,7 +175,11 @@ Check:
 
 Inspect actual page content for the key results when needed. Do not infer intent from titles alone if the decision is important.
 
-Do not finalize a recommendation without this step for a meaningful domain decision.
+Strict rules:
+- never finalize a meaningful domain recommendation without this step
+- reject any candidate whose SERP is materially misaligned with the offer
+- prefer the lower-volume candidate if its SERP clearly matches the offer better
+- never treat keyword volume or CPC as sufficient proof of domain fit on their own
 
 ### 7. Verify real availability
 
