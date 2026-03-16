@@ -15,7 +15,8 @@ def check():
         ok = False
 
     # Python packages
-    for pkg, import_name in [("pikepdf", "pikepdf"), ("pdfplumber", "pdfplumber"), ("pypdf", "pypdf")]:
+    for pkg, import_name in [("pikepdf", "pikepdf"), ("pdfplumber", "pdfplumber"), ("pypdf", "pypdf"),
+                              ("pypdfium2", "pypdfium2"), ("Pillow", "PIL")]:
         try:
             mod = __import__(import_name)
             version = getattr(mod, "__version__", "unknown")

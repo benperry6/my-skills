@@ -18,12 +18,14 @@ Must be available before starting:
 - `pikepdf` (Python) — `pip install pikepdf`
 - `pdfplumber` (Python) — `pip install pdfplumber`
 - `pypdf` (Python) — `pip install pypdf`
+- `pypdfium2` (Python) — `pip install pypdfium2` (for visual verification)
+- `Pillow` (Python) — `pip install Pillow` (for visual verification)
 
 Check with: `python3 SKILL_DIR/scripts/check_deps.py`
 
 ## The Complete Workflow
 
-Follow these 5 phases in strict order. Each phase has a script in `scripts/`.
+Follow these 6 phases in strict order. Each phase has a script in `scripts/`.
 
 ### Phase 1 — Analyze the PDF
 
@@ -98,28 +100,86 @@ Ensure `CreationDate == ModDate` and format matches original convention exactly.
 ### Phase 5 — Forensic Verification
 
 ```bash
-python3 SKILL_DIR/scripts/forensic_verify.py <modified.pdf> <original.pdf>
+python3 SKILL_DIR/scripts/forensic_verify.py <modified.pdf> <original.pdf> --full --expected-changes changes.json --output-dir ./diffs
 ```
 
-Runs the 13-point check:
+Use `--full` to run all three verification layers in one command. Or run individually: `--deep` for stream analysis, `--visual` for pixel comparison.
 
-| # | Check | Detects |
-|---|-------|---------|
-| 1 | Binary marker bytes (offsets 10-13) | qpdf/pikepdf/tool signatures |
-| 2 | PDF version header | Version mismatch |
-| 3 | `%%EOF` count | Incremental updates |
-| 4 | `xref` section count | Incremental updates |
-| 5 | Tool string scan in binary | Any tool name in file |
-| 6 | `/ID` field in trailer | Added by qpdf/pikepdf |
-| 7 | Trailer padding | Residue from removed fields |
-| 8 | Object count | Extra objects from overlays |
-| 9 | Producer/Author metadata | Tool signatures in metadata |
-| 10 | `BT`/`ET` text block count | Overlay text blocks |
-| 11 | White fill operators (`1 1 1 rg`) | White rectangle overlays |
-| 12 | File size delta (< 1%) | Excessive additions |
-| 13 | `CreationDate == ModDate` | Post-creation modification sign |
+#### Layer 1: 13-point binary forensic check
 
-All 13 must pass. Additionally: decompress and compare content streams, verify operator sequences are identical, confirm no new streams added.
+| # | Check | Detects | Pass condition |
+|---|-------|---------|----------------|
+| 1 | Binary marker bytes (offsets 10-13) | qpdf/pikepdf/tool signatures | Identical to original |
+| 2 | PDF version header | Version mismatch | Identical to original |
+| 3 | `%%EOF` count | Incremental updates | Same count as original |
+| 4 | `xref` section count | Incremental updates | Same count as original |
+| 5 | Tool string scan in binary | Any tool name in file | No foreign signatures |
+| 6 | `/ID` field in trailer | Added by qpdf/pikepdf | Same presence/absence as original |
+| 7 | Trailer padding | Residue from removed fields | No suspicious whitespace (>10 spaces) |
+| 8 | Object count | Extra objects from overlays | Same count as original |
+| 9 | Producer/Author metadata | Tool signatures in metadata | Identical to original |
+| 10 | `BT`/`ET` text block count | Overlay text blocks | Same count as original |
+| 11 | White fill operators (`1 1 1 rg`) | White rectangle overlays | Same count as original |
+| 12 | File size delta | Excessive additions | < 1% difference |
+| 13 | `CreationDate == ModDate` | Post-creation modification | Must be equal |
+
+All 13 must pass.
+
+#### Layer 2: Deep stream analysis
+
+Decompresses and compares content streams between original and modified:
+- Operator sequences must be identical (BT, ET, Tf, Td, TJ, etc.)
+- Stream count per page must match
+- No new streams added
+- Only hex glyph data bytes should differ
+
+#### Layer 3: Visual pixel-by-pixel verification (Phase 6)
+
+See Phase 6 below.
+
+### Phase 6 — Visual Verification
+
+```bash
+python3 SKILL_DIR/scripts/visual_verify.py <modified.pdf> <original.pdf> --expected-changes changes.json --output-dir ./diffs
+```
+
+Renders both PDFs at 300 DPI and compares every pixel. The key principle: **visual differences must exist ONLY where modifications were requested — nowhere else.**
+
+#### Expected changes JSON
+
+Provide a file describing what was modified so the script can verify diffs match:
+
+```json
+{
+    "changes": [
+        {"old": "05Mar2026", "new": "12Mar2026", "description": "departure date flight 1"},
+        {"old": "01Mar2026", "new": "11Mar2026", "description": "issue date"}
+    ]
+}
+```
+
+#### Visual verification checks
+
+| # | Check | Pass condition |
+|---|-------|----------------|
+| V1 | Page count | Modified == Original |
+| V2 | Image dimensions per page | Identical sizes |
+| V3 | Identical pages (no expected changes) | 0 different pixels |
+| V4 | Modified pages — expected region diffs | All diff pixels fall within bounding boxes of old text |
+| V5 | Modified pages — unexpected diffs | < 0.1% pixels outside expected regions (WARN for QR codes), 0% for PASS |
+| V6 | Total diff percentage | < 0.5% of total pixels across all pages |
+
+#### Output images
+
+When `--output-dir` is provided, the script saves:
+- `diff_pageN_highlighted.png` — original with diff pixels colored: **green** = expected region, **orange** = unexpected
+- `diff_pageN_sidebyside.png` — cropped side-by-side of diff areas (ORIGINAL | MODIFIED)
+
+These images serve as visual proof that the edit is invisible to the human eye.
+
+#### QR codes and embedded data
+
+QR codes, barcodes, or other encoded data that contain modified values will produce diff pixels outside text regions. This is expected behavior and produces a WARN (not FAIL) if < 0.1% of page pixels. **Always verify manually** that QR code content matches the modified text by scanning it.
 
 ## Edge Cases
 
@@ -135,3 +195,5 @@ All 13 must pass. Additionally: decompress and compare content streams, verify o
 3. **Always verify against the original** — forensic check catches forgotten `/ID` fields, binary markers.
 4. **Preserve everything unchanged** — object count, stream count, operator sequences, font/image data.
 5. **Metadata tells a story** — CreationDate, ModDate, Producer, Author must form a coherent narrative.
+6. **Diffs must match intent exactly** — visual verification must confirm that the ONLY pixels that changed are the characters you meant to change. Any diff outside the expected modification regions is a red flag.
+7. **Always save the expected-changes JSON** — it serves as both input for verification and as an audit trail of what was modified. Create it during Phase 2 (replacement mapping) and feed it through Phase 6.

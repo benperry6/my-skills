@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-Phase 5 — Forensic verification of a modified PDF against the original.
+Phase 5 — Full verification of a modified PDF against the original.
 
-Runs the 13-point forensic check plus deep stream analysis.
-All checks must pass for the file to be considered clean.
+Runs three verification layers:
+1. 13-point forensic binary check
+2. Deep stream analysis (operator sequence comparison)
+3. Visual pixel-by-pixel comparison (Phase 6) — confirms diffs exist
+   ONLY where modifications were requested, nowhere else
 
 Usage:
-    python3 forensic_verify.py <modified.pdf> <original.pdf>
+    python3 forensic_verify.py <modified.pdf> <original.pdf> [--deep] [--visual] [--expected-changes changes.json] [--output-dir ./diffs]
 """
 import argparse
 import re
@@ -320,10 +323,14 @@ def deep_stream_analysis(modified_path: Path, original_path: Path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Forensic verification of modified PDF")
+    parser = argparse.ArgumentParser(description="Full verification of modified PDF")
     parser.add_argument("modified", help="Modified/cleaned PDF")
     parser.add_argument("original", help="Original unmodified PDF")
     parser.add_argument("--deep", action="store_true", help="Also run deep stream analysis")
+    parser.add_argument("--visual", action="store_true", help="Also run visual pixel-by-pixel verification")
+    parser.add_argument("--expected-changes", "-e", help="JSON file with expected text changes (for visual verify)")
+    parser.add_argument("--output-dir", "-o", help="Directory to save visual diff images")
+    parser.add_argument("--full", action="store_true", help="Run all checks: forensic + deep + visual")
     args = parser.parse_args()
 
     modified_path = Path(args.modified)
@@ -336,14 +343,48 @@ def main():
         print(f"Error: {original_path} not found", file=sys.stderr)
         sys.exit(1)
 
+    run_deep = args.deep or args.full
+    run_visual = args.visual or args.full
+
+    # Phase 5a: 13-point forensic check
     checks_ok = run_checks(modified_path, original_path)
 
-    if args.deep:
+    # Phase 5b: Deep stream analysis
+    deep_ok = True
+    if run_deep:
         deep_ok = deep_stream_analysis(modified_path, original_path)
-    else:
-        deep_ok = True
 
-    sys.exit(0 if (checks_ok and deep_ok) else 1)
+    # Phase 6: Visual pixel-by-pixel verification
+    visual_ok = True
+    if run_visual:
+        from visual_verify import run_visual_verification
+        import json
+
+        expected_changes = None
+        if args.expected_changes:
+            data = json.loads(Path(args.expected_changes).read_text())
+            expected_changes = data.get("changes", data if isinstance(data, list) else [])
+
+        output_dir = Path(args.output_dir) if args.output_dir else None
+        visual_ok = run_visual_verification(modified_path, original_path, expected_changes, output_dir)
+
+    # Final verdict
+    all_ok = checks_ok and deep_ok and visual_ok
+    print(f"\n{'=' * 60}")
+    if all_ok:
+        print(f"{GREEN}{BOLD}FINAL VERDICT: ALL VERIFICATIONS PASSED{RESET}")
+    else:
+        parts = []
+        if not checks_ok:
+            parts.append("forensic")
+        if not deep_ok:
+            parts.append("deep stream")
+        if not visual_ok:
+            parts.append("visual")
+        print(f"{RED}{BOLD}FINAL VERDICT: FAILED — {', '.join(parts)} verification(s){RESET}")
+    print(f"{'=' * 60}")
+
+    sys.exit(0 if all_ok else 1)
 
 
 if __name__ == "__main__":
