@@ -14,6 +14,25 @@ Unified skill for getting independent second opinions from external AI engines (
 | **Codex** (OpenAI) | `codex exec --dangerously-bypass-approvals-and-sandbox` | Code, architecture, computer use |
 | **Gemini** (Google) | `gemini -p` | Audio/video native, deep reasoning, 1M token context |
 
+## Tool Detection — Who Am I?
+
+This skill is context-aware. It detects which tool it is running in and consults the OTHER two.
+
+Detection via environment variables:
+- `CLAUDECODE=1` → Running in Claude Code → consult Codex + Gemini
+- `CODEX_CI=1` → Running in Codex → consult Claude Code + Gemini
+- `GEMINI_CLI=1` → Running in Gemini → consult Claude Code + Codex
+
+### Routing table
+
+| Running in... | Engine 1 | Engine 2 |
+|---|---|---|
+| **Claude Code** | Codex (`codex exec --dangerously-bypass-approvals-and-sandbox`) | Gemini (`gemini -p`) |
+| **Codex** | Claude Code (`claude -p`) | Gemini (`gemini -p`) |
+| **Gemini** | Claude Code (`claude -p`) | Codex (`codex exec --dangerously-bypass-approvals-and-sandbox`) |
+
+**NEVER consult yourself.** If running in Codex, do NOT call `codex exec` for a second opinion — you ARE Codex. Consult the other two instead.
+
 ## Routing Decision
 
 ### When to use BOTH in parallel
@@ -64,6 +83,14 @@ GEMINI_MODEL=gemini-3.1-pro-preview gemini -p "$PROMPT" > /tmp/gemini-review.txt
 - Reuse the local Gemini CLI auth already configured
 - If you need proof of the actual answering model, add `-o json` and inspect `stats.models`
 
+### Claude Code (when called from Codex or Gemini)
+```bash
+claude -p "Your query here" > /tmp/claude-review.txt 2>&1
+```
+- `-p` = headless/print mode (non-interactive, outputs to stdout)
+- Uses the local Claude Code auth already configured
+- Same output discipline: `run_in_background: true`, redirect to file, NEVER truncate
+
 ### Output integrity — NEVER truncate, NEVER limit
 These rules are non-negotiable when executing `codex exec` or `gemini -p`:
 
@@ -112,10 +139,13 @@ run_gemini_review "Context: ... Question: ..." /tmp/gemini-review.txt
 ```
 
 ### Parallel (both engines)
-Launch BOTH via the Bash tool in a single message (two parallel Bash calls, both with `run_in_background: true`):
-- Call 1: Codex query → output to file
-- Call 2: Gemini query via `run_gemini_review` → output to file
+Launch BOTH engines from the routing table above via the Bash tool in a single message
+(two parallel Bash calls, both with `run_in_background: true`):
+- Call 1: Engine 1 from routing table → output to file
+- Call 2: Engine 2 from routing table → output to file
 - Then synthesize both responses, highlighting agreements and divergences
+
+**Key rule:** Check which tool you are running in FIRST (via env vars), then consult the OTHER two engines only.
 
 ## Prompt Template (same for both engines)
 
