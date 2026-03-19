@@ -146,6 +146,9 @@ These are the skills that most clearly represent the way I want to work with AI 
 | [`my-personal-accessibility-auditor`](./my-personal-accessibility-auditor/SKILL.md) | Audits accessibility with real tooling and browser checks | Raises the quality bar beyond surface-level a11y commentary |
 | [`my-personal-image-prompt-engineer`](./my-personal-image-prompt-engineer/SKILL.md) | Crafts high-quality prompts for image generation tools | Turns vague creative asks into structured, production-usable prompts |
 | [`my-personal-og-image-mastery`](./my-personal-og-image-mastery/SKILL.md) | Covers both the technical and CTR-side strategy of Open Graph images | Useful because good OG images are both a design problem and a growth problem |
+| [`my-personal-frontend-backend-routing`](./my-personal-frontend-backend-routing/README.md) | Auto-routes frontend work to Claude Code and backend work to Codex, regardless of starting tool | Eliminates manual switching between AI tools when a task spans both frontend and backend |
+| [`my-personal-gemini-design`](./my-personal-gemini-design/README.md) | Design assistant: shadcn-first, Gemini consultation for aesthetics, quality gate | Combines Claude Code's codebase mastery with Gemini's visual design sense |
+| [`my-personal-second-opinion`](./my-personal-second-opinion/README.md) | Gets independent second opinions from two other AI engines before validating plans | Catches blind spots by requiring consensus from multiple models before committing to a plan |
 
 ## Why `my-personal-context-distillation` matters so much
 
@@ -174,6 +177,42 @@ So this skill was built as a foundational layer: it creates the durable memory t
 This repo also contains the documentation for the cross-tool AI infrastructure that makes Claude Code, Codex CLI, and any future tool share the same rules, memory, and configuration.
 
 See [`setup/README.md`](./setup/README.md) for the full guide — including how to reproduce the entire setup on a new machine from scratch.
+
+### Symlink architecture
+
+Three AI CLI tools share the same skills, instructions, and MCPs through a single source of truth:
+
+```
+~/.agents/skills/          ← Source of truth (this git repo)
+│
+├── ~/.claude/skills/*     ← Relative symlinks: ../../.agents/skills/<skill>
+├── ~/.codex/skills/*      ← Relative symlinks: ../../.agents/skills/<skill>
+└── ~/.gemini/antigravity/global_skills → ~/.agents/skills  (absolute symlink)
+```
+
+**Important: Gemini CLI does NOT use `~/.gemini/skills/` for shared skills.**
+
+Gemini CLI discovers skills from `~/.agents/skills/` natively via the `global_skills` symlink in its antigravity data directory. Creating additional symlinks in `~/.gemini/skills/` causes "Skill conflict detected" warnings on every skill (each skill found twice). If `~/.gemini/skills/` is used at all, it should only be for Gemini-specific skills that do not exist in `~/.agents/skills/`.
+
+### Instructions sharing
+
+```
+~/.claude/CLAUDE.md        ← Source of truth (real file)
+├── AGENTS.md → CLAUDE.md  ← Per-repo symlinks (Codex reads AGENTS.md)
+└── ~/.gemini/GEMINI.md → ../.claude/CLAUDE.md  ← Gemini reads this
+```
+
+All three tools read the same instructions. One file to maintain.
+
+### MCP sharing
+
+MCPs are configured separately in each tool's config file but share the same wrapper scripts in `~/.codex/mcp/`. The wrappers read API keys from the macOS Keychain at runtime.
+
+| Tool | Config file | Wrapper type |
+|------|-------------|-------------|
+| Claude Code | `~/.claude.json` → `mcpServers` | Keychain wrappers |
+| Codex CLI | `~/.codex/config.toml` → `[mcp_servers]` | Hardcoded wrappers (no Keychain access) |
+| Gemini CLI | `~/.gemini/settings.json` → `mcpServers` | Keychain wrappers (verified: preserves $USER) |
 
 ## Repo layout
 
