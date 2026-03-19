@@ -120,6 +120,19 @@ Puis une quatrième couche s'est imposée :
 
 - `performance-memory.md`
 
+## Questions nécessaires
+
+Le skill ne doit pas se cacher trop vite derrière `Open Questions`.
+
+Si une réponse manquante rend une section clé trop vague, trop générique, trop ambiguë, ou trop fragile pour la suite, il doit poser les questions nécessaires directement à l'utilisateur avant de finaliser.
+
+Mais l'inverse est tout aussi important :
+
+- il ne doit pas devenir un questionnaire rigide
+- s'il y a déjà assez de matière pour un `bootstrap` crédible, il avance
+- il écrit seulement ce qui est supporté
+- il garde les trous non bloquants dans `Open Questions`
+
 ## Ce que ce skill fait exactement
 
 Ce skill prend du matériau brut :
@@ -318,6 +331,25 @@ Autrement dit :
 
 - `my-personal-context-distillation` construit la mémoire durable
 - `product-marketing-context` prépare cette mémoire pour l'exécution
+
+## Handoff après context distillation
+
+La sortie de `my-personal-context-distillation` ne doit pas seulement dire "run `product-marketing-context`".
+
+Le bon handoff est :
+
+1. compiler d'abord via `product-marketing-context`
+2. scanner ensuite la liste complète et live des skills installés
+3. réfléchir à partir de cette liste complète, pas d'une shortlist mémorisée
+4. recommander une séquence d'exécution
+5. recommander une méthode d'orchestration adaptée
+
+Par défaut :
+
+- on garde les étapes de compilation, stratégie et structure en séquentiel
+- on ne parallélise que plus tard, quand les dépendances amont sont stabilisées
+- on recommande d'abord les skills de fondation business/marketing
+- on diffère les skills d'optimisation ou post-launch
 
 Cette séparation évite de mélanger :
 

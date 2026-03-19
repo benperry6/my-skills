@@ -218,6 +218,29 @@ Minimum acceptable source quality for a meaningful `know-your-customer.md` updat
 
 If you do not have enough real audience language, do not fill the gaps by inference. Save only what is supported and push the rest into `Open Questions`.
 
+## Necessary Questions Gate
+
+Ask follow-up questions when they are necessary, not by template.
+
+After inspecting the available sources, ask only the necessary follow-up questions if a missing answer would make a key section:
+
+- too vague
+- too generic
+- operationally ambiguous
+- strategically unreliable for downstream work
+
+Do not use `Open Questions` as the first escape hatch when a direct answer from the user would materially improve the current run.
+
+Rules:
+
+- ask only the questions that are actually needed
+- do not impose a minimum or maximum count
+- do not ask for information that is already present in the sources
+- do not use this gate as an excuse to skip research the skill is already supposed to perform
+- if the missing information blocks a credible `bootstrap`, `update`, or `performance-update`, ask the questions before finalizing and stop there
+- if the repo is sparse but still credibly bootstrapable, continue with supported material and keep the remaining non-blocking gaps in `Open Questions`
+- after the user answers, resume the same run and integrate the new information
+
 Do not confuse these two states:
 
 - enough founder/business context to start a repo bootstrap
@@ -445,6 +468,25 @@ Before reading the wider repo, ask:
 
 If `voc-bank.csv` exists, verify early that its header matches the current schema before using it as proof.
 
+### 2a. Trigger the necessary questions gate before drafting weak sections
+
+Before editing, explicitly ask:
+
+- which missing answers would materially strengthen this run right now?
+- which of those missing answers are necessary rather than merely nice to have?
+- if I do not ask now, will I end up writing vague or strategically weak context?
+
+If the answer is yes for any key section, ask the user the necessary follow-up questions before finalizing.
+
+Mode-specific behavior:
+
+- `audit`: if the repo cannot credibly launch `bootstrap`, give the launchability verdict, ask the necessary follow-up questions, and stop
+- `bootstrap` / `update`: if a key section would otherwise remain too weak, ask the necessary follow-up questions before finalizing the canonical files
+- `performance-update`: ask only when a missing answer is required to interpret the observed learning correctly; otherwise record the uncertainty explicitly
+
+Do not turn the skill into a rigid questionnaire.
+If the existing material is already strong enough for a credible run, continue and use `Open Questions` for non-blocking gaps.
+
 ### 2b. If `know-your-customer.md` is in scope, do real market research
 
 For `know-your-customer.md`, do not stop at the founder transcript.
@@ -593,11 +635,27 @@ Keep it short, but concrete.
 
 At the end of a successful `bootstrap`, `update`, or meaningful `performance-update`, always propose running the `product-marketing-context` skill next so downstream marketing skills get an updated compiled context file.
 
-Be explicit:
+Before writing `Recommended next step`, run:
+
+```bash
+python3 ~/.agents/skills/my-personal-context-distillation/scripts/list_installed_skills.py
+```
+
+Use that live inventory so the full currently installed skill list is in working context.
+Do not choose next skills from memory, from a guessed shortlist, or from only the first few skills that come to mind.
+Do not dump the raw full inventory into the final user-facing report unless the user explicitly asks for it.
+
+Then read [references/post-distillation-handoff.md](references/post-distillation-handoff.md) and recommend an actionable execution plan, not just names.
+
+Under `Recommended next step`, be explicit:
 
 - say that the canonical files are now updated
-- say that `product-marketing-context` is the next compilation step
-- say this under `Recommended next step`, not only as a trailing aside
+- say that `product-marketing-context` is the immediate next compilation step
+- say how many installed skills were scanned from the live inventory
+- list the foundation skills considered from that live inventory
+- recommend the ordered sequence or phases to run next
+- recommend the execution method or orchestration for that sequence
+- list which skills are deferred until later because they are optimization or post-launch
 - do not imply that compilation already happened unless it actually did
 
 ## Output Quality Bar
