@@ -537,6 +537,17 @@ Required loop:
 
 Do not stop after synthesis if the consistency check or the completion gate still fails.
 
+Do not keep researching mechanically once the stop conditions in [references/kyc-research.md](references/kyc-research.md) have been reached.
+
+If the pass becomes low-yield or an external tool/model fails repeatedly:
+
+- stop the failing pass
+- record the blocker explicitly
+- preserve the evidence already captured
+- synthesize only what is supportable now
+- put the unresolved gaps in `Open Questions`
+- recommend the next best source or resume condition
+
 For the full method and CSV schema, see:
 
 - [references/kyc-research.md](references/kyc-research.md)
@@ -658,6 +669,8 @@ Under `Recommended next step`, be explicit:
 - list which skills are deferred until later because they are optimization or post-launch
 - do not imply that compilation already happened unless it actually did
 
+If the live workflow context indicates that SEO mapping is the next strategic step, recommend `my-personal-seo-market-mapper` immediately after `product-marketing-context` and avoid front-loading skills whose output should be shaped by that map.
+
 ## Output Quality Bar
 
 The resulting files should be:
@@ -691,6 +704,33 @@ python3 ~/.agents/skills/my-personal-context-distillation/scripts/validate_conte
 ```
 
 Use this before and after updates when you want a quick sanity check.
+
+Important:
+
+- this validation should fail on placeholder-only trees
+- file presence alone is not enough
+- obvious skeleton output, empty snapshots, empty KYC sections, and header-only `voc-bank.csv` should fail validation
+
+## Runtime Recovery
+
+When the run depends on external CLIs, models, or web tools, prefer direct execution over unnecessary intermediate planning.
+
+If a repo or wrapper adds extra behavior to written plans, avoid drafting an intermediate plan unless a real blocker requires it.
+
+If an external dependency fails:
+
+- identify the exact failure mode first
+- do not keep retrying the same failing call blindly
+- continue with the remaining reliable sources when the failed tool is non-critical
+- stop and report a blocker when the failed tool is critical to the current pass
+- preserve partial outputs and evidence so the next run can resume instead of restarting from zero
+
+Examples of real blockers:
+
+- rate limits
+- capacity or auth failures
+- repeated transport disconnects
+- persistent MCP startup failures
 
 ## Examples
 

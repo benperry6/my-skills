@@ -78,6 +78,31 @@ If that support does not exist, say so explicitly in `Open Questions`.
 
 Do not count official docs, tool landing pages, or generic SEO content as substitutes for real user voice on these core sections.
 
+## Research Stop Conditions
+
+KYC research should be persistent, but not mechanical.
+
+Stop the current research pass and synthesize what you have when one of these is true:
+
+1. the current pass has already produced enough evidence to clear the completion gate
+2. two consecutive research passes produce no net-new meaningful evidence, only duplicates, or only weaker evidence than what is already in the bank
+3. the remaining plausible public sources are clearly low-yield for this niche
+
+Stop the current run and state an explicit blocker when one of these is true:
+
+- a critical tool or model is rate-limited, unavailable, or repeatedly timing out
+- transport or session failures keep interrupting the same step
+- the research sources needed for the next pass are inaccessible
+
+When that happens:
+
+- do not keep hammering the same failing tool call
+- record the exact blocker
+- preserve the evidence already captured
+- synthesize only what is supportable now
+- put the unresolved gaps in `Open Questions`
+- recommend the next best source or the condition needed to resume
+
 ## Extraction Standard
 
 Prefer direct language over polished synthesis.
@@ -245,6 +270,10 @@ Do not stop after a weak first pass if more plausible public evidence sources st
 
 If the bank is populated but the evidence quality is still too weak, continue upgrading the bank rather than just reshuffling the synthesis.
 
+Do not confuse "more searches are technically possible" with "another pass is likely to change the result."
+
+If repeated passes are no longer improving the bank in a meaningful way, treat that as a real low-yield limit and move the remaining uncertainty into `Open Questions`.
+
 ### Acceptable blockers
 
 Only stop short of the threshold when there is a real blocker such as:
@@ -253,6 +282,7 @@ Only stop short of the threshold when there is a real blocker such as:
 - the niche is too new or too private for reliable public research
 - the available sources are too thin, repetitive, or low-signal
 - access to critical research sources is unavailable
+- critical external tools or models needed for the research pass are rate-limited, unavailable, or unstable
 
 In that case:
 

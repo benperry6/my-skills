@@ -20,6 +20,20 @@ Preferred anchors:
 - `## Special Cases`
 - `## Open Questions`
 
+`## Snapshot` contract:
+
+- keep it compact and fast to scan
+- make it answer, in plain language:
+  - what the business is
+  - what it sells
+  - who pays or buys
+  - what kind of business model it is
+  - how monetization works
+  - pricing status or pricing shape if known
+  - the primary conversion action
+- use it as a quick-read layer, not as a duplicate of the detailed sections below
+- include technical or credibility signals only when they materially affect positioning, trust, constraints, or messaging
+
 Allowed extras:
 
 - unit economics

@@ -133,6 +133,21 @@ Mais l'inverse est tout aussi important :
 - il écrit seulement ce qui est supporté
 - il garde les trous non bloquants dans `Open Questions`
 
+## Snapshot business-model
+
+Le `## Snapshot` de `.agents/business-model.md` doit être une couche de lecture rapide, pas un mini-document flou.
+
+Il doit permettre de comprendre rapidement :
+
+- ce qu'est le business
+- ce qu'il vend
+- qui paie
+- la logique de monétisation
+- l'état ou la forme du pricing si c'est connu
+- l'action de conversion principale
+
+Il ne doit pas dupliquer les sections détaillées du fichier.
+
 ## Ce que ce skill fait exactement
 
 Ce skill prend du matériau brut :
@@ -423,6 +438,7 @@ Rules:
 - persist meaningful customer evidence in `voc-bank.csv`
 - keep unsupported points in `Open Questions`
 - when finished, propose running `product-marketing-context`
+- if SEO is part of the near-term plan, propose `my-personal-seo-market-mapper` immediately after `product-marketing-context`
 ```
 
 ### Prompt simple pour mettre à jour un repo déjà initialisé
@@ -468,6 +484,22 @@ Rules:
 ```
 
 ## Pourquoi ce skill compte dans cette stack
+
+## Orchestration et reprise
+
+Le skill doit savoir continuer proprement, mais aussi savoir s'arrêter proprement.
+
+Règles pratiques :
+
+- éviter d'écrire un plan intermédiaire inutile si le contexte suffit déjà pour exécuter
+- si un outil externe décroche, diagnostiquer d'abord la cause exacte
+- ne pas marteler le même appel qui rate
+- continuer avec les sources restantes si l'outil cassé n'est pas critique
+- sinon, s'arrêter, documenter le blocage, conserver les artefacts déjà créés, puis reprendre plus tard
+
+La validation finale ne doit pas accepter un arbre de placeholders.
+
+Un repo avec des fichiers présents mais presque vides n'est pas un succès.
 
 Sans lui :
 

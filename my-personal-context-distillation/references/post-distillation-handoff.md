@@ -27,6 +27,13 @@ If the canonical files were successfully updated, the immediate next skill is:
 
 That is the compilation step that prepares downstream marketing work.
 
+If the project is still in the early business-foundation phase and SEO is expected to shape what gets built next, recommend:
+
+1. `product-marketing-context`
+2. `my-personal-seo-market-mapper`
+
+before recommending SEO-shaped execution skills.
+
 ## Live Inventory Requirement
 
 Before choosing any downstream skills, inspect the full live installed skill inventory by running:
@@ -47,6 +54,7 @@ When recommending next skills, prefer `business foundation` work first.
 Typical foundation work includes:
 
 - positioning and compiled context
+- SEO market mapping when SEO is part of the near-term acquisition plan
 - pricing and packaging
 - site architecture and page planning
 - core messaging and page copy
@@ -66,6 +74,16 @@ Typical later-stage or post-launch work to defer by default includes:
 Do not defer a skill merely because it is marketing-related.
 Defer it when it is primarily about optimizing an already launched system rather than establishing the business foundation.
 
+If `my-personal-seo-market-mapper` is the expected next strategic step, do not front-load skills whose output should be shaped by that map.
+
+Common examples to hold until after the map:
+
+- `site-architecture`
+- `content-strategy`
+- `competitor-alternatives`
+- `programmatic-seo`
+- SEO-led page-copy production
+
 ## Recommended Execution Method
 
 Default orchestration:
@@ -77,8 +95,9 @@ Default orchestration:
 Practical default:
 
 1. `product-marketing-context`
-2. strategy / structure skills such as pricing, site architecture, or launch planning
-3. execution skills such as copywriting, sales enablement, lead magnets, or outbound assets
+2. `my-personal-seo-market-mapper` when SEO is part of the near-term plan
+3. strategy / structure skills such as pricing, site architecture, or launch planning
+4. execution skills such as copywriting, sales enablement, lead magnets, or outbound assets
 
 Parallelize only when the outputs no longer depend on unresolved upstream decisions.
 
