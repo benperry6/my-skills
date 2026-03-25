@@ -38,6 +38,7 @@ The canonical bias is:
 2. Avoid paying for heavy infrastructure before the business is proven
 3. Keep a clean upgrade path toward a more industrial setup later
 4. Open only the vendors that match the real channel plan, not every vendor that could theoretically matter
+5. Prefer CLI/API/MCP orchestration over browser clicking whenever the vendor exposes a credible machine-to-machine path
 
 ## Decision Workflow
 
@@ -82,7 +83,7 @@ Read:
 Separate clearly:
 
 - what the agent can design, wire, and verify
-- what the user must provide as accounts, IDs, tokens, or admin access
+- what the user must provide as accounts, IDs, tokens, admin access, or OAuth/developer authorization
 
 ## Canonical Doctrine
 
@@ -113,6 +114,9 @@ This doctrine exists for a business reason, not a tooling reason:
 - produce the implementation order
 - produce the access checklist
 - identify when a later infra upgrade becomes justified
+- prefer Google APIs directly when OAuth access exists
+- prefer Meta APIs directly once app/token/asset bootstrap exists
+- use the browser only for bootstrap gaps or missing machine-to-machine permissions
 
 ### The user must typically provide
 
@@ -121,6 +125,7 @@ This doctrine exists for a business reason, not a tooling reason:
 - pixel IDs
 - tokens / secrets
 - DNS or hosting admin access where relevant
+- OAuth / developer authorization when a vendor supports API-first bootstrap
 
 Do not blur those two responsibilities in the final answer.
 

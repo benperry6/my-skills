@@ -14,6 +14,7 @@ Use this file when moving from recommendation to implementation.
 - Google Tag Manager account access
 - GA4 property access
 - Google Ads access if future ad conversion import or linking is expected
+- OAuth authorization for Tag Manager and Analytics Admin APIs if API-first setup is expected
 
 ### Common identifiers or settings
 
@@ -24,8 +25,12 @@ Use this file when moving from recommendation to implementation.
 ## Meta
 
 - Meta Business / Events Manager access
+- Meta Developer account access if API-first automation is expected
+- Meta App access when the Marketing API / Conversions API bootstrap uses an app
+- System user or user access token with the required permissions if API-first setup is expected
 - Pixel or dataset access
 - Conversions API token if server-side forwarding is implemented
+- Ability to grant the asset permissions required by the app/token flow
 
 ## TikTok
 
@@ -52,6 +57,7 @@ Use this file when moving from recommendation to implementation.
 - pixel IDs
 - tokens / secrets
 - DNS or vendor admin access where needed
+- OAuth / developer authorization when Google or Meta should be bootstrapped without manual clicking
 
 ## What the agent can typically do
 
@@ -60,4 +66,7 @@ Use this file when moving from recommendation to implementation.
 - prepare implementation changes
 - wire env vars
 - configure app-side tracking
+- use Google APIs directly once OAuth access exists
+- use Meta APIs directly once app/token/asset bootstrap exists
 - validate the resulting data flow once the external access exists
+- fall back to browser setup only when the vendor bootstrap still has UI-only gaps

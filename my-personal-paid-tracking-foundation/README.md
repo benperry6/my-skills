@@ -42,6 +42,8 @@ La doctrine capturee ici est simple :
 - le server-side pur n'est pas la bonne reponse non plus
 - la bonne fondation de depart est en general **hybride**
 - Google et Meta sont les bases par defaut, puis toute autre regie peut etre ouverte des le depart seulement si elle est reellement coherente avec le produit et le channel plan
+- quand une regie expose un vrai chemin machine-to-machine credible, on privilegie API/CLI/MCP avant le navigateur
+- le navigateur reste un fallback de bootstrap, pas le mode operatoire par defaut
 
 ## Ce que ce skill couvre
 
@@ -57,6 +59,7 @@ La doctrine capturee ici est simple :
 - la creation des creatives
 - le tracking produit generaliste hors paid media
 - le parametrage detaille d'une plateforme specifique quand il faut des procedures tres locales
+- les bootstraps vendors impossibles sans permissions, tokens ou autorisations OAuth/developer
 
 ## Comment il s'articule avec d'autres skills
 
