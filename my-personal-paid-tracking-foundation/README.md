@@ -44,6 +44,7 @@ La doctrine capturee ici est simple :
 - Google et Meta sont les bases par defaut, puis toute autre regie peut etre ouverte des le depart seulement si elle est reellement coherente avec le produit et le channel plan
 - quand une regie expose un vrai chemin machine-to-machine credible, on privilegie API/CLI/MCP avant le navigateur
 - le navigateur reste un fallback de bootstrap, pas le mode operatoire par defaut
+- pour Meta en particulier, la bonne cible est un token `system user` aussi large que le flow officiel l'autorise reellement, puis une verification des scopes via `debug_token`
 
 ## Ce que ce skill couvre
 

@@ -28,9 +28,26 @@ Use this file when moving from recommendation to implementation.
 - Meta Developer account access if API-first automation is expected
 - Meta App access when the Marketing API / Conversions API bootstrap uses an app
 - System user or user access token with the required permissions if API-first setup is expected
+- Prefer a system-user token over a human user token when long-lived CLI administration is the goal
+- After token generation, verify the real granted scopes with `debug_token`
 - Pixel or dataset access
 - Conversions API token if server-side forwarding is implemented
 - Ability to grant the asset permissions required by the app/token flow
+
+### Meta permissions verified in the current tested system-user flow
+
+The current tested flow was able to mint a system-user token with these scopes:
+
+- `ads_management`
+- `ads_read`
+- `business_management`
+- `catalog_management`
+- `pages_manage_ads`
+- `pages_read_engagement`
+- `pages_show_list`
+- `threads_business_basic`
+
+Treat this list as "verified maximum for the current flow", not as a promise that every future app/business will expose the exact same set.
 
 ## TikTok
 

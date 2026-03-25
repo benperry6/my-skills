@@ -116,6 +116,7 @@ This doctrine exists for a business reason, not a tooling reason:
 - identify when a later infra upgrade becomes justified
 - prefer Google APIs directly when OAuth access exists
 - prefer Meta APIs directly once app/token/asset bootstrap exists
+- for Meta, try to issue the broadest system-user token the current official flow actually exposes, then verify the granted scopes with `debug_token` instead of trusting the UI blindly
 - use the browser only for bootstrap gaps or missing machine-to-machine permissions
 
 ### The user must typically provide
