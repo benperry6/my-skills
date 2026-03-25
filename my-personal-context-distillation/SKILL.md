@@ -156,25 +156,35 @@ Output:
 
 ### `audit`
 
-Use when the user wants to know whether the context system is strong enough.
+Use when the user wants to know whether the currently available materials are enough to launch context-distillation work credibly now.
 
 Output:
 - no major rewrites by default
-- determine whether the currently available material is enough to launch a credible `bootstrap` now
-- distinguish true blockers from work the skill is expected to perform during `bootstrap`
-- for full maturity audits, report contradictions, weak areas, and stale learnings
-- propose the next best source material to ingest
-- for mature repos, or when the user explicitly asks whether KYC is already strong, evaluate KYC against the checklist in [references/kyc-research.md](references/kyc-research.md)
+- answer yes or no on whether the requested `bootstrap` or context-refresh can start credibly now
+- identify true blockers only
+- list the bootstrap outputs the skill is expected to create
+- propose the next best source material to ingest or next step to take
 
 For first-launch sufficiency checks, keep the logic simple:
 
 - answer first whether `bootstrap` can start credibly now
 - do not classify files the skill is supposed to create during `bootstrap` as missing prerequisites
 - only call something a blocker if the missing input prevents a credible `business-model.md`, `storytelling.md`, or KYC research workflow from being carried out
-- if bootstrap can start, say so plainly before discussing what is still unproven or still to be built
+- if bootstrap can start, say so plainly
 - treat missing KYC files, missing `voc-bank.csv`, and missing canonical files as expected bootstrap outputs unless the user is explicitly asking for a maturity audit
 - mention those layers under `what the skill is expected to build during bootstrap`, not under failed preconditions
-- keep the response focused on launchability, true blockers, and bootstrap-built outputs; do not expand into a full maturity audit unless the user asks for one
+- keep the response focused on launchability, true blockers, bootstrap-built outputs, and next step
+- do not append KYC-completion commentary, performance-memory richness commentary, contradictions, weak areas, or stale learnings unless the user is explicitly asking for a maturity audit
+
+### `maturity-audit`
+
+Use when the user explicitly asks whether the existing context system is already strong, complete, or ready for high-quality downstream work.
+
+Output:
+- no major rewrites by default
+- evaluate the existing canonical files and evidence layer for contradictions, weak areas, and stale learnings
+- evaluate KYC against the checklist in [references/kyc-research.md](references/kyc-research.md) when KYC is in scope
+- identify unsupported claims, stale assumptions, and the next best source material to ingest
 
 ## Source Priority
 
@@ -256,12 +266,12 @@ not as:
 
 - sufficient to guarantee that every output file already exists or is already fully proven before the run starts
 
-If a credible bootstrap can begin, say so plainly. Then separate:
+If a credible bootstrap can begin, say so plainly. Then, if useful, list only:
 
 - what the skill is expected to build during bootstrap
-- what still lacks enough evidence even after accounting for that intended bootstrap work
+- the next best step
 
-Do not use the KYC completion gate during a first-launch sufficiency check when the repo has no meaningful customer evidence layer yet. That gate applies after bootstrap work begins and customer evidence has actually been gathered.
+Do not append a KYC-completion verdict, performance-memory maturity verdict, or any other maturity-audit conclusion to a first-launch sufficiency check unless the user explicitly asked for that audit.
 
 If the source material is too thin:
 
@@ -481,6 +491,7 @@ If the answer is yes for any key section, ask the user the necessary follow-up q
 Mode-specific behavior:
 
 - `audit`: if the repo cannot credibly launch `bootstrap`, give the launchability verdict, ask the necessary follow-up questions, and stop
+- `maturity-audit`: if the user asked whether the existing context system is already strong, evaluate the current canonical files and evidence layer rather than launchability alone
 - `bootstrap` / `update`: if a key section would otherwise remain too weak, ask the necessary follow-up questions before finalizing the canonical files
 - `performance-update`: ask only when a missing answer is required to interpret the observed learning correctly; otherwise record the uncertainty explicitly
 
@@ -628,7 +639,7 @@ If `know-your-customer.md` was updated, also include:
 - `KYC checklist status`
 - `What remains unsupported by real evidence`
 
-If `know-your-customer.md` was audited, also include:
+If `know-your-customer.md` was audited in `maturity-audit`, also include:
 
 - `KYC checklist status`
 
@@ -759,7 +770,7 @@ Correct framing for this case:
 
 ### Example request: audit
 
-"Audit whether this repo has enough context for high-quality marketing output."
+"Audit whether this repo already has a strong enough context system for high-quality marketing output."
 
 ## Final Rule
 
