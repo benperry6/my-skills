@@ -37,6 +37,7 @@ The canonical bias is:
 1. Start collecting useful signal early
 2. Avoid paying for heavy infrastructure before the business is proven
 3. Keep a clean upgrade path toward a more industrial setup later
+4. Open only the vendors that match the real channel plan, not every vendor that could theoretically matter
 
 ## Decision Workflow
 
@@ -159,7 +160,8 @@ If the user gives little context, default to:
 
 - pre-revenue / validation
 - low-cost hybrid setup
-- Google, then Meta, then TikTok only if justified
+- Google and Meta by default
+- add any other vendor from day one only if the business model and planned channel justify it
 
 Only escalate beyond that when the context clearly supports it.
 

@@ -9,7 +9,7 @@ Use these recipes after classifying the archetype and maturity stage.
 - GTM web
 - GA4
 - Meta Pixel
-- TikTok Pixel only if the product and channel fit justify it
+- Any additional vendor pixel/tag only if the near-term channel plan already justifies it (TikTok, LinkedIn, Microsoft, Reddit, etc.)
 - First-party event store in the app/backend
 - Server-side forwarding from the existing backend or hosting layer for high-value events only
 
@@ -38,7 +38,7 @@ Use these recipes after classifying the archetype and maturity stage.
 - GTM web
 - GA4
 - Meta Pixel
-- TikTok Pixel if the category is discovery-led
+- Any additional vendor pixel/tag only if the category and channel plan justify it (TikTok, Pinterest, Snap, Microsoft, etc.)
 - First-party event store
 - Server-side forwarding from backend for checkout and purchase-critical events
 
@@ -61,6 +61,7 @@ Use these recipes after classifying the archetype and maturity stage.
 - GTM web
 - GA4
 - Meta Pixel if remarketing is part of the model
+- Any additional vendor pixel/tag only if the distribution model already justifies it (TikTok, Pinterest, Reddit, Microsoft, etc.)
 - First-party event store
 - Server-side forwarding only for owned high-value events
 

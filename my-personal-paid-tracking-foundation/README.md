@@ -41,6 +41,7 @@ La doctrine capturee ici est simple :
 - le browser-side seul est insuffisant
 - le server-side pur n'est pas la bonne reponse non plus
 - la bonne fondation de depart est en general **hybride**
+- Google et Meta sont les bases par defaut, puis toute autre regie peut etre ouverte des le depart seulement si elle est reellement coherente avec le produit et le channel plan
 
 ## Ce que ce skill couvre
 

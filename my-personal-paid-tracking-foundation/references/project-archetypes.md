@@ -31,7 +31,9 @@ Acquire users, qualify intent, and convert into paid subscriptions.
 - Google: open early
 - Meta: open early
 - TikTok: open early only if the product has clear broad-consumer or creator/discovery potential
-- LinkedIn: only elevate if the motion is clearly B2B and the user already plans paid acquisition there
+- LinkedIn: open early if the motion is clearly B2B and the user already plans paid acquisition there
+- Microsoft: open early if search expansion beyond Google is already part of the near-term plan
+- Reddit: open early if the acquisition motion is community-led and the audience fit is real
 
 ## 2. E-commerce
 
@@ -61,7 +63,9 @@ Drive product discovery and purchases with short or medium buying cycles.
 - Google: open early
 - Meta: open early
 - TikTok: open early if the category is visually driven or discovery-led
-- Pinterest: only later if the catalog and creative format justify it
+- Pinterest: open early if the catalog and creative format justify it
+- Snap: open early if the audience and creative format clearly fit
+- Microsoft: open early if search or shopping expansion beyond Google is already planned
 
 ## 3. Affiliate / Content / Media Site
 
@@ -90,6 +94,9 @@ Capture intent, route traffic to outbound offers, and monetize through clicks or
 - Google: open early
 - Meta: open if remarketing or audience building is realistic
 - TikTok: open only if the content model is discovery and short-form friendly
+- Pinterest: open early if the traffic model is visual and save-driven
+- Reddit: open early if the content strategy depends on community-native distribution
+- Microsoft: open early if search monetization beyond Google is already part of the plan
 
 ## How to classify ambiguous cases
 
