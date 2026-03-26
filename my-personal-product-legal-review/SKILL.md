@@ -51,6 +51,7 @@ Its default posture is:
 9. When execution is explicitly requested, carry the work through end-to-end inside the approved scope instead of stopping at diagnosis
 10. When a missing compliance surface requires customer-facing value design, scan the full live installed skill inventory before choosing which downstream skills to use
 11. For customer-facing assets outside legal pages, switch to collaborative review mode: inspect the surrounding flow first, then review one element at a time with before/after on both form and substance before implementation
+12. Never let value-first framing override the primary job of the asset; first prove that the chosen vehicle can actually solve the gap it was introduced to solve
 
 When the user only asks for analysis, stay at advice level.
 
@@ -205,6 +206,38 @@ If autonomous execution was explicitly requested, the default expectation is:
 
 Do not stop at a diagnosis or a page-by-page matrix unless the user explicitly asked for that format.
 
+### Step 7.4 — Validate the vehicle before any framing work
+
+When a new or revised asset is being considered, state explicitly:
+
+- the primary function the asset is supposed to fulfill
+- why this function exists
+- whether the proposed vehicle can actually fulfill it
+- what the secondary goals are, if any
+
+Examples of primary functions:
+
+- satisfy a durable-medium / post-purchase confirmation obligation
+- carry mandatory cancellation information
+- provide a visible complaint channel
+- explain a support or chatbot disclosure requirement
+- reassure and orient the user after a state change
+
+Examples of secondary goals:
+
+- reduce anxiety
+- improve perceived value
+- reinforce the product story
+- increase activation or retention
+
+Functional-fit rule:
+
+- if the asset was introduced primarily to solve a legal/compliance gap, it must be able to satisfy that gap before any value-first framing work begins
+- if the proposed vehicle cannot carry the required content or required durable/technical property, reject that vehicle immediately and choose another one
+- do not continue into copy review, UX review, or skill orchestration for an unfit vehicle
+
+Value-first is a framing rule, not a permission to choose the wrong vehicle.
+
 ### Step 7.5 — Discover relevant installed skills dynamically for value-first assets
 
 Use this step only when the legal gap requires a new or revised customer-facing asset such as:
@@ -254,6 +287,8 @@ Also load:
 - the neighboring assets in the same journey
 
 Do not propose changes until the triggering moment, upstream messages, downstream state, and likely emotional context are understood.
+
+This review mode applies only after the proposed vehicle has passed the functional-fit check in Step 7.4.
 
 ### Step 7.7 — Review one element at a time before any visible implementation
 
@@ -323,6 +358,7 @@ For execution, distinguish:
 - Never ignore conflicting sources; surface the conflict explicitly
 - Never declare the product "fully compliant" if a required input or proof is missing
 - Never optimize a new compliance asset for legal completeness alone; preserve reassurance, clarity, and perceived value
+- Never choose or keep a customer-facing asset whose vehicle cannot fulfill the primary function that justified its creation
 - Never bury important legal gaps behind soft language
 
 ## Anti-Patterns
@@ -335,6 +371,8 @@ Actively call out these mistakes when relevant:
 - "We can use one scary legal email as a pure compliance patch"
 - "Because the user already knows they bought, no confirmation surface is needed at all"
 - "A likely answer is good enough for legal review"
+- "Because the copy direction is good, the underlying vehicle must be the right one"
+- "Value-first means we can ignore whether the asset actually closes the identified gap"
 
 ## References
 

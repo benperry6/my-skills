@@ -17,10 +17,13 @@ Do not jump from diagnosis to implementation.
 
 Before any visible change outside legal pages:
 
-1. load the real business and customer context
-2. inspect the full product flow where the asset appears
-3. review the asset with the user one element at a time
-4. get explicit approval before patching
+1. confirm the proposed vehicle is fit for the primary job
+2. load the real business and customer context
+3. inspect the full product flow where the asset appears
+4. review the asset with the user one element at a time
+5. get explicit approval before patching
+
+If step 1 fails, stop and change the vehicle before reviewing copy or UI details.
 
 ## Required Context Load
 
