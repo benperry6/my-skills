@@ -101,14 +101,19 @@ Verified sequence used successfully:
 3. Configure the business login / system-user flow
 4. Open the official system-user token generator, inspect the currently exposed permission options, and select all options it exposes for the approved use case
 5. If the expiration step exposes `Jamais`, choose it; otherwise choose the most durable option available
-6. Mint the token and verify the real scopes plus expiry with `debug_token`
-7. Probe the Graph API for the business, apps, system users, and assets
+6. If direct rename of the system user is denied, create a new correctly named system user instead of keeping a misnamed long-term M2M identity
+7. Assign that new system user to the app with full control in Business Settings > Applications
+8. Mint the token and verify the real scopes plus expiry with `debug_token`
+9. Probe the Graph API for the business, apps, system users, and assets
+10. If the business login configuration name is still misaligned, open the configuration list, follow `Modifier`, and update the name through the configuration editor flow
 
 Important verified constraints:
 
 - The tested Meta generator exposed 8 explicit permission choices plus an implicit `public_profile` scope visible in `debug_token`
 - The tested Meta generator can issue a token with `expires_at = 0` and `data_access_expires_at = 0` when `Jamais` is selected
 - Meta app names are limited to 30 characters, so the canonical access label may need a shortened variant such as `Paid Media Vendor API Access`
+- Direct rename of an existing system user can still be denied even when the token is broad and non-expiring; creating a new correctly named system user, then assigning it full app control, is a valid fallback
+- The business login configuration was successfully renamed through the real edit route `/apps/<app_id>/create-login-configuration/?config_id=<config_id>`
 
 ## What the final plan must include
 
