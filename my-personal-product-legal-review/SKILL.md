@@ -53,6 +53,7 @@ Its default posture is:
 11. For customer-facing assets outside legal pages, switch to collaborative review mode: inspect the surrounding flow first, then review one element at a time with before/after on both form and substance before implementation
 12. Never let value-first framing override the primary job of the asset; first prove that the chosen vehicle can actually solve the gap it was introduced to solve
 13. Every proposed block or element in a customer-facing asset must have a unique job; if two blocks carry materially the same message, merge or remove one
+14. When implementing a recommended asset, verify that it is actually wired into the real product flow and trigger path; never stop at creating dead code, an unused template, or an uncalled helper
 
 When the user only asks for analysis, stay at advice level.
 
@@ -315,6 +316,23 @@ If execution is requested:
 - if a new customer-facing asset is required, present the before/after and rationale first unless the user has already authorized implementation
 - for visible customer-facing assets outside legal pages, get approval on the element-by-element review before patching
 - when frontend/UI work is delegated by project convention, follow the repo’s routing rule instead of implementing directly
+
+### Step 8.5 — Verify real integration, not just asset existence
+
+When the execution includes a new or revised asset that is supposed to close a real product gap:
+
+- identify the exact runtime trigger or invocation path that should fire it
+- patch that real integration point, not just the asset file
+- verify that the upstream flow can actually reach that point with the current code
+- verify that the downstream effect is observable through tests, logs, or other concrete evidence
+- if the asset exists in code but is not actually triggered, treat the gap as still open
+
+Examples:
+
+- a post-purchase email must be triggered from the real payment / activation flow
+- a disclosure surface must be rendered in the actual UI state where the requirement applies
+- a durable-medium confirmation must be attached to the real order-confirmation path
+- a consent or unsubscribe mechanism must be wired to the actual stored preferences
 
 ### Step 9 — Verify before claiming success
 

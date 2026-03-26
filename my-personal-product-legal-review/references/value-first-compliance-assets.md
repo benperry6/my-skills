@@ -85,6 +85,7 @@ Keep the compliance layer clear, but do not lead with fear-heavy wording unless 
 - Never optimize for marketing so hard that the legal meaning becomes vague
 - Never introduce new visible UX wording outside the approved scope without a before/after review
 - Never assume the user wants a cold "you are now subscribed" tone
+- Never treat an asset file as sufficient proof of implementation; the asset must be wired into the real runtime flow that is supposed to trigger it
 
 ## Recommended Framing
 
