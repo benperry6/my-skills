@@ -9,6 +9,8 @@ description: "[My Personal Skill] Use when a digital product needs a post-build 
 
 This skill audits the real implemented scope of a digital product, maps the resulting legal obligations, reviews the existing legal and adjacent customer-facing surfaces, and identifies or patches the gaps when explicitly asked to execute.
 
+Its default unit of analysis is the real product scope, not a page-by-page checklist. Start from implemented features and flows, derive the obligations from that scope, then judge whether the current legal and adjacent surfaces cover them.
+
 This is an operational compliance-review skill, not a substitute for licensed legal counsel. Its job is to produce a rigorous, source-backed product/legal review without hallucinating certainty.
 
 ## Trigger Conditions
@@ -22,6 +24,7 @@ Use this skill when the user asks any variation of:
 - "Patch the legal texts"
 - "Do we need a post-purchase confirmation email / durable medium?"
 - "Re-review the product after launch for legal gaps"
+- "Understand the codebase, determine the real features and obligations, then fix the missing legal text"
 
 Do not use this skill for:
 
@@ -44,6 +47,8 @@ Its default posture is:
 5. Stop when required compliance inputs are missing instead of pretending completeness
 6. Treat new customer-facing compliance assets as product/marketing surfaces first, then weave compliance into them
 7. Never modify visible UX outside legal pages without explicit before/after approval
+8. Do not default to a page-by-page matrix; default to a scope-based review grouped by real behavior and obligation buckets
+9. When execution is explicitly requested, carry the work through end-to-end inside the approved scope instead of stopping at diagnosis
 
 When the user only asks for analysis, stay at advice level.
 
@@ -121,6 +126,10 @@ State what is:
 
 Map implemented features to legal obligations.
 
+Do not collapse the review into a page inventory too early. The primary lens is:
+
+`real feature / real flow -> legal obligation -> current coverage -> gap -> action`
+
 Typical buckets:
 
 - identity / mandatory legal notices
@@ -181,6 +190,15 @@ If a gap requires a new customer-facing asset, do not frame it as a cold legal p
 
 Follow `references/value-first-compliance-assets.md`.
 
+If autonomous execution was explicitly requested, the default expectation is:
+
+1. understand the real codebase and features first
+2. determine the obligations from that real scope
+3. review the current legal surfaces against those obligations
+4. patch the missing text or legal-page gaps directly inside the requested scope
+
+Do not stop at a diagnosis or a page-by-page matrix unless the user explicitly asked for that format.
+
 ### Step 8 — Patch only with the requested execution scope
 
 If execution is requested:
@@ -213,6 +231,8 @@ Use:
 7. `Actions ou patches recommandés / exécutés`
 
 For audits, findings come before summary.
+
+Default to grouping findings by obligation bucket or real product behavior, not by page, unless the user explicitly asks for a page-by-page format.
 
 For execution, distinguish:
 
