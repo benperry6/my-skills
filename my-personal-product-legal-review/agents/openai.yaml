@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product Legal Review"
+  short_description: "Audit product scope against legal obligations"
+  default_prompt: "Use $my-personal-product-legal-review to audit this product’s real features, legal obligations, and legal surfaces, then identify or patch the gaps."
