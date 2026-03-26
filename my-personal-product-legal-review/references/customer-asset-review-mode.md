@@ -80,6 +80,8 @@ For each element, show:
 3. current content
 4. proposed content
 5. why the proposed change fits the real flow and emotional context better
+6. the unique job of this element in the full asset
+7. whether any other element already covers the same information or function
 
 Rules:
 
@@ -88,6 +90,7 @@ Rules:
 - keep comparison easy to scan
 - for review examples, show the content only in French
 - implementation may still patch all supported locales after approval
+- if two elements overlap materially, merge them or remove one before asking for approval
 
 ## Approval Rule
 

@@ -52,6 +52,7 @@ Its default posture is:
 10. When a missing compliance surface requires customer-facing value design, scan the full live installed skill inventory before choosing which downstream skills to use
 11. For customer-facing assets outside legal pages, switch to collaborative review mode: inspect the surrounding flow first, then review one element at a time with before/after on both form and substance before implementation
 12. Never let value-first framing override the primary job of the asset; first prove that the chosen vehicle can actually solve the gap it was introduced to solve
+13. Every proposed block or element in a customer-facing asset must have a unique job; if two blocks carry materially the same message, merge or remove one
 
 When the user only asks for analysis, stay at advice level.
 
@@ -299,6 +300,9 @@ For visible assets outside legal pages:
 - keep the comparison easy to scan; do not use one giant before block and one giant after block
 - for review examples, present the content only in French unless the user asked otherwise
 - do not omit any part of the element under review
+- for each proposed element, state its unique job in the asset
+- check whether that job or information is already carried elsewhere in the same asset
+- if two elements overlap materially, merge them or remove the weaker one before presenting the review
 
 Only implement after the user has explicitly validated the reviewed element or reviewed bundle.
 
@@ -360,6 +364,7 @@ For execution, distinguish:
 - Never optimize a new compliance asset for legal completeness alone; preserve reassurance, clarity, and perceived value
 - Never choose or keep a customer-facing asset whose vehicle cannot fulfill the primary function that justified its creation
 - Never bury important legal gaps behind soft language
+- Never keep redundant blocks just because each one sounds individually good
 
 ## Anti-Patterns
 
@@ -373,6 +378,7 @@ Actively call out these mistakes when relevant:
 - "A likely answer is good enough for legal review"
 - "Because the copy direction is good, the underlying vehicle must be the right one"
 - "Value-first means we can ignore whether the asset actually closes the identified gap"
+- "If each block sounds good on its own, the full asset must be well structured"
 
 ## References
 

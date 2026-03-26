@@ -57,6 +57,15 @@ Sequence the asset like this:
 - what happens next
 - where to manage the feature/account if needed
 
+Each block must earn its place.
+
+Ask for every block:
+
+- what unique job does this block do?
+- what information does it add that is not already stated elsewhere?
+
+If the answer is weak, merge it into another block or remove it.
+
 ### Compliance layer
 
 Add:
@@ -72,6 +81,7 @@ Keep the compliance layer clear, but do not lead with fear-heavy wording unless 
 
 - Never hide required legal information
 - Never keep the wrong vehicle just because the framing is strong
+- Never duplicate the same value or operational message across multiple blocks when one block can carry it clearly
 - Never optimize for marketing so hard that the legal meaning becomes vague
 - Never introduce new visible UX wording outside the approved scope without a before/after review
 - Never assume the user wants a cold "you are now subscribed" tone
