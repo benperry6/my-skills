@@ -50,6 +50,7 @@ La doctrine capturee ici est simple :
 - on reutilise d'abord les acces deja disponibles sur la machine quand ils correspondent au bon business et sont approuves
 - les fichiers d'auth qui doivent absolument rester sur disque pour des outils officiels peuvent rester dans leurs emplacements standards, mais avec des permissions strictes
 - les secrets et blobs de bootstrap rematerialisables doivent aller dans un secret store local securise; si `1Password CLI` est reellement disponible et voulu, il peut devenir le backend privilegie, sinon le Keychain macOS est le fallback par defaut
+- quand un nom canonique est utile pour les objets vendors, il doit decrire le mecanisme d'acces cree; la convention preferee est `Paid Media Vendor M2M API Access`, avec une variante courte seulement si une plateforme impose une limite de longueur
 
 ## Ce que ce skill couvre
 

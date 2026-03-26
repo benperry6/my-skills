@@ -1,8 +1,8 @@
 #!/bin/bash
 set -eo pipefail
 
-TARGET_PATH="${1:-$HOME/.config/gcloud/tracking-skills-access-oauth-client.json}"
-KEYCHAIN_ITEM="${GOOGLE_TRACKING_OAUTH_KEYCHAIN_ITEM:-Google Tracking Skills OAuth Client JSON}"
+TARGET_PATH="${1:-$HOME/.config/gcloud/paid-media-vendor-m2m-api-access-oauth-client.json}"
+KEYCHAIN_ITEM="${GOOGLE_TRACKING_OAUTH_KEYCHAIN_ITEM:-Google Paid Media Vendor M2M API Access OAuth Client JSON}"
 
 mkdir -p "$(dirname "$TARGET_PATH")"
 

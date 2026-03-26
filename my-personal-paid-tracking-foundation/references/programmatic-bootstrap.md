@@ -53,6 +53,23 @@ Do not trust the UI selection alone.
 - secrets must not be committed to Git
 - the skill repo should document the procedure, not store live credentials
 
+## Naming convention
+
+Use a name that describes the access mechanism, not the business goal of the skill.
+
+Preferred canonical label:
+
+- `Paid Media Vendor M2M API Access`
+
+Apply it to:
+
+- vendor apps
+- business login / integration configurations
+- keychain item labels
+- reusable local compatibility files where practical
+
+If a vendor imposes naming limits, use the closest shorter variant that preserves the meaning, and document the exception.
+
 ## Verified examples from this workflow
 
 ### Google

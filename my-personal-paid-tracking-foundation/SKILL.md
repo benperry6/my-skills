@@ -127,6 +127,7 @@ Separate clearly:
 
 - what the agent can design, wire, and verify
 - what the user must provide as accounts, IDs, tokens, admin access, or OAuth/developer authorization
+- what canonical naming should be used for vendor access objects and where a shortened variant is required by platform limits
 
 ## Canonical Doctrine
 
