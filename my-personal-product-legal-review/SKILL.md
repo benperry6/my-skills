@@ -49,6 +49,7 @@ Its default posture is:
 7. Never modify visible UX outside legal pages without explicit before/after approval
 8. Do not default to a page-by-page matrix; default to a scope-based review grouped by real behavior and obligation buckets
 9. When execution is explicitly requested, carry the work through end-to-end inside the approved scope instead of stopping at diagnosis
+10. When a missing compliance surface requires customer-facing value design, scan the full live installed skill inventory before choosing which downstream skills to use
 
 When the user only asks for analysis, stay at advice level.
 
@@ -69,6 +70,7 @@ Read:
 - `references/scope-classification.md`
 - `references/legal-surface-matrix.md`
 - `references/value-first-compliance-assets.md`
+- `references/dynamic-skill-selection.md`
 
 ## Workflow
 
@@ -199,6 +201,36 @@ If autonomous execution was explicitly requested, the default expectation is:
 
 Do not stop at a diagnosis or a page-by-page matrix unless the user explicitly asked for that format.
 
+### Step 7.5 — Discover relevant installed skills dynamically for value-first assets
+
+Use this step only when the legal gap requires a new or revised customer-facing asset such as:
+
+- post-purchase email
+- onboarding disclosure
+- upgrade confirmation
+- cancellation confirmation
+- support or chatbot disclosure surface
+- any other adjacent asset where product value and compliance must coexist
+
+Before choosing any downstream skill, run:
+
+```bash
+python3 ~/.agents/skills/my-personal-product-legal-review/scripts/list_installed_skills.py
+```
+
+Use that live inventory so the full currently installed skill list is in working context.
+Do not choose downstream skills from memory, from a static shortlist, or from only the first few plausible skills.
+Do not dump the raw full inventory into the final user-facing answer unless the user explicitly asks for it.
+
+Then read `references/dynamic-skill-selection.md` and decide:
+
+- which currently installed skills are actually relevant to the specific asset
+- which one should shape the strategic foundation first
+- which ones are execution helpers only
+- which ones are not relevant for this task and should be ignored
+
+The selection must be task-specific, not fixed.
+
 ### Step 8 — Patch only with the requested execution scope
 
 If execution is requested:
@@ -233,6 +265,13 @@ Use:
 For audits, findings come before summary.
 
 Default to grouping findings by obligation bucket or real product behavior, not by page, unless the user explicitly asks for a page-by-page format.
+
+When dynamic skill discovery was used for a value-first asset, also include:
+
+- `Live skills scanned: ...`
+- `Relevant skills selected: ...`
+- `Why these skills: ...`
+- `Deferred / ignored skills: ...`
 
 For execution, distinguish:
 
