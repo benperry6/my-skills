@@ -50,6 +50,7 @@ Its default posture is:
 8. Do not default to a page-by-page matrix; default to a scope-based review grouped by real behavior and obligation buckets
 9. When execution is explicitly requested, carry the work through end-to-end inside the approved scope instead of stopping at diagnosis
 10. When a missing compliance surface requires customer-facing value design, scan the full live installed skill inventory before choosing which downstream skills to use
+11. For customer-facing assets outside legal pages, switch to collaborative review mode: inspect the surrounding flow first, then review one element at a time with before/after on both form and substance before implementation
 
 When the user only asks for analysis, stay at advice level.
 
@@ -71,6 +72,7 @@ Read:
 - `references/legal-surface-matrix.md`
 - `references/value-first-compliance-assets.md`
 - `references/dynamic-skill-selection.md`
+- `references/customer-asset-review-mode.md`
 
 ## Workflow
 
@@ -171,6 +173,8 @@ Inspect what currently exists:
 - support pages / chatbot disclosures
 - unsubscribe and consent flows
 
+When the gap touches a customer-facing asset outside legal pages, also inspect the adjacent flow surfaces around that asset instead of reviewing it in isolation.
+
 Separate:
 
 - what is already covered correctly
@@ -231,6 +235,38 @@ Then read `references/dynamic-skill-selection.md` and decide:
 
 The selection must be task-specific, not fixed.
 
+### Step 7.6 — Load customer and flow context before reviewing a visible asset
+
+If the gap requires reviewing or creating a customer-facing asset outside legal pages, read `references/customer-asset-review-mode.md`.
+
+Load, if they exist in the repo:
+
+- `.agents/product-marketing-context.md`
+- `.agents/business-model.md`
+- `.agents/know-your-customer.md`
+- `.agents/storytelling.md`
+- `.agents/performance-memory.md`
+
+Also load:
+
+- the current asset code
+- the current translations for that asset
+- the neighboring assets in the same journey
+
+Do not propose changes until the triggering moment, upstream messages, downstream state, and likely emotional context are understood.
+
+### Step 7.7 — Review one element at a time before any visible implementation
+
+For visible assets outside legal pages:
+
+- review with the user one element at a time
+- compare each element with before/after on both form and substance
+- keep the comparison easy to scan; do not use one giant before block and one giant after block
+- for review examples, present the content only in French unless the user asked otherwise
+- do not omit any part of the element under review
+
+Only implement after the user has explicitly validated the reviewed element or reviewed bundle.
+
 ### Step 8 — Patch only with the requested execution scope
 
 If execution is requested:
@@ -238,6 +274,7 @@ If execution is requested:
 - patch legal pages directly when the user asked for it
 - do not change visible UX outside legal pages without explicit approval
 - if a new customer-facing asset is required, present the before/after and rationale first unless the user has already authorized implementation
+- for visible customer-facing assets outside legal pages, get approval on the element-by-element review before patching
 - when frontend/UI work is delegated by project convention, follow the repo’s routing rule instead of implementing directly
 
 ### Step 9 — Verify before claiming success
