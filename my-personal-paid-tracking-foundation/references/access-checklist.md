@@ -4,6 +4,9 @@ Use this file when moving from recommendation to implementation.
 
 ## Universal
 
+- Search the current official docs and API surface on the internet before declaring a vendor UI-only
+- Inventory reusable access already available on the machine before asking for new bootstrap work
+- Present the accessible accounts / businesses / cloud projects and wait for explicit user approval before using one
 - Access to the codebase and deployment platform
 - Access to environment variable management
 - DNS access if a first-party tracking subdomain is ever needed later
@@ -15,6 +18,7 @@ Use this file when moving from recommendation to implementation.
 - GA4 property access
 - Google Ads access if future ad conversion import or linking is expected
 - OAuth authorization for Tag Manager and Analytics Admin APIs if API-first setup is expected
+- Approval of which Google account / GCP project should be used when multiple options exist
 
 ### Common identifiers or settings
 
@@ -33,6 +37,7 @@ Use this file when moving from recommendation to implementation.
 - Pixel or dataset access
 - Conversions API token if server-side forwarding is implemented
 - Ability to grant the asset permissions required by the app/token flow
+- Approval of which Meta business / app / system-user path should be used when multiple options exist
 
 ### Meta permissions verified in the current tested system-user flow
 
@@ -54,6 +59,14 @@ Treat this list as "verified maximum for the current flow", not as a promise tha
 - TikTok Ads / Events Manager access
 - Pixel access
 - Events API token if server-side forwarding is implemented
+- Approval of which TikTok account or business context should be used when multiple options exist
+
+## Any vendor enabled by the plan
+
+- A programmatic bootstrap path should be researched first
+- The broadest relevant machine-to-machine permissions should be requested when the vendor exposes them
+- The real granted scopes / capabilities should then be verified with live inspection or API probes
+- If a credible programmatic path exists but access is missing, ask for the exact missing authorization instead of defaulting to browser work
 
 ## App / hosting / backend
 
@@ -70,11 +83,13 @@ Treat this list as "verified maximum for the current flow", not as a promise tha
 ## What the user typically must provide
 
 - account access
+- approval of the specific account / business / cloud project to use
 - container IDs
 - pixel IDs
 - tokens / secrets
 - DNS or vendor admin access where needed
 - OAuth / developer authorization when Google or Meta should be bootstrapped without manual clicking
+- confirmation when a brand-new account should be bootstrapped instead of reusing an existing accessible one
 
 ## What the agent can typically do
 
@@ -83,7 +98,17 @@ Treat this list as "verified maximum for the current flow", not as a promise tha
 - prepare implementation changes
 - wire env vars
 - configure app-side tracking
+- research the current official docs and API surface on the internet before falling back to browser setup
+- inventory accessible accounts and reusable local access first
 - use Google APIs directly once OAuth access exists
 - use Meta APIs directly once app/token/asset bootstrap exists
+- use the equivalent machine-to-machine path for any other enabled vendor when it exists
 - validate the resulting data flow once the external access exists
 - fall back to browser setup only when the vendor bootstrap still has UI-only gaps
+
+## Storage conventions
+
+- Reusable non-sensitive access state may be stored machine-globally, for example under `~/.config/tracking-skills/`
+- Secrets should be stored in a secure local secret store such as the macOS Keychain
+- Project repos may contain non-sensitive setup manifests or wiring notes if useful
+- Secrets must not be committed to Git

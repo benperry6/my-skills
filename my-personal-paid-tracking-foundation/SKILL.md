@@ -39,6 +39,8 @@ The canonical bias is:
 3. Keep a clean upgrade path toward a more industrial setup later
 4. Open only the vendors that match the real channel plan, not every vendor that could theoretically matter
 5. Prefer CLI/API/MCP orchestration over browser clicking whenever the vendor exposes a credible machine-to-machine path
+6. Research the current official docs and API surface on the internet before declaring a vendor "browser-only"
+7. Never choose a vendor account, business, profile, or cloud project without explicit user approval when multiple valid options may exist
 
 ## Decision Workflow
 
@@ -74,11 +76,50 @@ Read:
 
 Pick the closest recipe and adapt only where the context clearly justifies it.
 
-### Step 4 — Prepare the access and execution checklist
+### Step 4 — Research the programmatic path first
+
+Read:
+
+- `references/programmatic-bootstrap.md`
+
+Before suggesting any browser work:
+
+- research the current official docs and API surface on the internet for each vendor the recommendation needs
+- determine whether a credible programmatic bootstrap path exists
+- state clearly what is verified, what is uncertain, and what still needs live validation
+
+If a credible programmatic path exists, do not jump straight to the browser.
+
+### Step 5 — Audit available access and require account approval
+
+Read:
+
+- `references/programmatic-bootstrap.md`
+- `references/access-checklist.md`
+
+Inventory any reusable access that already exists on the machine or in the current environment.
+
+This includes, when available:
+
+- machine-global tracking access state under `~/.config/tracking-skills/`
+- vendor CLI authentication state
+- secure local secret stores such as the macOS Keychain
+- live API account/business/project summaries
+
+Then:
+
+- present the accessible account/business/project options
+- recommend which one should be used for the current business
+- wait for explicit user approval before acting on a specific account
+
+If the user wants a new account or new business-level access, produce the exact bootstrap sequence for creating it.
+
+### Step 6 — Prepare the access and execution checklist
 
 Read:
 
 - `references/access-checklist.md`
+- `references/programmatic-bootstrap.md`
 
 Separate clearly:
 
@@ -95,6 +136,10 @@ Unless the context proves otherwise, the default doctrine is:
 - A first-party event store is mandatory
 - Server-side should exist early in a selective low-cost form via the existing backend or hosting layer
 - A heavier server-side infrastructure is justified only after real traction, sustained spend, or operational pain
+- For every vendor, search for a credible programmatic bootstrap path first
+- Reuse existing machine-global access when it matches the current business and the user approves it
+- For every vendor, target the broadest relevant machine-to-machine permissions the official flow actually exposes, then verify the real scopes and capabilities with live inspection or API probes
+- Browser fallback is acceptable only when the programmatic path genuinely does not exist yet or still has a hard bootstrap gap
 
 This doctrine exists for a business reason, not a tooling reason:
 
@@ -114,19 +159,27 @@ This doctrine exists for a business reason, not a tooling reason:
 - produce the implementation order
 - produce the access checklist
 - identify when a later infra upgrade becomes justified
+- research the current official docs and APIs on the internet before recommending browser work
+- detect reusable local access and account state before assuming nothing exists
+- present the accessible accounts/businesses/projects and ask for explicit approval before using one
 - prefer Google APIs directly when OAuth access exists
 - prefer Meta APIs directly once app/token/asset bootstrap exists
-- for Meta, try to issue the broadest system-user token the current official flow actually exposes, then verify the granted scopes with `debug_token` instead of trusting the UI blindly
-- use the browser only for bootstrap gaps or missing machine-to-machine permissions
+- prefer the equivalent machine-to-machine path for any other vendor when it exists
+- if a vendor has a programmatic path but the access is missing, ask for the exact missing authorization instead of sending the user straight to the admin UI
+- for every vendor, try to issue the broadest relevant machine-to-machine permission set the official flow actually exposes, then verify the granted scopes and live capabilities instead of trusting the UI blindly
+- persist reusable non-sensitive access state in machine-global storage when useful
+- use the browser only for genuine bootstrap gaps or missing machine-to-machine permissions that cannot yet be solved programmatically
 
 ### The user must typically provide
 
+- approval of which account / business / cloud project should be used
 - account access
 - container IDs
 - pixel IDs
 - tokens / secrets
 - DNS or hosting admin access where relevant
 - OAuth / developer authorization when a vendor supports API-first bootstrap
+- confirmation when a brand-new account or business-level bootstrap is preferred over existing access
 
 Do not blur those two responsibilities in the final answer.
 
@@ -142,9 +195,16 @@ The final output of this skill should always include these sections:
    - business and technical justification
 4. **Executable plan**
    - ordered next steps
-5. **Access / IDs / tokens needed**
-   - what the user must provide
-6. **Upgrade criteria**
+5. **Accounts and programmatic bootstrap path**
+   - which accessible accounts/businesses/projects exist
+   - which one is recommended
+   - which approval or missing authorization is still needed
+   - how IDs / tokens / assets should be obtained programmatically and in what order
+6. **Storage plan**
+   - where reusable non-sensitive access state should live
+   - where secrets should live
+   - what, if anything non-sensitive, belongs in the project repo
+7. **Upgrade criteria**
    - what would justify moving to a heavier stack later
 
 Do not output a neutral vendor matrix unless the user explicitly asks for a comparison. The default must be a recommendation.
@@ -168,6 +228,8 @@ If the user gives little context, default to:
 - low-cost hybrid setup
 - Google and Meta by default
 - add any other vendor from day one only if the business model and planned channel justify it
+- internet/docs/API research before any browser suggestion
+- account-choice approval before touching a specific vendor account
 
 Only escalate beyond that when the context clearly supports it.
 

@@ -42,9 +42,12 @@ La doctrine capturee ici est simple :
 - le server-side pur n'est pas la bonne reponse non plus
 - la bonne fondation de depart est en general **hybride**
 - Google et Meta sont les bases par defaut, puis toute autre regie peut etre ouverte des le depart seulement si elle est reellement coherente avec le produit et le channel plan
+- avant de suggerer le navigateur, on recherche sur internet dans les docs officielles et les APIs si un chemin machine-to-machine credible existe
 - quand une regie expose un vrai chemin machine-to-machine credible, on privilegie API/CLI/MCP avant le navigateur
 - le navigateur reste un fallback de bootstrap, pas le mode operatoire par defaut
-- pour Meta en particulier, la bonne cible est un token `system user` aussi large que le flow officiel l'autorise reellement, puis une verification des scopes via `debug_token`
+- pour toute regie, on vise les permissions machine-to-machine les plus larges et pertinentes que le flow officiel expose reellement, puis on verifie en vrai les scopes et capacites accordes
+- on ne choisit jamais un compte, business ou projet cloud sans validation explicite de l'utilisateur si plusieurs options existent
+- on reutilise d'abord les acces deja disponibles sur la machine quand ils correspondent au bon business et sont approuves
 
 ## Ce que ce skill couvre
 
@@ -52,6 +55,8 @@ La doctrine capturee ici est simple :
 - la priorisation des vendors a ouvrir
 - le bon niveau d'ambition selon le type de projet
 - les pre-requis d'acces et d'identifiants
+- la facon d'obtenir ces acces et identifiants par voie programmatique quand c'est possible
+- la selection explicite du bon compte / business / projet avant toute action
 - le moment ou il faut passer d'une fondation low-cost a une infra plus robuste
 
 ## Ce que ce skill ne couvre pas
@@ -61,6 +66,7 @@ La doctrine capturee ici est simple :
 - le tracking produit generaliste hors paid media
 - le parametrage detaille d'une plateforme specifique quand il faut des procedures tres locales
 - les bootstraps vendors impossibles sans permissions, tokens ou autorisations OAuth/developer
+- les secrets live dans le repo du skill
 
 ## Comment il s'articule avec d'autres skills
 
@@ -73,4 +79,4 @@ La doctrine capturee ici est simple :
 Ce skill doit rester opinionated.
 
 Sa valeur n'est pas de lister toutes les options possibles.
-Sa valeur est de recommander la bonne base par defaut, en expliquant les trade-offs et en donnant un plan directement executable.
+Sa valeur est de recommander la bonne base par defaut, en expliquant les trade-offs et en donnant un plan directement executable, y compris le chemin programmatique d'obtention des acces quand ce chemin existe.
