@@ -18,6 +18,8 @@ Use this file when moving from recommendation to implementation.
 - GA4 property access
 - Google Ads access if future ad conversion import or linking is expected
 - OAuth authorization for Tag Manager and Analytics Admin APIs if API-first setup is expected
+- Google Auth Platform publication status should be checked before relying on durable external-user refresh tokens; prefer production over testing when appropriate
+- After OAuth bootstrap, verify the actual granted scopes with a live token inspection call instead of assuming the requested scope list was granted
 - Approval of which Google account / GCP project should be used when multiple options exist
 
 ### Common identifiers or settings
@@ -33,7 +35,9 @@ Use this file when moving from recommendation to implementation.
 - Meta App access when the Marketing API / Conversions API bootstrap uses an app
 - System user or user access token with the required permissions if API-first setup is expected
 - Prefer a system-user token over a human user token when long-lived CLI administration is the goal
-- After token generation, verify the real granted scopes with `debug_token`
+- When the official token generator exposes permissions dynamically, inspect and select the live options it currently exposes instead of relying on a stale hardcoded list
+- When the official token generator exposes `Jamais` or an equivalent non-expiring duration, prefer it for long-lived CLI administration
+- After token generation, verify the real granted scopes and expiry with `debug_token`
 - Pixel or dataset access
 - Conversions API token if server-side forwarding is implemented
 - Ability to grant the asset permissions required by the app/token flow
@@ -41,7 +45,7 @@ Use this file when moving from recommendation to implementation.
 
 ### Meta permissions verified in the current tested system-user flow
 
-The current tested flow was able to mint a system-user token with these scopes:
+The current tested flow exposed these explicit permission choices in the official generator:
 
 - `ads_management`
 - `ads_read`
@@ -52,7 +56,9 @@ The current tested flow was able to mint a system-user token with these scopes:
 - `pages_show_list`
 - `threads_business_basic`
 
-Treat this list as "verified maximum for the current flow", not as a promise that every future app/business will expose the exact same set.
+The minted token then also showed an implicit `public_profile` scope in `debug_token`.
+
+Treat this as "verified maximum for the current tested flow", not as a promise that every future app/business will expose the exact same set.
 
 ## TikTok
 

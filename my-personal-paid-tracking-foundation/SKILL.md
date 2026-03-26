@@ -142,6 +142,8 @@ Unless the context proves otherwise, the default doctrine is:
 - For every vendor, search for a credible programmatic bootstrap path first
 - Reuse existing machine-global access when it matches the current business and the user approves it
 - For every vendor, target the broadest relevant machine-to-machine permissions the official flow actually exposes, then verify the real scopes and capabilities with live inspection or API probes
+- For every vendor, enumerate whatever permissions the official flow exposes at runtime instead of freezing a historical scope list in the skill
+- If the official flow exposes a non-expiring or "never expires" token option, prefer it and verify the resulting expiry state after minting
 - Browser fallback is acceptable only when the programmatic path genuinely does not exist yet or still has a hard bootstrap gap
 
 This doctrine exists for a business reason, not a tooling reason:
@@ -170,6 +172,8 @@ This doctrine exists for a business reason, not a tooling reason:
 - prefer the equivalent machine-to-machine path for any other vendor when it exists
 - if a vendor has a programmatic path but the access is missing, ask for the exact missing authorization instead of sending the user straight to the admin UI
 - for every vendor, try to issue the broadest relevant machine-to-machine permission set the official flow actually exposes, then verify the granted scopes and live capabilities instead of trusting the UI blindly
+- when the official flow exposes permissions dynamically, enumerate the live options and select all relevant ones instead of hardcoding a stale list
+- when the official flow exposes token-duration choices, prefer a non-expiring option if it exists and verify the real expiry with a live token inspection call
 - persist reusable non-sensitive access state in machine-global storage when useful
 - keep vendor-required on-disk auth files only in the standard paths the official tooling expects, with restrictive permissions
 - prefer a secure local secret store for secrets and re-materializable bootstrap blobs; prefer 1Password if it is actually available and intended for team/shared secret management, otherwise use the macOS Keychain

@@ -46,6 +46,8 @@ La doctrine capturee ici est simple :
 - quand une regie expose un vrai chemin machine-to-machine credible, on privilegie API/CLI/MCP avant le navigateur
 - le navigateur reste un fallback de bootstrap, pas le mode operatoire par defaut
 - pour toute regie, on vise les permissions machine-to-machine les plus larges et pertinentes que le flow officiel expose reellement, puis on verifie en vrai les scopes et capacites accordes
+- quand le flow officiel expose dynamiquement la liste des permissions ou la duree du token, on inspecte les options reelles au moment du bootstrap au lieu de figer une liste historique dans le skill
+- quand une regie permet un token machine-to-machine non expirant, on le prefere et on verifie ensuite l'etat d'expiration reel du token
 - on ne choisit jamais un compte, business ou projet cloud sans validation explicite de l'utilisateur si plusieurs options existent
 - on reutilise d'abord les acces deja disponibles sur la machine quand ils correspondent au bon business et sont approuves
 - les fichiers d'auth qui doivent absolument rester sur disque pour des outils officiels peuvent rester dans leurs emplacements standards, mais avec des permissions strictes
@@ -59,6 +61,7 @@ La doctrine capturee ici est simple :
 - le bon niveau d'ambition selon le type de projet
 - les pre-requis d'acces et d'identifiants
 - la facon d'obtenir ces acces et identifiants par voie programmatique quand c'est possible
+- la facon d'obtenir le jeu de permissions et la duree de token les plus larges que le flow officiel expose reellement au moment du bootstrap
 - la selection explicite du bon compte / business / projet avant toute action
 - le moment ou il faut passer d'une fondation low-cost a une infra plus robuste
 
