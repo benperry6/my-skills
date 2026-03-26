@@ -46,6 +46,9 @@ Do not trust the UI selection alone.
 
 - reusable non-sensitive access state may live in machine-global storage such as `~/.config/tracking-skills/`
 - secrets should live in a secure local secret store such as the macOS Keychain
+- if `1Password CLI` is actually available and the user wants a shareable/team secret backend, it can be used instead of or alongside the local Keychain
+- files that vendor tooling requires on disk may remain in the standard config paths that tooling expects, but with restrictive permissions
+- rematerializable bootstrap blobs should be kept in a secure local secret store even when a compatibility copy still exists on disk
 - project repos may contain non-sensitive vendor wiring manifests, IDs, or setup notes if useful
 - secrets must not be committed to Git
 - the skill repo should document the procedure, not store live credentials
@@ -61,6 +64,7 @@ Verified sequence used successfully:
 3. Create the OAuth client needed for local programmatic access
 4. Mint local credentials for CLI/API use
 5. Verify the access with live GTM and GA4 Admin API calls
+6. If a reusable local client file is needed later, re-materialize it from secure local storage into the standard path instead of recreating it manually
 
 ### Meta
 

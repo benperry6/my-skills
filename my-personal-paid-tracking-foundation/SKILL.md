@@ -121,6 +121,8 @@ Read:
 - `references/access-checklist.md`
 - `references/programmatic-bootstrap.md`
 
+Use `scripts/materialize-google-oauth-client.sh` when a Google OAuth client file is stored in secure local storage and must be re-materialized into the standard local path for tooling compatibility.
+
 Separate clearly:
 
 - what the agent can design, wire, and verify
@@ -168,6 +170,8 @@ This doctrine exists for a business reason, not a tooling reason:
 - if a vendor has a programmatic path but the access is missing, ask for the exact missing authorization instead of sending the user straight to the admin UI
 - for every vendor, try to issue the broadest relevant machine-to-machine permission set the official flow actually exposes, then verify the granted scopes and live capabilities instead of trusting the UI blindly
 - persist reusable non-sensitive access state in machine-global storage when useful
+- keep vendor-required on-disk auth files only in the standard paths the official tooling expects, with restrictive permissions
+- prefer a secure local secret store for secrets and re-materializable bootstrap blobs; prefer 1Password if it is actually available and intended for team/shared secret management, otherwise use the macOS Keychain
 - use the browser only for genuine bootstrap gaps or missing machine-to-machine permissions that cannot yet be solved programmatically
 
 ### The user must typically provide

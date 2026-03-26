@@ -48,6 +48,8 @@ La doctrine capturee ici est simple :
 - pour toute regie, on vise les permissions machine-to-machine les plus larges et pertinentes que le flow officiel expose reellement, puis on verifie en vrai les scopes et capacites accordes
 - on ne choisit jamais un compte, business ou projet cloud sans validation explicite de l'utilisateur si plusieurs options existent
 - on reutilise d'abord les acces deja disponibles sur la machine quand ils correspondent au bon business et sont approuves
+- les fichiers d'auth qui doivent absolument rester sur disque pour des outils officiels peuvent rester dans leurs emplacements standards, mais avec des permissions strictes
+- les secrets et blobs de bootstrap rematerialisables doivent aller dans un secret store local securise; si `1Password CLI` est reellement disponible et voulu, il peut devenir le backend privilegie, sinon le Keychain macOS est le fallback par defaut
 
 ## Ce que ce skill couvre
 
