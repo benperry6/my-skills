@@ -196,7 +196,43 @@ Edge case:
 - if `P1` demand is genuinely thin, do not force fake `P1`
 - say so explicitly and pivot to the strongest `P2` opportunities
 
-### 8. Decide whether deep-dives should be exhaustive or selective
+### 8. State explicitly what is still incomplete
+
+Before moving into deep-dives or competitor refinement, explicitly list what is still incomplete or uncertain.
+
+This checkpoint is mandatory.
+
+At minimum, state:
+- which clusters are still rough or under-explored
+- which keywords or page ideas still have weak evidence
+- whether SERP reality has been checked yet on the most important queries
+- whether adjacent solutions have been mapped yet
+- whether competitor refinement has been run yet
+
+If the first-pass map already feels strong, say that explicitly instead of silently assuming completeness.
+
+### 9. Validate SERP reality on high-priority queries
+
+Before finalizing architecture decisions, inspect SERP reality on the most important queries.
+
+At minimum, do this for:
+- the main page-driving queries in each `P1` cluster
+- the most strategic queries in each `P2` cluster
+- any keyword where raw volume and business fit may be misleading
+
+Capture:
+- the dominant ranking page types
+- the dominant intent tilt of the SERP
+- recurring winning domains or page formats
+- meaningful SERP features such as PAA, local packs, marketplace results, comparison pages, calculators, or other elements that materially affect viability
+- whether the page type you intend to build is actually aligned with what Google rewards
+
+Rule:
+- if raw keyword data and live SERP reality conflict, SERP reality wins
+
+Record this in the market map or the cluster deep-dive, not just in temporary reasoning.
+
+### 10. Decide whether deep-dives should be exhaustive or selective
 
 Deep-dives are not optional fluff.
 They turn a rough map into an actionable page and architecture plan.
@@ -213,10 +249,11 @@ A deep-dive should clarify:
 - the exploitable subset vs total observed demand
 - the intent mix
 - the highest-value pages to create
+- the SERP reality on the most important queries
 - the internal links to neighboring clusters
 - the risks of low-fit traffic
 
-### 9. Refine with competitors as a second-pass layer
+### 11. Refine with competitors as a second-pass layer
 
 Competitor refinement is a second-pass layer, not a mandatory first step.
 
@@ -296,7 +333,7 @@ For every competitor documented, store:
 - `why it belongs in that type`
 - `what we learn from it`
 
-### 10. Derive the SEO architecture
+### 12. Derive the SEO architecture
 
 Turn research into an actionable site map.
 
@@ -316,7 +353,7 @@ The output should answer:
 - which pages are pillars
 - which pages are supporting assets
 
-### 11. Write durable outputs
+### 13. Write durable outputs
 
 Write or update outputs under:
 
@@ -337,7 +374,7 @@ Do not update the canonical context-distillation files unless the user explicitl
 `cluster-index.md` is mandatory.
 It gives downstream skills a compact handoff contract without forcing them to read every cluster file first.
 
-### 12. Handoff cleanly
+### 14. Handoff cleanly
 
 End by stating what the next skill should do.
 
@@ -403,6 +440,7 @@ Use this structure:
 - Mapping mode used
 - Demand circles summary
 - Cluster summary table
+- What is still incomplete or uncertain
 - Priority pages to launch first
 - Hub and spoke recommendations
 - Geo, programmatic, and tool opportunities
@@ -436,6 +474,7 @@ For each cluster, use:
 - Volume exploitable
 - Volume total
 - Dominant intents
+- SERP reality notes
 - Keyword table
 - Priority labels
 - Recommended pages
