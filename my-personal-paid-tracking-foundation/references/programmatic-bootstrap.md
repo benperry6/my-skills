@@ -90,6 +90,7 @@ Verified sequence used successfully:
 Important verified constraint:
 
 - Google Cloud project display names are limited to 30 characters, so the canonical access label may need a shortened variant such as `Paid Media Vendor API Access`
+- If `gcloud auth application-default login` crashes on a scope-normalization warning during ADC bootstrap, retry with `https://www.googleapis.com/auth/userinfo.email` instead of the short `email` scope
 
 ### Meta
 
