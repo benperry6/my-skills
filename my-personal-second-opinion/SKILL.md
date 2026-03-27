@@ -1,158 +1,251 @@
 ---
 name: my-personal-second-opinion
-description: "[My Personal Skill] Use when Claude Code needs a second opinion, verification, or deeper research on technical matters. Routes to Codex (OpenAI), Gemini (Google), or both in parallel depending on context. Also use for multimodal analysis (audio/video) where Gemini has unique capabilities. Triggers on explicit user requests ('ask Codex', 'ask Gemini', 'second opinion') AND proactively when a question is critical and would benefit from multiple independent perspectives."
+description: "[My Personal Skill] Use when Claude Code, Codex, or Gemini needs a second opinion, verification, or deeper research on technical matters. Routes to the OTHER engines, repairs broken cross-engine calls before continuing, and persists only real-world verified learning when a broken invocation has been debugged successfully."
 ---
 
 # Second Opinion — Multi-Engine Verification Agent
 
-Unified skill for getting independent second opinions from external AI engines (Codex / Gemini), either individually or in parallel.
+Unified skill for getting independent second opinions from external AI engines and keeping the invocation paths current as the CLIs evolve.
+
+## Core Doctrine
+
+1. **No silent degradation**: if one of the external engine calls fails, do not quietly continue with only the surviving engine unless the user explicitly asked for a single-engine review.
+2. **Second opinion is blocking infrastructure**: if this skill was invoked, the orchestrator needs it. Repair the broken invocation path first, then continue the original mission.
+3. **Verified learning only**: update this skill only after a repaired invocation works in real behavior on the current machine.
+4. **Local evidence first**: inspect local `--help`, local config, installed package docs, and actual command behavior before assuming internet docs are needed.
+5. **Internet research when necessary**: if local evidence is insufficient or contradicts reality, research the current official docs and credible upstream sources on the web.
+6. **Automatic resume**: once the second-opinion path is working again, rerun the needed review if appropriate and resume the original task without asking the user to restart it manually.
+7. **Never consult yourself**: always route to the OTHER engine(s), never recurse into the current one.
 
 ## Engines Available
 
-| Engine | CLI Command | Strengths |
-|--------|------------|-----------|
-| **Codex** (OpenAI) | `codex exec --dangerously-bypass-approvals-and-sandbox` | Code, architecture, computer use |
-| **Gemini** (Google) | `gemini -p` | Audio/video native, deep reasoning, 1M token context |
+| Engine | Verified CLI family | Strengths |
+|--------|----------------------|-----------|
+| **Codex** (OpenAI) | `codex exec ...` | Code, architecture, computer use |
+| **Claude Code** (Anthropic) | `claude -p ...` | Codebase context, multi-file reasoning, implementation review |
+| **Gemini** (Google) | `gemini -p ...` | Long context, multimodal reasoning, broad alternative perspective |
+
+## Verified Learning Base
+
+Before invoking any engine, read:
+
+- `references/verified-learning.md`
+
+That file is the reusable memory for:
+
+- commands that were actually proven to work
+- failure signatures that were actually observed
+- working fallbacks that were actually re-validated
+- outdated paths that were replaced after a real fix
+
+**Do not update it from theory.** Update it only after a repaired path succeeds in real behavior.
 
 ## Tool Detection — Who Am I?
 
-This skill is context-aware. It detects which tool it is running in and consults the OTHER two.
+This skill is context-aware. It detects which tool it is running in and consults the OTHER engine(s).
 
-Detection via environment variables:
-- `CLAUDECODE=1` → Running in Claude Code → consult Codex + Gemini
-- `CODEX_CI=1` → Running in Codex → consult Claude Code + Gemini
-- `GEMINI_CLI=1` → Running in Gemini → consult Claude Code + Codex
+Primary detection via environment variables:
+
+- `CLAUDECODE=1` → running in Claude Code → consult Codex + Gemini
+- `CODEX_CI=1` → running in Codex → consult Claude Code + Gemini
+- `GEMINI_CLI=1` → running in Gemini → consult Claude Code + Codex
 
 ### Routing table
 
 | Running in... | Engine 1 | Engine 2 |
 |---|---|---|
-| **Claude Code** | Codex (`codex exec --dangerously-bypass-approvals-and-sandbox`) | Gemini (`gemini -p`) |
-| **Codex** | Claude Code (`claude -p`) | Gemini (`gemini -p`) |
-| **Gemini** | Claude Code (`claude -p`) | Codex (`codex exec --dangerously-bypass-approvals-and-sandbox`) |
+| **Claude Code** | Codex | Gemini |
+| **Codex** | Claude Code | Gemini |
+| **Gemini** | Claude Code | Codex |
 
-**NEVER consult yourself.** If running in Codex, do NOT call `codex exec` for a second opinion — you ARE Codex. Consult the other two instead.
+### If detection is missing or ambiguous
+
+1. Prefer explicit positive markers (`CLAUDECODE`, `CODEX_CI`, `GEMINI_CLI`).
+2. If they are absent, inspect the current process/CLI context and available binary that launched the session.
+3. If the current engine still cannot be established with confidence, stop and report the ambiguity instead of risking a self-consultation loop.
+
+**NEVER consult yourself.** If running in Codex, do not call `codex exec` for the second opinion.
 
 ## Routing Decision
 
 ### When to use BOTH in parallel
+
 - Critical architectural decisions
 - Security-sensitive code review
 - Complex debugging with no clear root cause
-- When the user explicitly asks for both / "second opinion"
-- Any decision with significant consequences (money, data, production)
+- When the user explicitly asks for a second opinion
+- Any decision with material consequences (money, data, production)
 
 ### When to use Gemini ONLY
-- Audio analysis (Gemini supports native audio, Codex does not)
-- Video analysis (Gemini supports native video, Codex does not)
+
+- Audio analysis
+- Video analysis
 - When the user explicitly says "ask Gemini"
 
 ### When to use Codex ONLY
+
 - When the user explicitly says "ask Codex"
-- Quick code pattern verification where speed matters
+- Quick code-pattern verification where speed matters
 
-### Default (no explicit request)
-- Use BOTH in parallel — they are at parity on benchmarks, two perspectives are better than one
+### Default
 
-## CLI Usage
+- Use BOTH in parallel
+
+## CLI Usage — Current Verified Paths
 
 ### Codex
+
+Primary verified non-interactive pattern:
+
 ```bash
-codex exec --dangerously-bypass-approvals-and-sandbox "Your query here"
+codex exec --dangerously-bypass-approvals-and-sandbox \
+  --skip-git-repo-check \
+  --output-last-message /tmp/codex-review.txt \
+  "Your query here" > /tmp/codex-review.log 2>&1
 ```
-- Config already set: `model = "gpt-5.4"`, `model_reasoning_effort = "xhigh"`
-- No need to pass `-m` or `-c` flags — defaults from `~/.codex/config.toml` apply
-- Subcommand `exec` is REQUIRED for non-interactive use
-- `--dangerously-bypass-approvals-and-sandbox` enables full access
+
+- `exec` is required for headless use.
+- `--output-last-message` is the cleanest success signal currently verified on this machine.
+- Use `-C <git-root>` instead of `--skip-git-repo-check` when the review really needs a repo-aware working root and you know the actual git root.
+- `--json` is available and works, but in the current local environment stdout can still contain startup warnings before the JSON events.
+- Exit code `0` plus a populated `--output-last-message` file counts as success even if the log contains non-fatal state-db or MCP startup warnings.
+
+### Claude Code
+
+Primary verified structured-output pattern:
+
+```bash
+claude -p "Your query here" --output-format json > /tmp/claude-review.json 2>&1
+```
+
+- `-p` is verified locally for headless mode.
+- `--output-format json` gives a clean machine-readable result.
+- `--output-format text` is acceptable when a plain-text answer is enough.
 
 ### Gemini
+
+Primary verified structured-output pattern on this machine:
+
 ```bash
-PROMPT="Your query here"
-GEMINI_MODEL=gemini-3.1-pro-preview gemini -p "$PROMPT" > /tmp/gemini-review.txt 2>&1 || {
-  if rg -q 'ModelNotFoundError|Requested entity was not found|does not have access|code: 404' /tmp/gemini-review.txt; then
-    gemini -p "$PROMPT" > /tmp/gemini-review.txt 2>&1
-  else
-    exit 1
-  fi
-}
+gemini -m gemini-2.5-flash -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
 ```
-- `-p` flag = headless/non-interactive mode (prints response to stdout)
-- First attempt: force `gemini-3.1-pro-preview`
-- Fallback to plain `gemini -p` only on model-not-found / no-access errors (`ModelNotFoundError`, `Requested entity was not found`, `does not have access`, `code: 404`)
-- Surface all other failures as real failures
-- Reuse the local Gemini CLI auth already configured
-- If you need proof of the actual answering model, add `-o json` and inspect `stats.models`
 
-### Claude Code (when called from Codex or Gemini)
+Verified fallback:
+
 ```bash
-claude -p "Your query here" > /tmp/claude-review.txt 2>&1
-```
-- `-p` = headless/print mode (non-interactive, outputs to stdout)
-- Uses the local Claude Code auth already configured
-- Same output discipline: `run_in_background: true`, redirect to file, NEVER truncate
-
-### Output integrity — NEVER truncate, NEVER limit
-These rules are non-negotiable when executing `codex exec` or `gemini -p`:
-
-1. **NEVER truncate output**: no `| head`, `| tail`, `| head -N`, or any pipe that truncates stdout. These tools produce verbose startup logs (Codex: ~70 lines of MCP startup alone) before the actual answer. Truncating kills the process via SIGPIPE before the review is produced, while reporting a misleading exit code 0.
-
-2. **ALWAYS use `run_in_background: true`**: Codex and Gemini take as long as they need (30s to several minutes). Background execution lets them run to natural completion — the timeout does NOT kill background processes, so there is no risk of interruption. Do NOT set an arbitrary timeout.
-
-3. **Redirect output to a file**: prevents context overflow and makes it easy to read selectively.
-
-Correct pattern:
-```bash
-# Bash tool params: run_in_background: true (no timeout needed)
-codex exec --dangerously-bypass-approvals-and-sandbox "..." > /tmp/codex-review.txt 2>&1
-# When notified of completion, use Read tool on the file
+gemini -m gemini-2.5-pro -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
 ```
 
-## Execution Pattern
+- The no-model path was observed in real behavior to hit `429 RESOURCE_EXHAUSTED` on `gemini-3-flash-preview` in this environment.
+- Both `gemini-2.5-flash` and `gemini-2.5-pro` were re-validated successfully here.
+- `--output-format json` gives a structured payload with `response` and `stats.models`.
+- If `-p` ever becomes deprecated or starts failing, verify the current headless equivalent from local help and upstream docs before changing the skill.
 
-### Sequential (single engine)
-```bash
-# Bash tool params: run_in_background: true
-# Codex
-codex exec --dangerously-bypass-approvals-and-sandbox "Context: ... Question: ..." > /tmp/codex-review.txt 2>&1
+## Output Integrity
 
-# Gemini
-run_gemini_review() {
-  local prompt="$1"
-  local out="$2"
+These rules are non-negotiable:
 
-  GEMINI_MODEL=gemini-3.1-pro-preview gemini -p "$prompt" > "$out" 2>&1
-  local status=$?
+1. **Never truncate stdout** with `head`, `tail`, or similar filters before the engine has completed.
+2. **Always capture logs to a file** so the failure signature can be inspected and the success signal can be separated from startup noise.
+3. **Prefer structured outputs** when the CLI supports them:
+   - Codex: `--output-last-message` and optionally `--json`
+   - Claude: `--output-format json`
+   - Gemini: `--output-format json`
+4. **Do not confuse noisy success with failure**. Some CLIs print warnings or startup chatter even when the invocation succeeded.
 
-  if [ "$status" -eq 0 ]; then
-    return 0
-  fi
+## Failure Handling — Mandatory Self-Healing Protocol
 
-  if rg -q 'ModelNotFoundError|Requested entity was not found|does not have access|code: 404' "$out"; then
-    gemini -p "$prompt" > "$out" 2>&1
-    return $?
-  fi
+When an engine call fails, the orchestrator must treat it as an incident in the second-opinion infrastructure.
 
-  return "$status"
-}
+### Step 1 — Capture the real failure
 
-run_gemini_review "Context: ... Question: ..." /tmp/gemini-review.txt
-```
+- Save full stdout/stderr to a file.
+- Record the exact command used.
+- Record exit code, timeout behavior, and whether any output file was produced.
 
-### Parallel (both engines)
-Launch BOTH engines from the routing table above via the Bash tool in a single message
-(two parallel Bash calls, both with `run_in_background: true`):
-- Call 1: Engine 1 from routing table → output to file
-- Call 2: Engine 2 from routing table → output to file
-- Then synthesize both responses, highlighting agreements and divergences
+### Step 2 — Classify the failure
 
-**Key rule:** Check which tool you are running in FIRST (via env vars), then consult the OTHER two engines only.
+Typical buckets:
 
-## Prompt Template (same for both engines)
+- **Local harness bug**: shell quoting, redirection bug, bad variable name, wrong working directory
+- **CLI surface drift**: command, flag, or subcommand changed
+- **Git topology mismatch**: command assumes a git repo but current cwd is not the git root
+- **Auth/session problem**: login expired, permission missing
+- **Capacity/rate-limit problem**: `429`, `RESOURCE_EXHAUSTED`, temporary backend saturation
+- **Non-fatal warning noise**: warnings on stdout/stderr but valid result actually produced
+- **Model availability problem**: requested model not found, no access, preview removed
 
-```
+### Step 3 — Retry with the smallest justified fix
+
+Examples:
+
+- fix the shell wrapper instead of blaming the engine
+- change `cwd`, add `-C <git-root>`, or add `--skip-git-repo-check`
+- switch to structured output instead of parsing noisy stdout
+- back off and retry on transient capacity issues
+- use a verified fallback model when the default route is degraded
+
+### Step 4 — Inspect local evidence
+
+Before going to the web, inspect:
+
+- `<cli> --help`
+- relevant subcommand help (`codex exec --help`)
+- local config (`~/.codex/config.toml`, `~/.gemini/settings.json`, Claude settings when relevant)
+- installed package docs on disk
+- the current version (`<cli> --version`)
+- any previous verified entries in `references/verified-learning.md`
+
+### Step 5 — Research the internet if local evidence is insufficient
+
+When the local evidence is incomplete or contradictory:
+
+- research the current official docs first
+- then use credible upstream sources such as the official repo, release notes, or issue tracker
+- treat third-party blog posts or forum answers as hypotheses until validated locally
+
+### Step 6 — Verify in real behavior
+
+The repair is not complete until an actual invocation succeeds.
+
+Success means:
+
+- exit code is consistent with success
+- the expected output file or structured response exists
+- the returned payload is usable for the second-opinion workflow
+
+### Step 7 — Persist only the verified learning
+
+After a real successful repair:
+
+1. Update `references/verified-learning.md`
+2. Update this `SKILL.md` only if the canonical guidance changed
+3. Replace or mark outdated instructions explicitly
+
+Never save:
+
+- speculative commands
+- untested web findings
+- "should work" hypotheses
+
+### Step 8 — Resume the original mission automatically
+
+After the repaired path is validated:
+
+1. rerun the second-opinion request if the failed engine missed the review
+2. synthesize the responses
+3. continue the original task automatically
+
+Do not ask the user to manually restart the task just because the skill had to repair itself.
+
+## Prompt Template
+
+Use the same structured prompt for all engines:
+
+```text
 Context: [Project name] ([tech stack]).
 Working directory: [pwd]
-Relevant docs: CLAUDE.md files at root and in .claude/ directories.
+Relevant docs: CLAUDE.md / AGENTS.md and any local project memory files that matter.
 Repository evidence: [paths/lines from prior search]
 
 Task: [specific question]
@@ -164,188 +257,82 @@ Please return:
 (2) Supporting citations (file paths:line numbers)
 (3) Risks/edge cases
 (4) Recommended next steps/tests
-(5) Open questions — list any uncertainties explicitly
+(5) Open questions — list uncertainties explicitly
 ```
 
 ## Search-First Checklist
 
-Before querying ANY engine:
-- [ ] `rg <token>` in repo for existing patterns
-- [ ] Skim relevant `CLAUDE.md` (root, .claude/*) for project norms
-- [ ] `git log -p -- <file/dir>` if history matters
-- [ ] Note findings in the prompt as "Repository evidence"
+Before querying any external engine:
+
+- [ ] `rg <token>` in the repo for existing patterns
+- [ ] skim relevant `CLAUDE.md` / `AGENTS.md`
+- [ ] inspect git history if history matters
+- [ ] include repository evidence in the prompt
+- [ ] read `references/verified-learning.md`
 
 ## Output Discipline
 
-### Single engine response
-Present the engine's structured reply directly:
+### Single-engine response
+
+Present:
+
 1. Decisive answer
 2. Citations
 3. Risks/edge cases
 4. Next steps
 5. Open questions
 
-### Parallel response synthesis
-When both engines respond, present:
-1. **Consensus** — what both engines agree on
-2. **Divergences** — where they disagree, with each engine's reasoning
-3. **Synthesis** — Claude Code's own recommendation considering both perspectives
-4. **Risks** — combined risks from both analyses
-5. **Next steps** — unified action items
+### Parallel synthesis
 
-## Performance Expectations
+Present:
 
-- **Codex**: 30s to 2 minutes typical
-- **Gemini**: 15s to 1 minute typical
-- **Best practice**: Launch queries early, work on other analysis while waiting
-- **Parallel execution**: Both finish within ~2 minutes max
+1. **Consensus**
+2. **Divergences**
+3. **Orchestrator synthesis**
+4. **Combined risks**
+5. **Unified next steps**
 
 ## Verification Checklist
 
 After receiving responses, verify:
-- [ ] Compatible with current library versions (not outdated patterns)
-- [ ] Follows the project's directory structure
-- [ ] Matches authentication/database patterns in use
-- [ ] Considers project-specific constraints from CLAUDE.md
-- [ ] No hallucinated file paths or APIs
+
+- [ ] the invocation path used is still valid on the current machine
+- [ ] the answer matches current project conventions
+- [ ] the answer does not rely on hallucinated files or APIs
+- [ ] the repair, if any, was verified in real behavior
+- [ ] any new learning has been persisted only after verification
 
 ## Key Principles
 
-1. **Independence**: Each engine provides unbiased analysis without seeing the other's response
-2. **Evidence-Based**: Require citations, not just opinions
-3. **Synthesis over copy-paste**: Claude Code synthesizes and adds its own judgment
-4. **Transparency**: Always tell the user which engine(s) were consulted
-5. **Pragmatism**: Don't use parallel queries for trivial questions — reserve for decisions that matter
+1. **Independence**: each consulted engine analyzes without seeing the other's answer
+2. **Evidence-based**: require citations, not just opinions
+3. **Self-healing**: broken invocation paths are repaired before the orchestrator continues
+4. **Verified memory**: only real working paths enter the skill
+5. **Transparency**: tell the user which engines were consulted and whether a repair was needed
+6. **Pragmatism**: second opinion is for decisions that matter, not trivialities
 
-## Why Claude Code always executes (never the consulting engine)
+## Execution Ownership and Automatic Resume
 
-Even when Claude Code adopts an approach proposed by Codex or Gemini, **Claude Code remains the sole executor**. The consulting engines are advisors, never implementers.
+The current orchestrator remains the default executor of the original task. The external engines are advisors unless the user explicitly asks for delegated implementation.
 
-### The architect analogy
-An architect consults structural engineers and soil experts — he integrates their expertise, but he draws the final plans because he holds the overall project vision. Same here: Claude Code holds the accumulated session context, project conventions, and user preferences.
+This means:
 
-### Why not delegate execution to the engine with the best idea?
+- the orchestrator pauses only long enough to repair and complete the second-opinion phase
+- the orchestrator then resumes the original mission automatically
+- the user does not need to issue a second prompt just to restart the interrupted work
 
-1. **Lost context**: Codex/Gemini operate in headless mode — they don't carry the session history, prior decisions, CLAUDE.md rules, or project memory that Claude Code has built up
-2. **Convention blindness**: They don't know the project's patterns (naming, structure, auth, DB) unless we explicitly pass everything — which is fragile and incomplete
-3. **No real-time quality control**: If Codex writes code, Claude Code can't supervise mid-execution — only review after the fact
-4. **Debugging complexity**: Mixed authorship ("who wrote this and why?") makes future maintenance harder
-5. **Gemini limitation**: `gemini -p` is text in/out only — no filesystem access in headless mode
+## Optional Delegated Execution (explicit user request only)
 
-### The correct workflow
-1. Second opinion → receive proposals from Codex/Gemini
-2. User chooses which approach to follow
-3. Claude Code writes the implementation plan based on the chosen approach
-4. **Propose the execution choice to the user** — Claude Code is recommended, but the user decides (see "Execution Choice" below)
-5. Execute with the chosen engine
+If the user explicitly asks another engine to implement:
 
-Claude Code is the recommended executor for the reasons above, but the user always gets the final say — see the mandatory proposal in "Execution Choice" below.
+1. prepare a full context package
+2. make the delegated call
+3. review the result locally
+4. run the relevant tests
+5. report what was delegated and what was adjusted afterward
 
-## Execution Choice — Who implements?
-
-When the second-opinion phase is complete and implementation work follows, **always propose the choice to the user** before executing. Never assume one executor by default.
-
-### The proposal (MANDATORY before any execution)
-
-Simply ask:
-
-```
-Qui exécute ? Claude Code ou Codex ?
-```
-
-That's it. No pros/cons, no justifications. The user decides.
-
-### How to recommend
-
-| Situation | Recommander | Pourquoi |
-|-----------|-------------|----------|
-| Multi-file refactor, architecture | Claude Code | Contexte cross-fichiers critique |
-| Security-sensitive code | Claude Code | Pas de marge d'erreur |
-| Bien scopé, 1-3 fichiers | Codex | Efficace, context package facile |
-| Tokens Claude limités | Codex | Utiliser l'autre allowance |
-| Boilerplate, tests | Codex | Tâche mécanique |
-| Correction post-review Codex | Claude Code | Connaît déjà les findings |
-
-### Why this matters
-The user pays for both subscriptions. The choice has real trade-offs in quality, speed, and token usage. Making it explicit avoids assumptions and lets the user optimize.
-
-## Delegated Execution Mode (explicit user override)
-
-**By default, Claude Code always executes.** But the user can explicitly delegate execution to Codex when needed — typically when Claude Code token limits are reached and the user wants to use their Codex allowance instead.
-
-### Trigger phrases
-- "Codex exécute ça" / "Codex handle this"
-- "Délègue à Codex" / "Delegate to Codex"
-- "Fais faire ça par Codex" / "Have Codex do this"
-- "J'ai plus de tokens, passe à Codex" / "I'm out of tokens, switch to Codex"
-
-### Why this exists
-The user pays for both Claude Code and Codex subscriptions. When Claude Code's token allowance is exhausted, it makes sense to leverage the Codex allowance for implementation work rather than waiting for limits to reset.
-
-### Context Package Protocol
-Since Codex has none of Claude Code's session context, Claude Code MUST prepare a comprehensive context package before delegating. This is the critical step that determines quality.
-
-**Claude Code prepares and passes to Codex:**
-
-1. **Project identity**: name, stack, repo structure
-2. **Conventions**: extracted from CLAUDE.md, existing code patterns (naming, file structure, import style, error handling patterns)
-3. **Relevant file contents**: the actual content of files Codex will need to read or modify — Codex can read files itself, but explicitly providing them in the prompt ensures it starts with the right context
-4. **The task**: precise description of what to implement, with acceptance criteria
-5. **Boundaries**: which files to create/modify, which files NOT to touch
-6. **Schema/types**: relevant type definitions, DB schema, API contracts so Codex doesn't invent its own
-
-**Prompt template for delegated execution:**
-```
-You are executing a task in an existing project. Follow these conventions exactly.
-
-PROJECT: [name] — [stack]
-WORKING DIRECTORY: [pwd]
-
-CONVENTIONS:
-- [extracted from CLAUDE.md and codebase patterns]
-
-RELEVANT FILES (current content):
---- [file path 1] ---
-[content]
---- [file path 2] ---
-[content]
-
-TASK:
-[precise description with acceptance criteria]
-
-BOUNDARIES:
-- Create/modify ONLY: [list of files]
-- Do NOT touch: [list of files]
-- Follow existing patterns in the files above — do not introduce new patterns
-
-AFTER COMPLETING:
-- Run: [test command if applicable]
-- Show: the diff of all changes made
-```
-
-### Execution command
-```bash
-codex exec --dangerously-bypass-approvals-and-sandbox "[full context package prompt]"
-```
-
-### Post-execution review (MANDATORY)
-After Codex finishes, Claude Code MUST:
-1. **Read all modified files** to verify the changes
-2. **Check convention compliance** — naming, structure, patterns match the project
-3. **Run tests** if applicable
-4. **Fix minor issues** directly (typos, import paths, style inconsistencies)
-5. **Report to user**: what Codex did, what Claude Code adjusted, any concerns
-
-### Limitations to communicate to user
-- **No Gemini equivalent**: `gemini -p` cannot modify files — delegated execution is Codex-only
-- **Larger tasks = more risk**: the bigger the task, the more likely Codex will deviate from project conventions despite the context package
-- **No interactive correction**: Codex runs in one shot — if it goes wrong, Claude Code fixes after the fact
-- **Recommended scope**: single files or small focused tasks (one function, one component, one test file) — not multi-file architectural changes
-
-### When to recommend delegated execution vs. waiting
-- **Delegate**: well-scoped tasks with clear boundaries, boilerplate-heavy work, test writing, single-file implementations
-- **Wait for Claude Code**: multi-file refactors, architecture changes, security-sensitive code, anything requiring deep project context across many files
+For headless delegated execution, prefer engines that can actually modify files in the current environment. Text-only headless advisors remain advisors.
 
 ## Relationship to old `codex` skill
 
-This skill **supersedes** the standalone `codex` skill. All second-opinion functionality should go through `second-opinion`. The `codex` skill can be removed.
+This skill supersedes the standalone `codex` skill. All second-opinion work should go through `my-personal-second-opinion`.

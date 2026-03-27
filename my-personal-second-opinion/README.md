@@ -1,72 +1,90 @@
 # my-personal-second-opinion
 
-Obtenir un second avis independant de deux autres moteurs IA avant de valider un plan ou une decision technique importante.
+Obtenir un second avis independant de deux autres moteurs IA, tout en gardant le skill a jour quand les CLIs evoluent.
 
-## La these derriere ce skill
+## Ce que ce skill fait maintenant
 
-Un seul modele IA, aussi bon soit-il, a des biais systematiques. Il va privilegier certains patterns, ignorer certains risques, et confirmer ses propres hypotheses.
+Ce skill n'est plus un simple routeur "appelle les deux autres outils". Il est maintenant **self-healing**:
 
-Deux modeles independants qui arrivent a la meme conclusion, c'est un signal fort. Deux modeles qui divergent, c'est un signal encore plus precieux : ca veut dire qu'il y a un angle qu'on n'a pas vu.
+- si un appel a un moteur externe casse, ce n'est plus un bug silencieux
+- l'agent orchestrateur doit d'abord reparer ce chemin d'appel
+- il doit verifier le correctif en comportement reel
+- il ne doit enregistrer le learning que si le chemin repare fonctionne vraiment
+- puis il reprend automatiquement la mission initiale sans demander a l'utilisateur de relancer le travail
 
-Ce skill institutionnalise cette pratique. Il ne demande pas "est-ce que ca va ?". Il demande a deux moteurs differents de faire leur propre analyse, independamment, puis synthetise les resultats.
+## Doctrine
 
-## Comment ca fonctionne
+Les principes sont les suivants:
 
-Le skill est **context-aware** : il detecte dans quel outil il tourne et consulte les deux *autres*.
+1. **Pas de degradation silencieuse**  
+   Si le skill a ete invoque, c'est qu'on a besoin de ce second avis. On ne fait pas semblant que "un seul moteur suffit" juste parce qu'un autre a casse.
 
-| Je suis dans... | Je consulte... |
-|---|---|
-| **Claude Code** | Codex (OpenAI) + Gemini (Google) |
-| **Codex** | Claude Code (Anthropic) + Gemini (Google) |
-| **Gemini** | Claude Code (Anthropic) + Codex (OpenAI) |
+2. **Repair first**  
+   Si un appel casse, l'orchestrateur traite ce probleme en priorite avant de revenir a la tache metier initiale.
 
-La regle cle : **ne jamais se consulter soi-meme**. Si on est dans Codex, inutile de demander l'avis de Codex — il le donne deja dans la session en cours.
+3. **Local evidence first**  
+   On commence par verifier la realite locale:
+   - `--help`
+   - version CLI
+   - config locale
+   - docs package installees
+   - comportement reel des commandes
 
-Chaque moteur recoit le meme prompt structure (contexte, question, contraintes) et produit son analyse independamment. Le moteur dans lequel on se trouve synthetise ensuite les deux reponses : consensus, divergences, risques, et recommandation finale.
+4. **Recherche web si necessaire**  
+   Si la surface CLI a change ou si les infos locales ne suffisent pas, on fait de la recherche externe sur les sources officielles / upstream credibles.
 
-## Quand ce skill s'active
+5. **Verified learning only**  
+   On n'ajoute rien au skill tant qu'on n'a pas un chemin repare qui marche vraiment chez nous.
 
-### Automatiquement (via hook)
+6. **Resume automatique**  
+   Une fois le skill repare, l'orchestrateur relance la phase second-opinion si necessaire puis reprend tout seul la tache initiale.
 
-Un hook (`plan-review.sh`) detecte quand un plan est redige. Si un plan est detecte (headers de plan + etapes structurees), le hook bloque et force l'invocation du skill.
+## Memoire verifiee
 
-Ce hook existe dans :
-- **Claude Code** : hook Stop dans `~/.claude/hooks/plan-review.sh`
-- **Gemini CLI** : hook AfterAgent dans `~/.gemini/hooks/plan-review.sh`
-- **Codex** : pas de hook natif, enforcement par regle dans AGENTS.md
+Le fichier:
 
-### Manuellement
+- `references/verified-learning.md`
 
-L'utilisateur peut aussi l'invoquer explicitement avec "ask Codex", "ask Gemini", "second opinion", ou en mentionnant directement le skill.
+est la base de connaissance reutilisable du skill.
 
-## Pourquoi c'est obligatoire sur les plans
+On y stocke seulement:
 
-Les plans sont le point ou les erreurs coutent le plus cher. Un mauvais plan, c'est des heures de travail dans la mauvaise direction. Un bon plan avec un angle mort, c'est un incident en production.
+- les commandes verifiees
+- les signatures d'erreur observees
+- les fallbacks qui ont vraiment marche
+- les instructions devenues obsolete puis remplacees
 
-Le cout d'un second avis est de 1-2 minutes (deux appels paralleles en arriere-plan). Le cout d'un plan incorrect est de plusieurs heures de rework.
+## Learnings verifies a ce jour
 
-Le ratio est tellement desequilibre qu'il n'y a aucune raison de ne pas le faire systematiquement.
+### Codex
 
-## Les moteurs et leurs forces
+Verifie en comportement reel:
 
-| Moteur | Commande | Forces |
-|--------|----------|--------|
-| **Codex** (OpenAI) | `codex exec --dangerously-bypass-approvals-and-sandbox` | Code, architecture, infrastructure |
-| **Gemini** (Google) | `gemini -p` | Raisonnement profond, contexte long (1M tokens), audio/video natif |
-| **Claude Code** (Anthropic) | `claude -p` | Frontend, integration codebase, multi-fichiers |
+- `codex exec` fonctionne bien en headless
+- `--output-last-message` est le signal de succes le plus propre
+- `--skip-git-repo-check` est utile quand le cwd n'est pas le vrai git root
+- des warnings de startup (`state db`, MCP, etc.) peuvent apparaitre sans invalider l'appel si la vraie reponse a bien ete produite
 
-## L'evolution de ce skill
+### Claude
 
-Ce skill a commence comme un outil unidirectionnel : depuis Claude Code, on consultait Codex et Gemini. C'etait utile, mais incomplet.
+Verifie en comportement reel:
 
-Le probleme est apparu quand Codex a commence a utiliser le skill aussi — sauf qu'il suivait les memes instructions ecrites pour Claude Code. Resultat : Codex consultait... Codex. Un appel recursif inutile. Le meme modele, les memes biais, zero perspective independante.
+- `claude -p` fonctionne
+- `--output-format json` donne une sortie structuree propre
 
-La version actuelle est bidirectionnelle et context-aware. Chaque outil detecte automatiquement qui il est (via des variables d'environnement : `CLAUDECODE`, `CODEX_CI`, `GEMINI_CLI`) et consulte les deux autres. Plus jamais de consultation de soi-meme.
+### Gemini
 
-## Architecture
+Cas reel observe et corrige:
 
-- **Skill** : `~/.agents/skills/my-personal-second-opinion/SKILL.md` — source de verite, lu par les 3 outils via symlinks
-- **Hook Claude Code** : `~/.claude/hooks/plan-review.sh` — detection de plan, force l'invocation
-- **Hook Gemini** : `~/.gemini/hooks/plan-review.sh` — meme logique, adaptee au format Gemini
-- **Regle Codex** : dans CLAUDE.md / AGENTS.md — enforcement "soft" par instruction
-- **Output** : les reponses des moteurs sont ecrites dans `/tmp/` (jamais dans le contexte), lues apres completion
+- le chemin par defaut sans modele explicite est tombe sur un `429 RESOURCE_EXHAUSTED` cible `gemini-3-flash-preview`
+- les chemins suivants ont ete verifies comme fonctionnels:
+  - `gemini -m gemini-2.5-flash -p ... --output-format json`
+  - `gemini -m gemini-2.5-pro -p ... --output-format json`
+
+Donc, dans l'etat actuel verifie, le skill doit preferer un modele Gemini explicite plutot que compter sur la route implicite.
+
+## Pourquoi c'est important
+
+Ce skill sert justement dans les moments ou on a besoin d'un regard externe supplementaire: plan important, architecture, debug complexe, revue securite, decision a enjeu.
+
+Si ce skill casse au moment ou on en a besoin, ce n'est pas un detail. C'est une panne d'infrastructure de raisonnement. La bonne reaction n'est donc pas de l'ignorer, mais de le reparer proprement, de memoriser la solution verifiee, puis de reprendre le travail.
