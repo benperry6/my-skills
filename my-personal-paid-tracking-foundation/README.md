@@ -41,7 +41,7 @@ La doctrine capturee ici est simple :
 - le browser-side seul est insuffisant
 - le server-side pur n'est pas la bonne reponse non plus
 - la bonne fondation de depart est en general **hybride**
-- Google et Meta sont les bases par defaut, puis toute autre regie peut etre ouverte des le depart seulement si elle est reellement coherente avec le produit et le channel plan
+- Google et Meta sont les bases par defaut; dans le cluster Google, la base par defaut est `GTM web + GA4 + GSC + Google Ads`, puis toute autre regie peut etre ouverte des le depart seulement si elle est reellement coherente avec le produit et le channel plan
 - les vendors nommes dans le skill sont des exemples, pas une whitelist; le skill peut recommander une regie non nommee si elle est vraiment pertinente pour le contexte business
 - avant de suggerer le navigateur, on recherche sur internet dans les docs officielles et les APIs si un chemin machine-to-machine credible existe
 - quand une regie expose un vrai chemin machine-to-machine credible, on privilegie API/CLI/MCP avant le navigateur

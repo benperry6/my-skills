@@ -15,18 +15,26 @@ Use this file when moving from recommendation to implementation.
 
 ## Google
 
+- Default Google foundation for this skill: `GTM web + GA4 + GSC + Google Ads`
 - Google Tag Manager account access
 - GA4 property access
-- Google Ads access if future ad conversion import or linking is expected
-- OAuth authorization for Tag Manager and Analytics Admin APIs if API-first setup is expected
+- Search Console property access or the ability to verify ownership programmatically
+- Google Ads account access
+- Google Ads manager-account access when Google Ads API administration or account creation is expected
+- Google Ads developer token when Google Ads API administration is expected
+- OAuth authorization for Tag Manager, Analytics Admin, Search Console, and Site Verification APIs if API-first setup is expected
 - Google Auth Platform publication status should be checked before relying on durable external-user refresh tokens; prefer production over testing when appropriate
 - After OAuth bootstrap, verify the actual granted scopes with a live token inspection call instead of assuming the requested scope list was granted
+- If the Google foundation includes `GSC`, the OAuth bootstrap must actually grant Search Console scopes; otherwise Search Console API calls will fail with `insufficient_scope`
 - Approval of which Google account / GCP project should be used when multiple options exist
 
 ### Common identifiers or settings
 
 - GTM container ID
 - GA4 measurement ID
+- Search Console property identifier
+- Google Ads customer ID
+- Google Ads manager customer ID when applicable
 - GA4 API secret only if Measurement Protocol is used
 
 ## Meta

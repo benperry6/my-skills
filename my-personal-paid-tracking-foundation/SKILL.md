@@ -43,6 +43,7 @@ The canonical bias is:
 7. Never choose a vendor account, business, profile, or cloud project without explicit user approval when multiple valid options may exist
 8. Treat vendor names already present in the skill as examples, not a whitelist; the skill may recommend a niche or newly relevant vendor even if its name does not yet appear anywhere in the skill
 9. Persist only verified learning: update the skill only after a vendor bootstrap or vendor-flow fix has been proven in real behavior, not just inferred from docs or theory
+10. Treat the Google foundation as a connected cluster by default: `GTM web + GA4 + GSC + Google Ads`, then document clearly which parts are already verified programmatically and which parts still have a real UI bootstrap gap
 
 ## Decision Workflow
 
@@ -162,6 +163,7 @@ Unless the context proves otherwise, the default doctrine is:
 - For every vendor, target the broadest relevant machine-to-machine permissions the official flow actually exposes, then verify the real scopes and capabilities with live inspection or API probes
 - For every vendor, enumerate whatever permissions the official flow exposes at runtime instead of freezing a historical scope list in the skill
 - If the official flow exposes a non-expiring or "never expires" token option, prefer it and verify the resulting expiry state after minting
+- For Google specifically, the default cluster is `GTM web + GA4 + GSC + Google Ads`; do not silently drop `GSC` or `Google Ads` from the default baseline once Google is part of the approved foundation
 - When a new vendor bootstrap succeeds in real behavior, or when an outdated vendor flow is corrected and re-verified, update the skill so that future projects can reuse the verified path instead of repeating the same research
 - If research findings do not work in real conditions, do not add them to the skill; keep debugging until a real working path is verified or leave the gap explicitly marked as unverified
 - Browser fallback is acceptable only when the programmatic path genuinely does not exist yet or still has a hard bootstrap gap

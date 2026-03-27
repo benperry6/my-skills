@@ -8,6 +8,8 @@ Use these recipes after classifying the archetype and maturity stage.
 
 - GTM web
 - GA4
+- Google Search Console
+- Google Ads
 - Meta Pixel
 - Any additional vendor pixel/tag only if the near-term channel plan already justifies it (TikTok, LinkedIn, Microsoft, Reddit, etc.)
 - First-party event store in the app/backend
@@ -24,6 +26,7 @@ Use these recipes after classifying the archetype and maturity stage.
 ### Why
 
 - SaaS often converts after several touches, so identity and key lifecycle events matter more than brute-force event volume
+- The Google cluster should be wired early as one system: traffic measurement, search visibility, and future paid-search activation should not be treated as separate late-phase concerns
 - This stack starts audience building and historical signal collection without paying for enterprise infrastructure too early
 
 ### Do not default to
@@ -37,6 +40,8 @@ Use these recipes after classifying the archetype and maturity stage.
 
 - GTM web
 - GA4
+- Google Search Console
+- Google Ads
 - Meta Pixel
 - Any additional vendor pixel/tag only if the category and channel plan justify it (TikTok, Pinterest, Snap, Microsoft, etc.)
 - First-party event store
@@ -52,6 +57,7 @@ Use these recipes after classifying the archetype and maturity stage.
 ### Why
 
 - E-commerce benefits quickly from browser-side commerce signals and retargeting
+- The Google cluster should be wired early as one system: analytics, search visibility, and paid-search readiness reinforce each other from the start
 - Reliability matters most around checkout and purchase, not every single page interaction
 
 ## Recipe C — Pre-revenue Affiliate / Content Site
@@ -60,6 +66,8 @@ Use these recipes after classifying the archetype and maturity stage.
 
 - GTM web
 - GA4
+- Google Search Console
+- Google Ads
 - Meta Pixel if remarketing is part of the model
 - Any additional vendor pixel/tag only if the distribution model already justifies it (TikTok, Pinterest, Reddit, Microsoft, etc.)
 - First-party event store
@@ -74,6 +82,7 @@ Use these recipes after classifying the archetype and maturity stage.
 ### Why
 
 - Affiliate/content businesses often do not own the final sale event
+- The Google cluster should be wired early as one system: analytics, search performance, and future search monetization should not start from zero later
 - The real leverage is clean first-party click and audience data, not over-engineering fake downstream attribution
 
 ## Recipe D — Early traction

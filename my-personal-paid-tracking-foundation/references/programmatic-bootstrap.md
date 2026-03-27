@@ -106,10 +106,34 @@ Verified sequence used successfully:
 7. Verify the access with live GTM and GA4 Admin API calls
 8. If a reusable local client file is needed later, re-materialize it from secure local storage into the standard path instead of recreating it manually
 
+Default Google cluster target for this skill:
+
+- `GTM web`
+- `GA4`
+- `GSC`
+- `Google Ads`
+
+Documented programmatic path to pursue before any browser fallback:
+
+1. Use the Tag Manager API for GTM account/container/tag administration
+2. Use the Analytics Admin API for GA4 property, web data stream, and `googleAdsLinks` administration
+3. Use the Search Console API plus the Site Verification API to add and verify Search Console properties programmatically when possible
+4. Treat Google Ads API administration as a separate bootstrap that requires a manager account plus a developer token
+5. Check the current official docs for Google-service associations each time; if the association is documented only in help-center UI flows and not in a developers API surface, mark it as a real UI bootstrap gap instead of pretending the CLI path is already verified
+
 Important verified constraint:
 
 - Google Cloud project display names are limited to 30 characters, so the canonical access label may need a shortened variant such as `Paid Media Vendor API Access`
 - If `gcloud auth application-default login` crashes on a scope-normalization warning during ADC bootstrap, retry with `https://www.googleapis.com/auth/userinfo.email` instead of the short `email` scope
+- In the current verified ADC state, GTM and GA4 API probes work, but Search Console API probes fail with `insufficient_scope`; if the Google foundation includes `GSC`, the OAuth bootstrap must be expanded before claiming the Google cluster is fully ready
+
+Documented but not yet verified end-to-end in real behavior here:
+
+- Search Console property creation via `sites.add`
+- Search Console ownership verification via the Site Verification API
+- GA4 to Google Ads linking via the Analytics Admin API `googleAdsLinks` surface
+- End-to-end Google Ads API bootstrap with a usable developer token
+- Search Console associations that appear documented in help-center UI flows but do not yet have a verified developers API path in this skill
 
 ### Meta
 
