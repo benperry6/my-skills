@@ -40,6 +40,7 @@ Use this file when moving from recommendation to implementation.
 
 ## Bing Webmaster Tools
 
+- Recommended search baseline extension for owned-domain sites, but not yet verified end-to-end in this skill
 - Bing Webmaster Tools account access
 - Verified site ownership in Bing Webmaster Tools
 - OAuth or API key access if Bing Webmaster Tools APIs should be used programmatically

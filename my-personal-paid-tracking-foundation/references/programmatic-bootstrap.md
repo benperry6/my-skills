@@ -98,13 +98,14 @@ If a vendor imposes naming limits, use the closest shorter variant that preserve
 Verified sequence used successfully:
 
 1. Create or choose a dedicated GCP project for tracking access
-2. Enable the needed APIs such as Tag Manager and Analytics Admin
+2. Enable the needed APIs such as Tag Manager, Analytics Admin, Search Console, Site Verification, and Google Ads API
 3. Create the OAuth client needed for local programmatic access
 4. Move the Google Auth Platform app to production before relying on durable external-user refresh tokens
 5. Mint local credentials for CLI/API use
-6. Verify the actual granted scopes with a live token inspection call instead of trusting the requested scope list
-7. Verify the access with live GTM and GA4 Admin API calls
-8. If a reusable local client file is needed later, re-materialize it from secure local storage into the standard path instead of recreating it manually
+6. If `gcloud auth application-default login` crashes on a scope-normalization warning, retry with `https://www.googleapis.com/auth/userinfo.email` instead of the short `email` scope
+7. Verify the actual granted scopes with a live token inspection call instead of trusting the requested scope list
+8. Verify the access with live GTM, GA4 Admin, Search Console API, and Site Verification API calls
+9. If a reusable local client file is needed later, re-materialize it from secure local storage into the standard path instead of recreating it manually
 
 Default Google cluster target for this skill:
 
@@ -131,19 +132,20 @@ Important verified constraint:
 
 - Google Cloud project display names are limited to 30 characters, so the canonical access label may need a shortened variant such as `Paid Media Vendor API Access`
 - If `gcloud auth application-default login` crashes on a scope-normalization warning during ADC bootstrap, retry with `https://www.googleapis.com/auth/userinfo.email` instead of the short `email` scope
-- In the current verified ADC state, GTM and GA4 API probes work, but Search Console API probes fail with `insufficient_scope`; if the Google foundation includes `GSC`, the OAuth bootstrap must be expanded before claiming the Google cluster is fully ready
+- In the current verified ADC state, GTM, GA4, Search Console API, and Site Verification API probes work once the OAuth bootstrap includes `webmasters` and `siteverification`
+- A developer token can be created and reset in the Google Ads API Center, but Google Ads API calls still fail with `NOT_ADS_USER` until the approved OAuth Google account is actually associated with an Ads account or manager account
 
 Documented but not yet verified end-to-end in real behavior here:
 
 - Search Console property creation via `sites.add`
 - Search Console ownership verification via the Site Verification API
 - GA4 to Google Ads linking via the Analytics Admin API `googleAdsLinks` surface
-- End-to-end Google Ads API bootstrap with a usable developer token
+- End-to-end Google Ads API bootstrap with a usable developer token on the approved `benjaminperry06@gmail.com` account
 - Search Console associations that appear documented in help-center UI flows but do not yet have a verified developers API path in this skill
 
 ### Bing Webmaster Tools
 
-Documented path to pursue:
+Recommended path to pursue, but still unverified in real behavior here:
 
 1. Add the site in Bing Webmaster Tools
 2. Prefer registrar-level `DNS TXT` verification when the canonical ownership target is the whole domain

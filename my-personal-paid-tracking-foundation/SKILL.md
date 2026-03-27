@@ -44,7 +44,7 @@ The canonical bias is:
 8. Treat vendor names already present in the skill as examples, not a whitelist; the skill may recommend a niche or newly relevant vendor even if its name does not yet appear anywhere in the skill
 9. Persist only verified learning: update the skill only after a vendor bootstrap or vendor-flow fix has been proven in real behavior, not just inferred from docs or theory
 10. Treat the Google foundation as a connected cluster by default: `GTM web + GA4 + GSC + Google Ads`, then document clearly which parts are already verified programmatically and which parts still have a real UI bootstrap gap
-11. For owned-domain site projects, add Bing Webmaster Tools to the search baseline, and prefer registrar-level DNS TXT verification when the goal is whole-domain ownership rather than a narrower URL-prefix style verification
+11. For owned-domain site projects, add Bing Webmaster Tools to the recommended search baseline, prefer registrar-level DNS TXT verification when the goal is whole-domain ownership rather than a narrower URL-prefix style verification, and keep the BWT bootstrap explicitly marked as unverified until it has been proven in real behavior
 
 ## Decision Workflow
 
