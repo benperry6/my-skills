@@ -46,6 +46,20 @@ Before touching any vendor account:
 
 If the user says the work must happen on a brand-new account or a different partner-owned account, switch into bootstrap mode and document that sequence instead of silently using an existing personal account.
 
+## Google browser-identity guard
+
+Google is a special risk during browser fallback because several Google accounts can be logged into the same browser session at once.
+
+If a real Google bootstrap gap forces browser fallback:
+
+1. Verify the explicitly approved Google account email first
+2. Verify the active Google account shown in the top-right account switcher before any action
+3. Check any visible `authuser`, session hint, or account badge when available
+4. Treat any mismatch as a hard stop
+5. Do not create, rename, approve, or submit anything in Google until the active browser identity matches the approved Google account
+
+Do not treat "a Google account is already signed in" as sufficient proof that the correct Google account is selected.
+
 ## What to inspect before assuming access is missing
 
 - machine-global tracking access state such as `~/.config/tracking-skills/`
@@ -139,6 +153,7 @@ Important verified constraint:
 - In the current verified Google Ads API state, the approved OAuth identity `benjaminperry06@gmail.com` has access to manager `9095768791` (`Lost N Found`) and `customers:listAccessibleCustomers` works with the developer token minted in the API Center
 - Existing OAuth client secrets in Google Auth Platform are not redisplayable later; if the current secret is lost, add a new secret and capture it at creation time
 - After moving the active Google Auth Platform app to production, the post-production ADC rebootstrap has not yet been revalidated here because Google accounts currently returns a 500 error on `/signin/oauth/consent`; do not claim that durable-production refresh-token path is already re-proven until that rerun succeeds
+- During a real Google browser fallback in a multi-account session, the active browser identity must be checked explicitly in the top-right Google account switcher before any action; failing to do so can send work to the wrong Google account
 
 Documented but not yet verified end-to-end in real behavior here:
 

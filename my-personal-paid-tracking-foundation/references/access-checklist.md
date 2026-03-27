@@ -28,6 +28,7 @@ Use this file when moving from recommendation to implementation.
 - After OAuth bootstrap, verify the actual granted scopes with a live token inspection call instead of assuming the requested scope list was granted
 - If the Google foundation includes `GSC`, the OAuth bootstrap must actually grant Search Console scopes; otherwise Search Console API calls will fail with `insufficient_scope`
 - When the canonical Search Console property should cover the whole domain, prefer a domain property (`INET_DOMAIN`) with registrar-level `DNS TXT` verification instead of relying on a narrower URL-prefix property
+- If Google browser fallback is ever needed, verify the active top-right Google account against the explicitly approved Google email before doing anything; a multi-account Google browser session is a known wrong-account risk
 - Approval of which Google account / GCP project should be used when multiple options exist
 
 ### Common identifiers or settings
