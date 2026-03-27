@@ -10,6 +10,21 @@ Skills that are personal to this stack should follow these conventions:
 - `SKILL.md` frontmatter `name` matches the folder name
 - `SKILL.md` frontmatter `description` starts with `[My Personal Skill]`
 
+## Public Skills: No Durable Local Patches
+
+Do not rely on local edits to public or upstream-managed skills as a durable fix.
+
+Reason:
+
+- installs or updates such as `npx skills add <repo>` may replace or refresh those skill files
+- a local patch on a public skill can disappear on the next reinstall or upstream sync
+
+Default rule:
+
+- if the behavior change is personal to this stack, patch a `my-personal-*` skill instead
+- if the behavior change should live in the public skill, contribute it upstream
+- treat local edits to public skills as temporary debugging only, and remove them once the durable fix exists elsewhere
+
 ## README Rule For Strategic Personal Skills
 
 Not every skill needs a human-facing presentation page.
