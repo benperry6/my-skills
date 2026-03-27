@@ -22,6 +22,7 @@ Use this file when moving from recommendation to implementation.
 - Google Ads account access
 - Google Ads manager-account access when Google Ads API administration or account creation is expected
 - Google Ads developer token when Google Ads API administration is expected
+- In the current verified workflow, Google Ads API access works once the approved OAuth identity is attached to a manager account and the developer token has been minted in API Center
 - OAuth authorization for Tag Manager, Analytics Admin, Search Console, and Site Verification APIs if API-first setup is expected
 - Google Auth Platform publication status should be checked before relying on durable external-user refresh tokens; prefer production over testing when appropriate
 - After OAuth bootstrap, verify the actual granted scopes with a live token inspection call instead of assuming the requested scope list was granted
