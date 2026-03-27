@@ -30,6 +30,28 @@ Do not blur these two jobs.
 - `my-personal-context-distillation` = build and maintain the evidence bank that supports customer truth
 - `product-marketing-context` = compile a derivative context file for downstream skills
 
+## Handoff Contract To `product-marketing-context`
+
+This handoff is easy to get subtly wrong.
+
+If the user explicitly asks to run `product-marketing-context` after context-distillation work:
+
+- do not manually author `.agents/product-marketing-context.md` from memory while merely imitating the target skill's output shape
+- do not say the downstream skill was run unless you actually switch to that skill's workflow
+- explicitly read `product-marketing-context/SKILL.md`
+- explicitly state that you are now using the downstream skill
+- let the downstream skill own the derivative file
+
+Treat the handoff as a real skill switch, not as a loose suggestion to recreate the same document yourself.
+
+Practical rule:
+
+1. finish the canonical files and the evidence bank
+2. propose or accept the handoff
+3. read the downstream skill
+4. execute its workflow using the canonical files as primary sources
+5. only then say that `product-marketing-context` was run
+
 ## Why This Skill Exists
 
 General-purpose LLMs and execution agents can produce a lot, but they drift when they do not have strong business context.
