@@ -46,10 +46,20 @@ Check:
 
 Check:
 
+- whether a cookie banner / CMP actually exists and appears in the real flow
+- first-layer structure (accept / reject / settings) and symmetry of the primary choices
+- banner pattern (bottom sheet, top bar, modal, inline) and whether it creates friction or layout issues
+- whether the preference center is category-first or overly granular by default
 - strictly necessary vs optional trackers
 - consent collection
 - proof of consent
+- ability to re-open and revise choices later
 - post-consent vendor firing logic
+- consent initialization ordering before tags
+- measurement resilience when consent is denied
+- consent-funnel instrumentation for testing and optimization
+- accessibility and mobile usability of the banner itself
+- performance footprint (CLS / LCP / INP risks, script loading strategy)
 - advertising and attribution disclosures
 
 ### Support / chatbot / AI

@@ -1,6 +1,6 @@
 ---
 name: my-personal-product-legal-review
-description: "[My Personal Skill] Use when a digital product needs a post-build legal/compliance review anchored in the real implemented scope. Trigger on requests about legal review, compliance audit, privacy policy, terms, cookies, GDPR/e-commerce obligations, legal text patching, durable-medium/order confirmation flows, or checking whether the real product flow and features are properly covered by legal surfaces. Best fit for FR/EU B2C digital products by default, while remaining adaptable to other jurisdictions when explicitly scoped."
+description: "[My Personal Skill] Use when a digital product needs a post-build legal/compliance review anchored in the real implemented scope. Trigger on requests about legal review, compliance audit, privacy policy, terms, cookies, cookie banner / CMP review or optimization, GDPR/e-commerce obligations, legal text patching, durable-medium/order confirmation flows, or checking whether the real product flow and features are properly covered by legal surfaces. Best fit for FR/EU B2C digital products by default, while remaining adaptable to other jurisdictions when explicitly scoped."
 ---
 
 # My Personal Product Legal Review
@@ -19,6 +19,7 @@ Use this skill when the user asks any variation of:
 
 - "Review the legal compliance of this app / site / SaaS"
 - "Audit our privacy policy / terms / cookies against the real product"
+- "Review or optimize our cookie banner / CMP against the real product and consent flow"
 - "Check whether our legal pages cover the actual flow and features"
 - "What legal obligations do we have given this product?"
 - "Patch the legal texts"
@@ -54,6 +55,7 @@ Its default posture is:
 12. Never let value-first framing override the primary job of the asset; first prove that the chosen vehicle can actually solve the gap it was introduced to solve
 13. Every proposed block or element in a customer-facing asset must have a unique job; if two blocks carry materially the same message, merge or remove one
 14. When implementing a recommended asset, verify that it is actually wired into the real product flow and trigger path; never stop at creating dead code, an unused template, or an uncalled helper
+15. Treat cookie banners as hybrid compliance + marketing + measurement + performance surfaces; never review only the wording while ignoring the real consent runtime, performance footprint, or choice architecture
 
 When the user only asks for analysis, stay at advice level.
 
@@ -76,6 +78,11 @@ Read:
 - `references/value-first-compliance-assets.md`
 - `references/dynamic-skill-selection.md`
 - `references/customer-asset-review-mode.md`
+
+If the request touches cookie banners / CMPs, also read:
+
+- `references/cookie-banner-optimization.md`
+- `references/cookie-banner-deep-research-report.md`
 
 ## Workflow
 
@@ -144,7 +151,7 @@ Typical buckets:
 - subscription, renewal, cancellation, durable-medium confirmation
 - consumer mediation / complaints channel
 - privacy notice / GDPR articles 13-14 style information
-- cookies / consent / measurement / advertising
+- cookies / consent / cookie banner / CMP / measurement / advertising
 - support/chatbot/AI disclosures
 - public sharing / user-generated or publicly exposed data
 - retention / deletion / post-termination behavior
@@ -184,6 +191,35 @@ Separate:
 - what is covered but incomplete or stale
 - what is not covered
 - what is contradicted by the real product behavior
+
+### Step 6.5 — If cookies / CMP are in scope, inspect the real consent surface end-to-end
+
+Do not stop at "there is a cookie policy" or "there is a banner".
+
+Inspect the real implemented consent surface and runtime:
+
+- whether a banner / CMP actually exists
+- where and when it appears
+- first-layer controls and whether reject is as visible/actionable as accept
+- whether there is a true settings path and where it leads
+- category model on the preference center
+- whether the banner feels like a modal, bottom sheet, top bar, inline block, or other pattern
+- whether it creates layout shift, blocks reading, or risks becoming a performance bottleneck
+- whether consent state is initialized before tags that depend on it
+- whether consent updates are applied on the real page where the interaction occurs
+- whether analytics / ads / measurement firing logic is actually gated by the chosen consent state
+- whether the user can re-open and change consent later
+- whether the consent funnel itself is instrumented cleanly enough for testing and optimization
+
+For banner creation or revision, use:
+
+- `references/cookie-banner-optimization.md` for the actionable baseline
+- `references/cookie-banner-deep-research-report.md` as the preserved full research source
+
+When a cookie banner or CMP needs to be created or updated, treat it as a customer-facing asset that must satisfy both:
+
+- the compliance job first
+- then the value / friction / measurement / performance goals
 
 ### Step 7 — Decide the action lane
 
@@ -249,6 +285,7 @@ Use this step only when the legal gap requires a new or revised customer-facing 
 - upgrade confirmation
 - cancellation confirmation
 - support or chatbot disclosure surface
+- cookie banner / CMP surface
 - any other adjacent asset where product value and compliance must coexist
 
 Before choosing any downstream skill, run:
@@ -403,3 +440,5 @@ Actively call out these mistakes when relevant:
 - For classification and evidence capture: `references/scope-classification.md`
 - For obligation buckets and surfaces: `references/legal-surface-matrix.md`
 - For value-first compliance assets: `references/value-first-compliance-assets.md`
+- For cookie banner / CMP optimization: `references/cookie-banner-optimization.md`
+- For the preserved cookie banner deep research source: `references/cookie-banner-deep-research-report.md`

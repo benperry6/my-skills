@@ -7,6 +7,7 @@ Use this file when a legal gap requires a new customer-facing asset such as:
 - upgrade confirmation
 - cancellation confirmation
 - support-channel notice
+- cookie banner / CMP
 
 ## Principle
 
@@ -32,6 +33,31 @@ Do not continue the review as if the vehicle were valid.
 Choose a different vehicle first.
 
 Value-first starts only after the vehicle passes this gate.
+
+## Cookie Banner / CMP Specific Rule
+
+Cookie banners are a special case.
+
+Their primary job is not only "show a legal notice". It is usually a combined runtime job:
+
+- expose the real consent choices that the scoped regime requires
+- map those choices to the real measurement / advertising / personalization runtime
+- stay usable on mobile and accessible to real users
+- avoid creating unnecessary friction, performance regressions, or fake choice architecture
+
+So for cookie banners:
+
+1. verify the banner vehicle can do the consent/runtime job
+2. verify the banner is compatible with the actual tracking stack
+3. only then optimize the copy, placement, and interaction design for useful consent, lower friction, measurement quality, and performance
+
+Do not optimize banner consent rates with asymmetry or misleading UI and call that "value-first".
+For this surface, value-first means:
+
+- maximum useful consent without dark-pattern steering
+- minimum friction without hiding the real choice
+- better measurement without breaking consent semantics
+- better performance without breaking the consent flow
 
 Sequence the asset like this:
 
