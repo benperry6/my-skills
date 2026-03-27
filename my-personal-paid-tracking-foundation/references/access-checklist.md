@@ -26,6 +26,7 @@ Use this file when moving from recommendation to implementation.
 - Google Auth Platform publication status should be checked before relying on durable external-user refresh tokens; prefer production over testing when appropriate
 - After OAuth bootstrap, verify the actual granted scopes with a live token inspection call instead of assuming the requested scope list was granted
 - If the Google foundation includes `GSC`, the OAuth bootstrap must actually grant Search Console scopes; otherwise Search Console API calls will fail with `insufficient_scope`
+- When the canonical Search Console property should cover the whole domain, prefer a domain property (`INET_DOMAIN`) with registrar-level `DNS TXT` verification instead of relying on a narrower URL-prefix property
 - Approval of which Google account / GCP project should be used when multiple options exist
 
 ### Common identifiers or settings
@@ -36,6 +37,19 @@ Use this file when moving from recommendation to implementation.
 - Google Ads customer ID
 - Google Ads manager customer ID when applicable
 - GA4 API secret only if Measurement Protocol is used
+
+## Bing Webmaster Tools
+
+- Bing Webmaster Tools account access
+- Verified site ownership in Bing Webmaster Tools
+- OAuth or API key access if Bing Webmaster Tools APIs should be used programmatically
+- Prefer registrar-level `DNS TXT` verification when the canonical ownership target is the full domain rather than a narrower page-level verification method
+- Approval of which Microsoft/Bing account should be used when multiple options exist
+
+### Common identifiers or settings
+
+- Bing Webmaster Tools site URL or domain entry
+- Bing Webmaster Tools API key if the API-key path is used
 
 ## Meta
 

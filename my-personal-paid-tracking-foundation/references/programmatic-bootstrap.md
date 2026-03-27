@@ -121,6 +121,12 @@ Documented programmatic path to pursue before any browser fallback:
 4. Treat Google Ads API administration as a separate bootstrap that requires a manager account plus a developer token
 5. Check the current official docs for Google-service associations each time; if the association is documented only in help-center UI flows and not in a developers API surface, mark it as a real UI bootstrap gap instead of pretending the CLI path is already verified
 
+Canonical Search Console ownership rule for this skill:
+
+- if the goal is whole-domain ownership, prefer a domain property rather than a URL-prefix property
+- for that canonical domain-level path, prefer registrar-level `DNS TXT` verification
+- treat a URL-prefix property such as `https://example.com` as narrower than a full-domain property such as `example.com`
+
 Important verified constraint:
 
 - Google Cloud project display names are limited to 30 characters, so the canonical access label may need a shortened variant such as `Paid Media Vendor API Access`
@@ -134,6 +140,20 @@ Documented but not yet verified end-to-end in real behavior here:
 - GA4 to Google Ads linking via the Analytics Admin API `googleAdsLinks` surface
 - End-to-end Google Ads API bootstrap with a usable developer token
 - Search Console associations that appear documented in help-center UI flows but do not yet have a verified developers API path in this skill
+
+### Bing Webmaster Tools
+
+Documented path to pursue:
+
+1. Add the site in Bing Webmaster Tools
+2. Prefer registrar-level `DNS TXT` verification when the canonical ownership target is the whole domain
+3. Once the site is verified, generate OAuth or API-key access for Bing Webmaster APIs if programmatic administration is needed
+4. Treat import-from-GSC as an optional convenience path, not the canonical ownership-verification rule for this skill
+
+Documented but not yet verified end-to-end in real behavior here:
+
+- End-to-end Bing Webmaster Tools verification using registrar-level `DNS TXT`
+- End-to-end Bing Webmaster Tools API bootstrap with a reusable OAuth or API-key flow
 
 ### Meta
 
