@@ -7,6 +7,7 @@ Use this file when moving from recommendation to implementation.
 - Search the current official docs and API surface on the internet before declaring a vendor UI-only
 - Inventory reusable access already available on the machine before asking for new bootstrap work
 - Present the accessible accounts / businesses / cloud projects and wait for explicit user approval before using one
+- If a vendor is new or a documented flow is failing, update the skill only after the repaired or newly discovered path is verified in real behavior
 - Access to the codebase and deployment platform
 - Access to environment variable management
 - DNS access if a first-party tracking subdomain is ever needed later

@@ -18,6 +18,23 @@ Do not treat Meta as a special exception. Apply the same logic to Google, Meta, 
 
 Treat vendor names already present in the skill as examples, not a whitelist. The skill may recommend a vendor whose name does not yet appear anywhere in the skill if the business context and channel plan justify it.
 
+## Verified learning update loop
+
+Use this rule whenever:
+
+- a newly recommended vendor is not documented yet
+- a previously documented vendor flow no longer works
+
+Workflow:
+
+1. Research the current official docs and API surface on the internet
+2. Try the best programmatic path first
+3. If the path fails, debug it in real conditions instead of assuming the docs are right
+4. Update the skill only after a real working path has been verified
+5. If the path is still unresolved, leave the gap marked as unverified instead of polluting the skill with theory
+
+The skill should therefore learn continuously across projects, but only from verified behavior.
+
 ## Account-choice rule
 
 Before touching any vendor account:
@@ -132,3 +149,18 @@ It should state:
 - which missing approvals or authorizations block it
 - which parts can be done immediately by the agent
 - which parts require explicit user approval or third-party admin rights
+
+## What should be written back into the skill
+
+Only write back concise learnings that have been verified in real behavior, for example:
+
+- a vendor bootstrap sequence that actually worked
+- a corrected workaround for a vendor flow that had become outdated
+- a newly verified permission or token-duration constraint
+- a platform naming or storage constraint that was proven in practice
+
+Do not write back:
+
+- doc snippets that were never tested
+- speculative explanations
+- partial theories that did not result in a working path

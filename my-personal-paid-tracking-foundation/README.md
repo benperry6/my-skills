@@ -51,6 +51,8 @@ La doctrine capturee ici est simple :
 - quand une regie permet un token machine-to-machine non expirant, on le prefere et on verifie ensuite l'etat d'expiration reel du token
 - on ne choisit jamais un compte, business ou projet cloud sans validation explicite de l'utilisateur si plusieurs options existent
 - on reutilise d'abord les acces deja disponibles sur la machine quand ils correspondent au bon business et sont approuves
+- quand une regie n'etait pas encore documentee, ou quand un flow documente est devenu obsolete, on ne met a jour le skill qu'apres avoir reussi a reproduire un chemin qui fonctionne en comportement reel
+- le skill doit donc apprendre en continu, mais uniquement a partir de learnings verifies en pratique, jamais a partir de theorie seule ou de docs non testees
 - les fichiers d'auth qui doivent absolument rester sur disque pour des outils officiels peuvent rester dans leurs emplacements standards, mais avec des permissions strictes
 - les secrets et blobs de bootstrap rematerialisables doivent aller dans un secret store local securise; si `1Password CLI` est reellement disponible et voulu, il peut devenir le backend privilegie, sinon le Keychain macOS est le fallback par defaut
 - quand un nom canonique est utile pour les objets vendors, il doit decrire le mecanisme d'acces cree; la convention preferee est `Paid Media Vendor M2M API Access`, avec une variante courte seulement si une plateforme impose une limite de longueur
@@ -64,6 +66,7 @@ La doctrine capturee ici est simple :
 - la facon d'obtenir ces acces et identifiants par voie programmatique quand c'est possible
 - la facon d'obtenir le jeu de permissions et la duree de token les plus larges que le flow officiel expose reellement au moment du bootstrap
 - la selection explicite du bon compte / business / projet avant toute action
+- la capitalisation des nouveaux learnings verifies quand on documente une nouvelle regie ou qu'on corrige une procedure devenue obsolete
 - le moment ou il faut passer d'une fondation low-cost a une infra plus robuste
 
 ## Ce que ce skill ne couvre pas
