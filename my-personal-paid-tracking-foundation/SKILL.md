@@ -41,6 +41,7 @@ The canonical bias is:
 5. Prefer CLI/API/MCP orchestration over browser clicking whenever the vendor exposes a credible machine-to-machine path
 6. Research the current official docs and API surface on the internet before declaring a vendor "browser-only"
 7. Never choose a vendor account, business, profile, or cloud project without explicit user approval when multiple valid options may exist
+8. Treat vendor names already present in the skill as examples, not a whitelist; the skill may recommend a niche or newly relevant vendor even if its name does not yet appear anywhere in the skill
 
 ## Decision Workflow
 
@@ -170,6 +171,7 @@ This doctrine exists for a business reason, not a tooling reason:
 - prefer Google APIs directly when OAuth access exists
 - prefer Meta APIs directly once app/token/asset bootstrap exists
 - prefer the equivalent machine-to-machine path for any other vendor when it exists
+- treat vendors named in the skill as examples, not a closed list, and recommend unnamed vendors too when the business context justifies them
 - if a vendor has a programmatic path but the access is missing, ask for the exact missing authorization instead of sending the user straight to the admin UI
 - for every vendor, try to issue the broadest relevant machine-to-machine permission set the official flow actually exposes, then verify the granted scopes and live capabilities instead of trusting the UI blindly
 - when the official flow exposes permissions dynamically, enumerate the live options and select all relevant ones instead of hardcoding a stale list

@@ -16,6 +16,8 @@ For every vendor:
 
 Do not treat Meta as a special exception. Apply the same logic to Google, Meta, TikTok, LinkedIn, Microsoft, Reddit, Pinterest, Snap, or any other vendor that becomes relevant.
 
+Treat vendor names already present in the skill as examples, not a whitelist. The skill may recommend a vendor whose name does not yet appear anywhere in the skill if the business context and channel plan justify it.
+
 ## Account-choice rule
 
 Before touching any vendor account:
@@ -114,6 +116,10 @@ Important verified constraints:
 - Meta app names are limited to 30 characters, so the canonical access label may need a shortened variant such as `Paid Media Vendor API Access`
 - Direct rename of an existing system user can still be denied even when the token is broad and non-expiring; creating a new correctly named system user, then assigning it full app control, is a valid fallback
 - The business login configuration was successfully renamed through the real edit route `/apps/<app_id>/create-login-configuration/?config_id=<config_id>`
+- The official Business reference documents business rename by `POST /{business_id}` with a `name` parameter, but live calls can still fail with `3910` when the current identity lacks permission to edit Business Manager details
+- The official Meta Business Help docs document business portfolio deletion in UI, but the Business API delete section documents dissociation of relationships/assets, not direct deletion of the business itself via `DELETE /{business_id}`
+- The official Meta Business Help troubleshooting doc states that a business portfolio with system users cannot be deleted until that blocker is resolved
+- In the verified workflow here, trying to mint a token for an existing admin system user with the current regular system-user token failed with `GENERATE_TOKEN_AUDIT_NEEDED`; treat that as evidence that a stronger admin identity may still be required for some business-level admin actions
 
 ## What the final plan must include
 
