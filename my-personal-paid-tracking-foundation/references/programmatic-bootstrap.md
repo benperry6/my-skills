@@ -53,10 +53,10 @@ Google is a special risk during browser fallback because several Google accounts
 If a real Google bootstrap gap forces browser fallback:
 
 1. Verify the explicitly approved Google account email first
-2. Verify the active Google account shown in the top-right account switcher before any action
-3. Check any visible `authuser`, session hint, or account badge when available
-4. Treat any mismatch as a hard stop
-5. Do not create, rename, approve, or submit anything in Google until the active browser identity matches the approved Google account
+2. Verify the active Google account email shown in the top-right account switcher before any action
+3. Treat `authuser=*`, account indexes, and similar session hints as unstable non-authoritative metadata, not as proof of identity
+4. Treat any mismatch between the visible browser email and the approved Google email as a hard stop
+5. Do not create, rename, approve, or submit anything in Google until the visible browser email matches the approved Google account
 
 Do not treat "a Google account is already signed in" as sufficient proof that the correct Google account is selected.
 
@@ -138,6 +138,16 @@ Documented programmatic path to pursue before any browser fallback:
 3. Use the Search Console API plus the Site Verification API to add and verify Search Console properties programmatically when possible
 4. Treat Google Ads API administration as a separate bootstrap that requires a manager account plus a developer token
 5. Check the current official docs for Google-service associations each time; if the association is documented only in help-center UI flows and not in a developers API surface, mark it as a real UI bootstrap gap instead of pretending the CLI path is already verified
+
+Current Google phase-3 proof map for this skill:
+
+- `GTM` first account and first container bootstrap: not proven as pure CLI; the verified flow here required a browser fallback for GTM Terms of Service, then API reads worked again
+- `GA4` account bootstrap: not proven as pure CLI; the verified flow here used `accounts:provisionAccountTicket`, then a browser Terms-of-Service completion, then API-driven creation of the property, web stream, secret, and later links
+- `Search Console` domain property creation and ownership verification: proven in real behavior with `Search Console API + Site Verification API + registrar DNS TXT`
+- `GA4 ↔ Google Ads`: proven in real behavior with `googleAdsLinks.create`
+- `Search Console ↔ GA4`: proven in real behavior, but the verified path here is Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource
+- brand-new `Google Ads` account creation purely by API: not yet proven in real behavior here
+- `Bing Webmaster Tools` site ownership: proven in real behavior, but the verified path here is vendor UI plus DNS `CNAME`, not a reusable API bootstrap yet
 
 Canonical Search Console ownership rule for this skill:
 

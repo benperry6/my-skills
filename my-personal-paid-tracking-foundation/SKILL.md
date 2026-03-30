@@ -45,7 +45,7 @@ The canonical bias is:
 9. Persist only verified learning: update the skill only after a vendor bootstrap or vendor-flow fix has been proven in real behavior, not just inferred from docs or theory
 10. Treat the Google foundation as a connected cluster by default: `GTM web + GA4 + GSC + Google Ads`, then document clearly which parts are already verified programmatically and which parts still have a real UI bootstrap gap
 11. For owned-domain site projects, add Bing Webmaster Tools to the recommended search baseline, prefer registrar-level DNS verification when the goal is whole-domain ownership rather than a narrower page-level method, and record the actual live vendor method exposed in the real flow; in the currently verified Bing flow here that method is `CNAME`
-12. If Google ever requires browser fallback, treat Google account identity as a blocking precondition: verify the active top-right Google account and any visible `authuser` or session hint against the explicitly approved Google email before touching the page, and stop immediately if the browser is currently on the wrong Google account
+12. If Google ever requires browser fallback, treat Google account identity as a blocking precondition: verify the active top-right Google account email before touching the page, treat `authuser=*`, account indexes, or similar session hints as unstable non-authoritative metadata, and stop immediately if the visible browser email is not the explicitly approved Google account
 
 ## Canonical Phase Architecture
 
@@ -218,7 +218,7 @@ Unless the context proves otherwise, the default doctrine is:
 - For Google specifically, the default cluster is `GTM web + GA4 + GSC + Google Ads`; do not silently drop `GSC` or `Google Ads` from the default baseline once Google is part of the approved foundation
 - For search-relevant owned-domain projects, extend the default search baseline with `BWT`
 - When the goal is whole-domain ownership, prefer registrar-level DNS verification over narrower page-level or subfolder-level methods; in the currently verified Google Search Console flow that method is `DNS TXT`, and in the currently verified Bing Webmaster Tools flow that method is `CNAME`
-- If Google requires browser fallback because a bootstrap gap is real, verify the active Google account in the top-right account switcher before any action, and do not proceed until that browser identity matches the explicitly approved Google account
+- If Google requires browser fallback because a bootstrap gap is real, verify the active Google account email in the top-right account switcher before any action, do not use `authuser=*` or account-index numbers as identity proof, and do not proceed until that visible browser email matches the explicitly approved Google account
 - When a new vendor bootstrap succeeds in real behavior, or when an outdated vendor flow is corrected and re-verified, update the skill so that future projects can reuse the verified path instead of repeating the same research
 - If research findings do not work in real conditions, do not add them to the skill; keep debugging until a real working path is verified or leave the gap explicitly marked as unverified
 - Browser fallback is acceptable only when the programmatic path genuinely does not exist yet or still has a hard bootstrap gap
@@ -252,7 +252,7 @@ This doctrine exists for a business reason, not a tooling reason:
 - for every vendor, try to issue the broadest relevant machine-to-machine permission set the official flow actually exposes, then verify the granted scopes and live capabilities instead of trusting the UI blindly
 - when the official flow exposes permissions dynamically, enumerate the live options and select all relevant ones instead of hardcoding a stale list
 - when the official flow exposes token-duration choices, prefer a non-expiring option if it exists and verify the real expiry with a live token inspection call
-- if Google requires browser fallback, verify the currently selected Google account in the page chrome itself before doing anything, and treat a mismatch between the active browser account and the approved Google account as a hard stop rather than a recoverable detail
+- if Google requires browser fallback, verify the currently selected Google account email in the page chrome itself before doing anything, never rely on `authuser=*` or account-index numbers to identify the right Google account, and treat a mismatch between the visible browser email and the approved Google account as a hard stop rather than a recoverable detail
 - when a new vendor or a repaired vendor flow is proven in real behavior, add the concise verified learning to the skill references so it becomes reusable across future projects
 - when a documented vendor flow no longer works, treat the docs as potentially outdated, re-research it, debug it in real conditions, and replace the outdated instructions only after the new path is verified
 - persist reusable non-sensitive access state in machine-global storage when useful
