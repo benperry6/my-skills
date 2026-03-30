@@ -114,7 +114,7 @@ Verified sequence used successfully:
 1. Create or choose a dedicated GCP project for tracking access
 2. Enable the needed APIs such as Tag Manager, Analytics Admin, Search Console, Site Verification, and Google Ads API
 3. Create the OAuth client needed for local programmatic access
-4. If Google Ads API bootstrap is part of the target cluster, a dedicated project/client can be used for that access layer when needed; in the verified workflow here, `tracking-skills-access-ads` / `Paid Media Ads API Access` became the active project for the Google M2M cluster
+4. Keep the full Google M2M cluster on one approved GCP project unless the user explicitly approves a split into multiple projects
 5. Add the approved Google operator account as a test user when the app is still in test mode and the scopes are not yet approved for general external use
 6. Mint local credentials for CLI/API use
 7. If `gcloud auth application-default login` crashes on a scope-normalization warning, retry with `https://www.googleapis.com/auth/userinfo.email` instead of the short `email` scope
@@ -150,9 +150,9 @@ Important verified constraint:
 - Google Cloud project display names are limited to 30 characters, so the canonical access label may need a shortened variant such as `Paid Media Vendor API Access`
 - If `gcloud auth application-default login` crashes on a scope-normalization warning during ADC bootstrap, retry with `https://www.googleapis.com/auth/userinfo.email` instead of the short `email` scope
 - In the current verified ADC state, GTM, GA4, Search Console API, and Site Verification API probes work once the OAuth bootstrap includes `webmasters` and `siteverification`
+- In the current verified local state for this skill, the active single-project Google M2M cluster runs on `tracking-skills-access` / `Paid Media Vendor API Access`; do not split Google Ads into a second GCP project unless the user explicitly approves that separation
 - In the current verified Google Ads API state, the approved OAuth identity `benjaminperry06@gmail.com` has access to manager `9095768791` (`Lost N Found`) and `customers:listAccessibleCustomers` works with the developer token minted in the API Center
 - Existing OAuth client secrets in Google Auth Platform are not redisplayable later; if the current secret is lost, add a new secret and capture it at creation time
-- After moving the active Google Auth Platform app to production, the post-production ADC rebootstrap has not yet been revalidated here because Google accounts currently returns a 500 error on `/signin/oauth/consent`; do not claim that durable-production refresh-token path is already re-proven until that rerun succeeds
 - During a real Google browser fallback in a multi-account session, the active browser identity must be checked explicitly in the top-right Google account switcher before any action; failing to do so can send work to the wrong Google account
 
 Documented but not yet verified end-to-end in real behavior here:
