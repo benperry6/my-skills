@@ -47,7 +47,57 @@ The canonical bias is:
 11. For owned-domain site projects, add Bing Webmaster Tools to the recommended search baseline, prefer registrar-level DNS TXT verification when the goal is whole-domain ownership rather than a narrower URL-prefix style verification, and keep the BWT bootstrap explicitly marked as unverified until it has been proven in real behavior
 12. If Google ever requires browser fallback, treat Google account identity as a blocking precondition: verify the active top-right Google account and any visible `authuser` or session hint against the explicitly approved Google email before touching the page, and stop immediately if the browser is currently on the wrong Google account
 
+## Canonical Phase Architecture
+
+This skill must reason explicitly in 3 major phases:
+
+### Phase 1 — Prepare the codebase
+
+Adapt the site or app so the paid-tracking foundation can actually exist in code:
+
+- choose the right stack
+- define the event model
+- wire the codebase in the right order
+
+**Phase-1 completion gate:**
+
+- the codebase-side tracking foundation is specified or implemented clearly enough that vendor assets can be connected to it next
+
+### Phase 2 — Bootstrap vendor access
+
+Give the skill the machine-to-machine access it needs for the approved vendor accounts:
+
+- bootstrap or reuse Google / Meta / other vendor access
+- verify the real scopes, permissions, projects, businesses, and tokens
+- store reusable access state and secrets in the canonical places
+
+**Phase-2 completion gate:**
+
+- the approved vendor access exists
+- the real permissions are verified
+- the core vendor APIs respond in real behavior
+
+### Phase 3 — Create, connect, and administer vendor assets
+
+Use the verified vendor access to operate the real vendor layer:
+
+- create or manage assets such as ad accounts, pixels, datasets, tags, and related objects
+- link the relevant Google services together when the API path is real and verified
+- connect the vendor assets to the codebase-side implementation from phase 1
+
+**Phase-3 completion gate:**
+
+- the required vendor assets and inter-service links are proven in real behavior, not just documented
+
+### Mandatory phase guardrails
+
+- `Phase 2 complete` does **not** mean `Phase 3 complete`
+- a default vendor cluster such as `GTM web + GA4 + GSC + Google Ads` does **not** mean every inter-service link is already verified
+- every final answer should label each phase explicitly as `complete`, `partially complete`, or `unverified`
+
 ## Decision Workflow
+
+The workflow below supports the 3-phase architecture above. When execution begins, always map the work back to `Phase 1`, `Phase 2`, or `Phase 3` explicitly instead of treating the whole skill as one undifferentiated block.
 
 ### Step 1 — Classify the project
 
@@ -229,6 +279,7 @@ The final output of this skill should always include these sections:
 
 1. **Diagnostic**
    - short classification of the project and current stage
+   - explicit phase status for `Phase 1`, `Phase 2`, and `Phase 3`
 2. **Recommended stack**
    - the opinionated foundation to use now
 3. **Why this is the right trade-off now**

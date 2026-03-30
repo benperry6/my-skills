@@ -157,6 +157,12 @@ Important verified constraint:
 - If Google Auth Platform remains in `Test` mode, adding the approved Google email as a test user is enough to unblock real ADC bootstrap for that approved account; do not record the Google OAuth path as durable production bootstrap until production mode itself has also been verified in real behavior
 - During a real Google browser fallback in a multi-account session, the active browser identity must be checked explicitly in the top-right Google account switcher before any action; failing to do so can send work to the wrong Google account
 
+Phase-boundary reminder for Google:
+
+- proving the Google bootstrap means the approved project, OAuth path, scopes, and core APIs respond in real behavior
+- it does **not** by itself prove that Search Console properties were created, ownership was verified, GA4 was linked to Google Ads, or a brand-new Google Ads account was created end-to-end
+- those items belong to the later asset-creation and service-linking phase and need their own real verification before they can be treated as complete
+
 Documented but not yet verified end-to-end in real behavior here:
 
 - Search Console property creation via `sites.add`
@@ -205,6 +211,12 @@ Important verified constraints:
 - The official Meta Business Help docs document business portfolio deletion in UI, but the Business API delete section documents dissociation of relationships/assets, not direct deletion of the business itself via `DELETE /{business_id}`
 - The official Meta Business Help troubleshooting doc states that a business portfolio with system users cannot be deleted until that blocker is resolved
 - In the verified workflow here, trying to mint a token for an existing admin system user with the current regular system-user token failed with `GENERATE_TOKEN_AUDIT_NEEDED`; treat that as evidence that a stronger admin identity may still be required for some business-level admin actions
+
+Phase-boundary reminder for Meta:
+
+- proving the Meta bootstrap means the approved business, app, system user, token, and core Graph API probes work in real behavior
+- it does **not** by itself prove that every downstream paid-media asset flow is complete
+- ad-account creation, pixel or dataset administration, and campaign-management claims still need their own real verification before phase 3 can be marked complete
 
 ## What the final plan must include
 
