@@ -23,7 +23,7 @@ Unified skill for getting independent second opinions from external AI engines a
 |--------|----------------------|-----------|
 | **Codex** (OpenAI) | `codex exec ...` | Code, architecture, computer use |
 | **Claude Code** (Anthropic) | `claude -p ...` | Codebase context, multi-file reasoning, implementation review |
-| **Gemini** (Google) | `gemini -p ...` | Long context, multimodal reasoning, broad alternative perspective |
+| **Gemini** (Google) | `gemini -m ... -p ...` | Long context, multimodal reasoning, broad alternative perspective |
 
 ## Verified Learning Base
 
@@ -124,21 +124,36 @@ claude -p "Your query here" --output-format json > /tmp/claude-review.json 2>&1
 
 ### Gemini
 
-Primary verified structured-output pattern on this machine:
+Current local auth mode observed on this machine:
+
+```bash
+~/.gemini/settings.json -> security.auth.selectedType = oauth-personal
+```
+
+Primary verified deterministic structured-output pattern on this machine:
+
+```bash
+gemini -m gemini-3-flash-preview -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
+```
+
+Verified fallbacks:
 
 ```bash
 gemini -m gemini-2.5-flash -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
-```
-
-Verified fallback:
-
-```bash
 gemini -m gemini-2.5-pro -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
 ```
 
-- The no-model path was observed in real behavior to hit `429 RESOURCE_EXHAUSTED` on `gemini-3-flash-preview` in this environment.
-- Both `gemini-2.5-flash` and `gemini-2.5-pro` were re-validated successfully here.
+- `gemini -m gemini-3-flash-preview ...` was re-validated successfully here with exit code `0` and a usable JSON payload.
+- `gemini -m gemini-3.1-pro-preview ...` is a real current Gemini 3.1 model in the official Google docs, but in this `oauth-personal` environment it returned `429 RESOURCE_EXHAUSTED` / `MODEL_CAPACITY_EXHAUSTED`.
+- `gemini -m gemini-3.1-flash-lite-preview ...` is also listed in the official Google docs, but in this `oauth-personal` environment it returned `404 ModelNotFoundError`.
+- The no-model path is not deterministic enough for this skill. It was observed once to fail with `429 RESOURCE_EXHAUSTED` on `gemini-3-flash-preview`, and later to succeed only after routing through `gemini-2.5-flash-lite` as a utility router while attempting one failed tool call.
+- Official Gemini CLI docs state that API key mode is the path for specific model control or paid-tier access. Do not assume behavior verified under `oauth-personal` automatically transfers to `GEMINI_API_KEY` mode, or vice versa.
+- If the local environment later exposes `GEMINI_API_KEY`, re-test the current Gemini 3.1 model path in real behavior before replacing the canonical invocation guidance.
 - `--output-format json` gives a structured payload with `response` and `stats.models`.
+- Current verified fallback order on this machine:
+  1. `gemini-3-flash-preview`
+  2. `gemini-2.5-flash`
+  3. `gemini-2.5-pro`
 - If `-p` ever becomes deprecated or starts failing, verify the current headless equivalent from local help and upstream docs before changing the skill.
 
 ## Output Integrity
@@ -171,6 +186,7 @@ Typical buckets:
 - **CLI surface drift**: command, flag, or subcommand changed
 - **Git topology mismatch**: command assumes a git repo but current cwd is not the git root
 - **Auth/session problem**: login expired, permission missing
+- **Auth-mode mismatch**: current auth mode does not expose the same model surface as the docs path you are reading
 - **Capacity/rate-limit problem**: `429`, `RESOURCE_EXHAUSTED`, temporary backend saturation
 - **Non-fatal warning noise**: warnings on stdout/stderr but valid result actually produced
 - **Model availability problem**: requested model not found, no access, preview removed
@@ -192,6 +208,7 @@ Before going to the web, inspect:
 - `<cli> --help`
 - relevant subcommand help (`codex exec --help`)
 - local config (`~/.codex/config.toml`, `~/.gemini/settings.json`, Claude settings when relevant)
+- current auth mode and whether an API key is actually present
 - installed package docs on disk
 - the current version (`<cli> --version`)
 - any previous verified entries in `references/verified-learning.md`

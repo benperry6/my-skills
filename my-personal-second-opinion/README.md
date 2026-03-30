@@ -74,14 +74,20 @@ Verifie en comportement reel:
 
 ### Gemini
 
-Cas reel observe et corrige:
+Cas reel observe et requalifie:
 
-- le chemin par defaut sans modele explicite est tombe sur un `429 RESOURCE_EXHAUSTED` cible `gemini-3-flash-preview`
-- les chemins suivants ont ete verifies comme fonctionnels:
-  - `gemini -m gemini-2.5-flash -p ... --output-format json`
-  - `gemini -m gemini-2.5-pro -p ... --output-format json`
+- le CLI local est configure en `oauth-personal`, pas en `GEMINI_API_KEY`
+- `gemini -m gemini-3-flash-preview -p ... --output-format json` a ete reverifie comme fonctionnel
+- `gemini -m gemini-3.1-pro-preview -p ... --output-format json` a echoue ici en `429 MODEL_CAPACITY_EXHAUSTED`
+- `gemini -m gemini-3.1-flash-lite-preview -p ... --output-format json` a echoue ici en `404 ModelNotFoundError`
+- le chemin implicite sans modele explicite n'est pas assez deterministe pour ce skill: il peut rerouter via un utility router interne et produire du bruit de tools
 
-Donc, dans l'etat actuel verifie, le skill doit preferer un modele Gemini explicite plutot que compter sur la route implicite.
+Donc, dans l'etat actuel verifie, le skill doit:
+
+- preferer un modele Gemini explicite plutot que compter sur la route implicite
+- utiliser `gemini-3-flash-preview` comme chemin stable actuellement verifie sur cette machine
+- garder `gemini-2.5-flash` puis `gemini-2.5-pro` comme fallbacks reels
+- ne promouvoir `gemini-3.1-*` en chemin canonique qu'apres succes reel dans l'environnement courant
 
 ## Pourquoi c'est important
 
