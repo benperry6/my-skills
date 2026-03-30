@@ -77,16 +77,25 @@ Verifie en comportement reel:
 Cas reel observe et requalifie:
 
 - le CLI local est configure en `oauth-personal`, pas en `GEMINI_API_KEY`
-- `gemini -m gemini-3-flash-preview -p ... --output-format json` a ete reverifie comme fonctionnel
+- le CLI Gemini a ete mis a jour et reverifie de `0.33.0` vers `0.35.3`
+- `gemini -m pro -p ... --output-format json` est bien la bonne premiere tentative sous abonnement, mais echoue ici pour l'instant en `429 MODEL_CAPACITY_EXHAUSTED`
+- `gemini -m auto -p ... --output-format json` a reussi apres cette mise a jour et reste sur le routing d'abonnement
+- un run reel reussi de `-m auto` a montre:
+  - `utility_router = gemini-2.5-flash-lite`
+  - `main = gemini-3-flash-preview`
+- `gemini -m gemini-3-pro-preview -p ... --output-format json` n'est pas un bypass verifie ici: il retombe lui aussi sur la capacite `gemini-3.1-pro-preview`
+- `gemini -m gemini-3-flash-preview -p ... --output-format json` reste reverifie comme fallback fixe fonctionnel
 - `gemini -m gemini-3.1-pro-preview -p ... --output-format json` a echoue ici en `429 MODEL_CAPACITY_EXHAUSTED`
 - `gemini -m gemini-3.1-flash-lite-preview -p ... --output-format json` a echoue ici en `404 ModelNotFoundError`
 - le chemin implicite sans modele explicite n'est pas assez deterministe pour ce skill: il peut rerouter via un utility router interne et produire du bruit de tools
 
 Donc, dans l'etat actuel verifie, le skill doit:
 
-- preferer un modele Gemini explicite plutot que compter sur la route implicite
-- utiliser `gemini-3-flash-preview` comme chemin stable actuellement verifie sur cette machine
-- garder `gemini-2.5-flash` puis `gemini-2.5-pro` comme fallbacks reels
+- tenter `gemini -m pro` d'abord, avec retries bornes et backoff
+- en cas de `MODEL_CAPACITY_EXHAUSTED` repete, retomber sur `gemini -m auto` avant de figer un modele plus ancien
+- garder `gemini-3-flash-preview`, puis `gemini-2.5-flash`, puis `gemini-2.5-pro` comme fallbacks fixes d'urgence
+- conserver le mode headless comme voie canonique pour l'automatisation du skill
+- n'utiliser l'interactif (`/model`, `/auth`) qu'en diagnostic, pas comme strategie normale d'execution
 - ne promouvoir `gemini-3.1-*` en chemin canonique qu'apres succes reel dans l'environnement courant
 
 ## Pourquoi c'est important

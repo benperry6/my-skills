@@ -130,30 +130,46 @@ Current local auth mode observed on this machine:
 ~/.gemini/settings.json -> security.auth.selectedType = oauth-personal
 ```
 
-Primary verified deterministic structured-output pattern on this machine:
+Primary subscription-backed attempt on this machine:
+
+```bash
+gemini -m pro -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
+```
+
+Verified routing fallback on this machine:
+
+```bash
+gemini -m auto -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
+```
+
+Emergency fixed-model fallbacks:
 
 ```bash
 gemini -m gemini-3-flash-preview -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
-```
-
-Verified fallbacks:
-
-```bash
 gemini -m gemini-2.5-flash -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
 gemini -m gemini-2.5-pro -p "Your query here" --output-format json > /tmp/gemini-review.json 2>&1
 ```
 
-- `gemini -m gemini-3-flash-preview ...` was re-validated successfully here with exit code `0` and a usable JSON payload.
-- `gemini -m gemini-3.1-pro-preview ...` is a real current Gemini 3.1 model in the official Google docs, but in this `oauth-personal` environment it returned `429 RESOURCE_EXHAUSTED` / `MODEL_CAPACITY_EXHAUSTED`.
+- Re-validated locally after upgrading Gemini CLI from `0.33.0` to `0.35.3`.
+- `gemini -m pro ...` is the correct subscription-backed first attempt for this skill under `oauth-personal`.
+- In this environment, `gemini -m pro ...` currently resolves to `gemini-3.1-pro-preview`, but it returned repeated `429 RESOURCE_EXHAUSTED` / `MODEL_CAPACITY_EXHAUSTED`.
+- `gemini -m auto ...` succeeded in real behavior after the CLI upgrade and kept Gemini on subscription-backed routing. A verified successful run showed:
+  - `stats.models.utility_router = gemini-2.5-flash-lite`
+  - `stats.models.main = gemini-3-flash-preview`
+- `gemini -m gemini-3-pro-preview ...` is not a verified bypass here. In real behavior after the upgrade it also hit `gemini-3.1-pro-preview` capacity failure.
+- `gemini -m gemini-3-flash-preview ...` remains a verified fixed fallback with exit code `0` and a usable JSON payload.
 - `gemini -m gemini-3.1-flash-lite-preview ...` is also listed in the official Google docs, but in this `oauth-personal` environment it returned `404 ModelNotFoundError`.
 - The no-model path is not deterministic enough for this skill. It was observed once to fail with `429 RESOURCE_EXHAUSTED` on `gemini-3-flash-preview`, and later to succeed only after routing through `gemini-2.5-flash-lite` as a utility router while attempting one failed tool call.
 - Official Gemini CLI docs state that API key mode is the path for specific model control or paid-tier access. Do not assume behavior verified under `oauth-personal` automatically transfers to `GEMINI_API_KEY` mode, or vice versa.
 - If the local environment later exposes `GEMINI_API_KEY`, re-test the current Gemini 3.1 model path in real behavior before replacing the canonical invocation guidance.
+- Headless remains the canonical mode for this skill. Interactive `/model` or `/auth` can be useful during diagnosis, but they are not the default repair path because they depend on TUI dialogs and human choices.
 - `--output-format json` gives a structured payload with `response` and `stats.models`.
 - Current verified fallback order on this machine:
-  1. `gemini-3-flash-preview`
-  2. `gemini-2.5-flash`
-  3. `gemini-2.5-pro`
+  1. `pro` with bounded retries/backoff
+  2. `auto`
+  3. `gemini-3-flash-preview`
+  4. `gemini-2.5-flash`
+  5. `gemini-2.5-pro`
 - If `-p` ever becomes deprecated or starts failing, verify the current headless equivalent from local help and upstream docs before changing the skill.
 
 ## Output Integrity
@@ -199,7 +215,8 @@ Examples:
 - change `cwd`, add `-C <git-root>`, or add `--skip-git-repo-check`
 - switch to structured output instead of parsing noisy stdout
 - back off and retry on transient capacity issues
-- use a verified fallback model when the default route is degraded
+- for Gemini under `oauth-personal`, try `pro` first, but on repeated `MODEL_CAPACITY_EXHAUSTED` degrade to `auto` before falling back to fixed older model IDs
+- use a verified fixed-model fallback only when alias routing is degraded or no longer trustworthy
 
 ### Step 4 — Inspect local evidence
 

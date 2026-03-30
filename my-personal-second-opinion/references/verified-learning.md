@@ -97,6 +97,12 @@ Observed local auth mode:
 }
 ```
 
+Observed local CLI version upgrade:
+
+- before revalidation: `gemini --version -> 0.33.0`
+- after revalidation: `gemini --version -> 0.35.3`
+- package registry at the time of revalidation: `npm view @google/gemini-cli version -> 0.35.3`
+
 Official upstream context checked before reclassification:
 
 - Google Gemini 3 docs list current model IDs including:
@@ -104,6 +110,21 @@ Official upstream context checked before reclassification:
   - `gemini-3.1-flash-lite-preview`
   - `gemini-3-flash-preview`
 - Gemini CLI docs state that API key mode is the path for specific model control or paid-tier access.
+- Gemini CLI docs also state:
+  - `gemini -m pro` should prioritize the most capable model available
+  - capacity issues on Gemini 3 Pro can require retries or fallback
+  - `/model` + **Manual** is the way to inspect whether `gemini-3.1-pro-preview` is exposed interactively
+
+Verified interactive UI facts:
+
+- launching `gemini` interactively showed:
+  - `Signed in with Google: benjaminperry69@gmail.com`
+  - `Plan: Gemini Code Assist in Google One AI Pro`
+- interactive mode also raised folder-trust dialogs before reaching a stable prompt
+
+Implication:
+
+- interactive mode is useful for diagnosis, but it is not a good canonical execution path for an autonomous orchestration skill
 
 Observed failure in real behavior:
 
@@ -120,6 +141,25 @@ Observed failure signature:
 Observed failure in real behavior:
 
 ```bash
+gemini -m pro -p "Reply with exactly: OK" --output-format json
+```
+
+Observed behavior:
+
+- after the CLI upgrade, `-m pro` resolved to `gemini-3.1-pro-preview`
+- repeated retries still ended in the same capacity failure:
+  - `429 RESOURCE_EXHAUSTED`
+  - `MODEL_CAPACITY_EXHAUSTED`
+
+Implication:
+
+- `-m pro` is still the correct subscription-backed first attempt under `oauth-personal`
+- but on this machine today it is not yet a stable successful path
+- treat this as a Google-side capacity/routing problem first, not as proof that the invocation syntax is wrong
+
+Observed failure in real behavior:
+
+```bash
 gemini -m gemini-3.1-flash-lite-preview -p "Reply with exactly: OK" --output-format json
 ```
 
@@ -127,6 +167,39 @@ Observed failure signature:
 
 - `404 ModelNotFoundError`
 - message: `Requested entity was not found.`
+
+Observed failure in real behavior:
+
+```bash
+gemini -m gemini-3-pro-preview -p "Reply with exactly: OK" --output-format json
+```
+
+Observed behavior:
+
+- after the CLI upgrade, this path was not a stable bypass
+- it also ended up failing against `gemini-3.1-pro-preview` capacity on this machine
+
+Implication:
+
+- do not assume `gemini-3-pro-preview` is a safe workaround for `gemini-3.1-pro-preview` under `oauth-personal`
+
+Verified routing fallback path:
+
+```bash
+gemini -m auto -p "Reply with exactly: OK" --output-format json
+```
+
+Observed behavior:
+
+- exit code `0`
+- structured JSON payload with `response: "OK"`
+- `stats.models.utility_router = gemini-2.5-flash-lite`
+- `stats.models.main = gemini-3-flash-preview`
+
+Implication:
+
+- after `pro` capacity failures, `auto` is the best current subscription-backed degradation path on this machine
+- prefer it before pinning a fixed older model ID
 
 Verified working primary path:
 
@@ -157,11 +230,13 @@ Observed behavior:
 Implication:
 
 - For this skill, do not treat the no-model path as deterministic infrastructure
-- In the current `oauth-personal` environment, prefer explicit model selection
+- In the current `oauth-personal` environment, prefer explicit model selection or explicit routing aliases
 - Current verified order on this machine:
-  1. `gemini-3-flash-preview`
-  2. `gemini-2.5-flash`
-  3. `gemini-2.5-pro`
+  1. `pro` with bounded retries/backoff
+  2. `auto`
+  3. `gemini-3-flash-preview`
+  4. `gemini-2.5-flash`
+  5. `gemini-2.5-pro`
 - `gemini-3.1-pro-preview` remains worth retrying during future repair incidents, but it is not a verified default until it succeeds in real behavior here
 - `gemini-3.1-flash-lite-preview` should not be promoted in this environment unless it is first re-validated successfully
 
