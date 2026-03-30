@@ -144,17 +144,17 @@ Current Google phase-3 proof map for this skill:
 
 - `GTM` first account and first container bootstrap: not proven as pure CLI; the verified flow here required a browser fallback for GTM Terms of Service, then API reads worked again
 - `GA4` account bootstrap: not proven as pure CLI; the verified flow here used `accounts:provisionAccountTicket`, then a browser Terms-of-Service completion, then API-driven creation of the property, web stream, secret, and later links
-- `Search Console` domain property creation and ownership verification: proven in real behavior with `Search Console API + Site Verification API + registrar DNS TXT`
+- `Search Console` domain property creation and ownership verification: proven in real behavior with `Search Console API + Site Verification API + authoritative DNS TXT`; in the current live `lostnfound-app.com` setup the registrar is Hostinger and the authoritative DNS host is Cloudflare
 - `Search Console` URL-prefix property creation: proven in real behavior with `sites.add`; `https://lostnfound-app.com/` was added successfully once the domain-property ownership already existed
 - `GA4 ↔ Google Ads`: proven in real behavior with `googleAdsLinks.create`
 - `Search Console ↔ GA4`: proven in real behavior, but the verified path here is Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource
 - brand-new `Google Ads` account creation purely by API: tested in real behavior, but still blocked right now because the developer token has not yet been approved beyond `Explorer` access; after detecting an earlier form submission from the wrong Google account, the official access-level request form at `https://support.google.com/adspolicy/contact/new_token_application` was re-submitted successfully on `2026-03-30` from a support page whose visible top-right Google account email was `benjaminperry06@gmail.com`, but the API Center still showed `Explorer` access immediately afterwards, so final proof still depends on Google's review
-- `Bing Webmaster Tools` site ownership: proven in real behavior, but the verified path here is vendor UI plus DNS `CNAME`, not a reusable API bootstrap yet
+- `Bing Webmaster Tools` site ownership and API-key reuse: proven in real behavior; the verified path here used vendor UI plus DNS `CNAME` to establish ownership, then a generated API key succeeded with `GetUserSites`, `GetSiteRoles`, and `SubmitUrl`
 
 Canonical Search Console ownership rule for this skill:
 
 - if the goal is whole-domain ownership, prefer a domain property rather than a URL-prefix property
-- for that canonical domain-level path, prefer registrar-level `DNS TXT` verification
+- for that canonical domain-level path, prefer verification at the authoritative DNS host, which may differ from the registrar
 - treat a URL-prefix property such as `https://example.com` as narrower than a full-domain property such as `example.com`
 
 Important verified constraint:
@@ -173,12 +173,12 @@ Important verified constraint:
 - Creating a Measurement Protocol secret in GA4 can fail until `acknowledgeUserDataCollection` has been sent on the property; treat that acknowledgement as a prerequisite in the API-first flow
 - In the verified Google phase-3 flow here, a GA account `389288355`, property `530524280`, web stream `14278554952`, GTM account `6347015112`, GTM container `247832530`, and GTM workspace `2` were created successfully
 - In the verified Google phase-3 flow here, `googleAdsLinks.create` successfully linked GA4 property `530524280` to Google Ads customer `9095768791`
-- In the verified Google phase-3 flow here, the Site Verification API successfully verified `lostnfound-app.com` as an `INET_DOMAIN` after the registrar-level `DNS TXT` record was present, and Search Console then resolved `sc-domain:lostnfound-app.com` as `siteOwner`
+- In the verified Google phase-3 flow here, the Site Verification API successfully verified `lostnfound-app.com` as an `INET_DOMAIN` after the authoritative-DNS `TXT` record was present, and Search Console then resolved `sc-domain:lostnfound-app.com` as `siteOwner`
 - In the verified Google phase-3 flow here, `sites.add` also added `https://lostnfound-app.com/` as a URL-prefix Search Console property after the domain property was already owned
 - In the verified Google phase-3 flow here, the Search Console association to GA4 was created successfully in Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource there
 - In the verified Google phase-3 flow here, the Google Ads API Center still showed `Explorer` access after a corrected same-day re-submission of the official Basic/Standard request form from a page whose visible top-right Google account email was `benjaminperry06@gmail.com`; treat brand-new account creation by API as pending Google's review until the access level changes
 - GTM does not require a separate product-link resource in the verified flow here; its role is container and tag deployment plus later codebase wiring rather than a GA-style admin association object
-- `sites.add` can create a Search Console domain-property entry, but that alone does not prove owner-level verification; in the verified real behavior here, `sc-domain:lostnfound-app.com` appeared as `siteUnverifiedUser` until registrar-level DNS TXT ownership is actually present
+- `sites.add` can create a Search Console domain-property entry, but that alone does not prove owner-level verification; in the verified real behavior here, `sc-domain:lostnfound-app.com` appeared as `siteUnverifiedUser` until authoritative-DNS TXT ownership is actually present
 - The Site Verification API can generate the required DNS TXT token and can fail cleanly when the token is not yet present; do not claim domain ownership verification before the insert succeeds or the property resolves as a true owner afterwards
 
 Phase-boundary reminder for Google:
@@ -196,18 +196,20 @@ Documented but not yet verified end-to-end in real behavior here:
 Verified ownership path used successfully here:
 
 1. Add the site in Bing Webmaster Tools
-2. Prefer registrar-level DNS verification when the canonical ownership target is the whole domain; in the currently verified Bing manual flow for `https://lostnfound-app.com/`, Bing exposed `CNAME`, not `TXT`
-3. Add the exact vendor-provided `CNAME` at the registrar or DNS provider, then retry the Bing verification action until the site dashboard becomes accessible
+2. Prefer authoritative-DNS verification when the canonical ownership target is the whole domain; the registrar and the DNS host can differ, and in the currently verified Bing manual flow for `https://lostnfound-app.com/`, Bing exposed `CNAME`, not `TXT`
+3. Add the exact vendor-provided `CNAME` at the authoritative DNS provider, then retry the Bing verification action until the site dashboard becomes accessible
 4. Treat import-from-GSC as an optional convenience path, not the canonical ownership-verification rule for this skill
+5. Once the site dashboard is accessible, open `Settings > API access`, generate an API key, store it in local secret storage, and verify at least one read call (`GetUserSites` or `GetSiteRoles`) plus one low-risk write call (`SubmitUrl`) before documenting Bing as reusable from CLI/API
 
 Important verified constraints:
 
 - In the currently verified Bing manual flow here, whole-site ownership for `https://lostnfound-app.com/` was completed with a vendor-issued `CNAME`, not a `TXT`
 - Successful verification was confirmed by the transition from the onboarding grid to the site dashboard and the post-verification message that Bing was still processing reports
+- In the currently verified Bing API flow here, a generated API key succeeded against `GetUserSites`, `GetSiteRoles`, and `SubmitUrl` for `https://lostnfound-app.com/`, so Bing phase 3 is now reusable from CLI/API with an API key even though ownership itself still began in UI
 
 Documented but not yet verified end-to-end in real behavior here:
 
-- End-to-end Bing Webmaster Tools API bootstrap with a reusable OAuth or API-key flow
+- End-to-end Bing Webmaster Tools OAuth bootstrap; the verified reusable path here uses an API key, not OAuth
 
 ### Meta
 
@@ -239,12 +241,14 @@ Important verified constraints:
 - In the verified phase-3 write probe here, `POST /{business_id}/adaccount` succeeded with that admin system-user token and created `act_1603679097553676` / `Lost N Found Ads`
 - In the verified follow-up probe here, `POST /{business_id}/adspixels` first narrowed to subcode `1784018` because the business had not accepted Pixel Terms of Service
 - In the verified repair here, advancing the first Business Settings dataset-creation flow to the ad-account association step cleared that vendor-side terms gate enough for `POST /{business_id}/adspixels` to succeed and create pixel `1945194923040904` / `Lost N Found Pixel`
+- In the verified follow-up probe here, the created ad account initially had no assigned users; `POST /act_1603679097553676/assigned_users` succeeded with business `610259052914566`, system user `122093447672850739`, and tasks `MANAGE`, `ADVERTISE`, `ANALYZE`, and `DRAFT`
+- In the verified follow-up probe here, the first campaign-create attempt failed until the ad-account assignment existed and `is_adset_budget_sharing_enabled=false` was passed explicitly; after that, `POST /act_1603679097553676/campaigns` succeeded and created paused campaign `120239793688000461` / `Lost N Found Phase3 Verification Campaign`
 
 Phase-boundary reminder for Meta:
 
 - proving the Meta bootstrap means the approved business, app, system user, token, and core Graph API probes work in real behavior
 - it does **not** by itself prove that every downstream paid-media asset flow is complete
-- ad-account creation and pixel creation are now proven in real behavior here, but dataset administration beyond the initial terms-clearing flow and broader campaign-management claims still need their own real verification before Meta phase 3 can be treated as fully complete
+- ad-account creation, system-user assignment to the ad account, pixel creation, and paused campaign creation are now proven in real behavior here, but ad set / ad / creative flows and broader dataset administration beyond the initial terms-clearing flow still need their own real verification before Meta phase 3 can be treated as fully complete
 
 ## What the final plan must include
 

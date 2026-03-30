@@ -23,7 +23,7 @@ Use this file when moving from recommendation to implementation.
 - Google Ads manager-account access when Google Ads API administration or account creation is expected
 - Google Ads developer token when Google Ads API administration is expected
 - In the current verified workflow, Google Ads API access works once the approved OAuth identity is attached to a manager account and the developer token has been minted in API Center
-- In the current verified workflow, a domain-level Search Console property can be fully owner-verified once the registrar-level `DNS TXT` record exists and the Site Verification API insert succeeds
+- In the current verified workflow, a domain-level Search Console property can be fully owner-verified once the authoritative-DNS `TXT` record exists and the Site Verification API insert succeeds; the registrar and the DNS host can differ, and the current `lostnfound-app.com` live setup is `Hostinger registrar + Cloudflare DNS`
 - In the current verified workflow, `sites.add` can also add a narrower URL-prefix property such as `https://lostnfound-app.com/` once the domain-property ownership already exists
 - In the current verified workflow, the Search Console property can then be associated to the GA4 web stream, but the proven path here is the Analytics UI after checking that no public Analytics Admin API resource exists for that association
 - In the current verified workflow, the official Google Ads Basic/Standard access request form was submitted successfully on 2026-03-30, but brand-new Google Ads account creation by API is still blocked right now because `createCustomerClient` keeps returning `DEVELOPER_TOKEN_NOT_APPROVED` until Google approves the developer token beyond `Explorer`
@@ -32,7 +32,7 @@ Use this file when moving from recommendation to implementation.
 - If Google Auth Platform is still in `Test` mode, add the explicitly approved Google email as a test user before retrying ADC bootstrap
 - After OAuth bootstrap, verify the actual granted scopes with a live token inspection call instead of assuming the requested scope list was granted
 - If the Google foundation includes `GSC`, the OAuth bootstrap must actually grant Search Console scopes; otherwise Search Console API calls will fail with `insufficient_scope`
-- When the canonical Search Console property should cover the whole domain, prefer a domain property (`INET_DOMAIN`) with registrar-level `DNS TXT` verification instead of relying on a narrower URL-prefix property
+- When the canonical Search Console property should cover the whole domain, prefer a domain property (`INET_DOMAIN`) with authoritative-DNS `TXT` verification instead of relying on a narrower URL-prefix property
 - If Google browser fallback is ever needed, verify the active top-right Google account email against the explicitly approved Google email before doing anything; never use `authuser=*` or account-index numbers as identity proof in a multi-account Google browser session
 - If Google Ads returns `DEVELOPER_TOKEN_PROHIBITED` on a previously used project, prefer one new clean unified project and retire the blocked project after migration instead of normalizing two active Google M2M projects
 - Approval of which Google account / GCP project should be used when multiple options exist
@@ -52,7 +52,8 @@ Use this file when moving from recommendation to implementation.
 - Bing Webmaster Tools account access
 - Verified site ownership in Bing Webmaster Tools
 - OAuth or API key access if Bing Webmaster Tools APIs should be used programmatically
-- Prefer registrar-level DNS verification when the canonical ownership target is the full domain rather than a narrower page-level verification method; in the currently verified Bing manual flow the DNS method is `CNAME`, not `TXT`
+- Prefer authoritative-DNS verification when the canonical ownership target is the full domain rather than a narrower page-level verification method; the registrar and the DNS host can differ, and in the currently verified Bing flow the DNS method is `CNAME`, not `TXT`
+- In the current verified workflow, a generated Bing Webmaster Tools API key can be stored locally and used programmatically; `GetUserSites`, `GetSiteRoles`, and `SubmitUrl` all succeeded in real behavior with that API key for `https://lostnfound-app.com/`
 - Approval of which Microsoft/Bing account should be used when multiple options exist
 
 ### Common identifiers or settings
