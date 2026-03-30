@@ -24,6 +24,40 @@ Il doit :
 - produire un plan d'implementation concret
 - lister ce que l'agent peut faire et ce que l'utilisateur doit fournir
 
+## Architecture canonique en 3 etapes
+
+Ce skill doit raisonner explicitement en 3 grandes etapes :
+
+### 1. Preparer la codebase
+
+Implementer la fondation tracking dans le site ou l'app :
+
+- choisir la bonne stack
+- definir le bon modele d'evenements
+- adapter la codebase pour que les plateformes puissent etre branchees ensuite
+
+### 2. Bootstrapper les acces vendor
+
+Donner au skill les acces machine-to-machine dont il a besoin pour les plateformes approuvees :
+
+- reutiliser ou recreer les acces Google / Meta / autres
+- verifier les vraies permissions, scopes, tokens, projets et businesses
+- stocker proprement l'etat d'acces reutilisable
+
+### 3. Brancher et administrer les plateformes
+
+Utiliser ces acces pour operer la couche paid media reelle :
+
+- creer les assets vendors
+- relier les services entre eux quand le chemin API est reel et verifie
+- connecter concretement la codebase aux plateformes
+
+### Garde-fous de passage
+
+- finir l'etape 2 ne veut **pas** dire que l'etape 3 est finie
+- avoir Google comme cluster par defaut ne veut **pas** dire que toutes les liaisons Google sont deja prouvees
+- une etape n'est consideree complete que si son resultat est verifie en comportement reel, pas seulement documente
+
 ## La these derriere ce skill
 
 Le probleme recurrent n'est pas de savoir si le tracking paid media est utile. Il l'est.
