@@ -150,10 +150,11 @@ Important verified constraint:
 - Google Cloud project display names are limited to 30 characters, so the canonical access label may need a shortened variant such as `Paid Media Vendor API Access`
 - If `gcloud auth application-default login` crashes on a scope-normalization warning during ADC bootstrap, retry with `https://www.googleapis.com/auth/userinfo.email` instead of the short `email` scope
 - In the current verified ADC state, GTM, GA4, Search Console API, and Site Verification API probes work once the OAuth bootstrap includes `webmasters` and `siteverification`
-- In the current verified ADC state, `tracking-skills-access` / `Paid Media Vendor API Access` works for GTM, GA4, Search Console API, and Site Verification API
-- In the current verified Google Ads API state, an official Google Ads client call on project `412482570662` / `tracking-skills-access` returns `DEVELOPER_TOKEN_PROHIBITED` with the message `Developer token is not allowed with project '412482570662'`
 - Google documents `DEVELOPER_TOKEN_PROHIBITED` as a project-pairing constraint: once a Google API Console project has been paired to a developer token from one manager account, switching to a developer token under a different manager account requires a new Google API Console project unless the Cloud-managed access-levels path under a Google Cloud organization is available
+- In the current verified unified Google state, a fresh project `593495029267` / `tracking-skills-access-unified` works for GTM, GA4, Search Console API, Site Verification API, and Google Ads API with the approved manager account and developer token
+- In the current verified repair path, if an older Google project returns `DEVELOPER_TOKEN_PROHIBITED`, the right fix is not to keep two active Google M2M projects forever; create one new clean unified project, verify every required Google service there, migrate local state, and retire the blocked project
 - Existing OAuth client secrets in Google Auth Platform are not redisplayable later; if the current secret is lost, add a new secret and capture it at creation time
+- If Google Auth Platform remains in `Test` mode, adding the approved Google email as a test user is enough to unblock real ADC bootstrap for that approved account; do not record the Google OAuth path as durable production bootstrap until production mode itself has also been verified in real behavior
 - During a real Google browser fallback in a multi-account session, the active browser identity must be checked explicitly in the top-right Google account switcher before any action; failing to do so can send work to the wrong Google account
 
 Documented but not yet verified end-to-end in real behavior here:
