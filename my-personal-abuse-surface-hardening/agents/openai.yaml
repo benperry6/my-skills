@@ -1,0 +1,4 @@
+interface:
+  display_name: "Abuse Surface Hardening"
+  short_description: "Harden public surfaces against abuse"
+  default_prompt: "Use $my-personal-abuse-surface-hardening to audit exposed surfaces, map proportional anti-abuse controls, verify provider paths from official docs, and prefer CLI/API/MCP over browser fallback."
