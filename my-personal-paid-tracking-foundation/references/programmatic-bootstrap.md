@@ -156,6 +156,16 @@ Important verified constraint:
 - Existing OAuth client secrets in Google Auth Platform are not redisplayable later; if the current secret is lost, add a new secret and capture it at creation time
 - If Google Auth Platform remains in `Test` mode, adding the approved Google email as a test user is enough to unblock real ADC bootstrap for that approved account; do not record the Google OAuth path as durable production bootstrap until production mode itself has also been verified in real behavior
 - During a real Google browser fallback in a multi-account session, the active browser identity must be checked explicitly in the top-right Google account switcher before any action; failing to do so can send work to the wrong Google account
+- The GTM API does not expose GTM account creation in the verified flow here; creating the first GTM account/container required a browser fallback for the GTM Terms of Service, after which the resulting GTM assets were fully readable again via the GTM API
+- The Analytics Admin API does not expose direct account creation in the verified flow here; the verified path uses `accounts:provisionAccountTicket`, then a browser Terms-of-Service completion, then API-driven creation of the GA4 property, web stream, Measurement Protocol secret, and `googleAdsLinks` link
+- Creating a Measurement Protocol secret in GA4 can fail until `acknowledgeUserDataCollection` has been sent on the property; treat that acknowledgement as a prerequisite in the API-first flow
+- In the verified Google phase-3 flow here, a GA account `389288355`, property `530524280`, web stream `14278554952`, GTM account `6347015112`, GTM container `247832530`, and GTM workspace `2` were created successfully
+- In the verified Google phase-3 flow here, `googleAdsLinks.create` successfully linked GA4 property `530524280` to Google Ads customer `9095768791`
+- In the verified Google phase-3 flow here, the Site Verification API successfully verified `lostnfound-app.com` as an `INET_DOMAIN` after the registrar-level `DNS TXT` record was present, and Search Console then resolved `sc-domain:lostnfound-app.com` as `siteOwner`
+- In the verified Google phase-3 flow here, the Search Console association to GA4 was created successfully in Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource there
+- GTM does not require a separate product-link resource in the verified flow here; its role is container and tag deployment plus later codebase wiring rather than a GA-style admin association object
+- `sites.add` can create a Search Console domain-property entry, but that alone does not prove owner-level verification; in the verified real behavior here, `sc-domain:lostnfound-app.com` appeared as `siteUnverifiedUser` until registrar-level DNS TXT ownership is actually present
+- The Site Verification API can generate the required DNS TXT token and can fail cleanly when the token is not yet present; do not claim domain ownership verification before the insert succeeds or the property resolves as a true owner afterwards
 
 Phase-boundary reminder for Google:
 
@@ -165,24 +175,24 @@ Phase-boundary reminder for Google:
 
 Documented but not yet verified end-to-end in real behavior here:
 
-- Search Console property creation via `sites.add`
-- Search Console ownership verification via the Site Verification API
-- GA4 to Google Ads linking via the Analytics Admin API `googleAdsLinks` surface
 - End-to-end Google Ads account creation purely by API for a brand-new account with all irreversible signup choices already verified in real behavior here
-- Search Console associations that appear documented in help-center UI flows but do not yet have a verified developers API path in this skill
 
 ### Bing Webmaster Tools
 
-Recommended path to pursue, but still unverified in real behavior here:
+Verified ownership path used successfully here:
 
 1. Add the site in Bing Webmaster Tools
-2. Prefer registrar-level `DNS TXT` verification when the canonical ownership target is the whole domain
-3. Once the site is verified, generate OAuth or API-key access for Bing Webmaster APIs if programmatic administration is needed
+2. Prefer registrar-level DNS verification when the canonical ownership target is the whole domain; in the currently verified Bing manual flow for `https://lostnfound-app.com/`, Bing exposed `CNAME`, not `TXT`
+3. Add the exact vendor-provided `CNAME` at the registrar or DNS provider, then retry the Bing verification action until the site dashboard becomes accessible
 4. Treat import-from-GSC as an optional convenience path, not the canonical ownership-verification rule for this skill
+
+Important verified constraints:
+
+- In the currently verified Bing manual flow here, whole-site ownership for `https://lostnfound-app.com/` was completed with a vendor-issued `CNAME`, not a `TXT`
+- Successful verification was confirmed by the transition from the onboarding grid to the site dashboard and the post-verification message that Bing was still processing reports
 
 Documented but not yet verified end-to-end in real behavior here:
 
-- End-to-end Bing Webmaster Tools verification using registrar-level `DNS TXT`
 - End-to-end Bing Webmaster Tools API bootstrap with a reusable OAuth or API-key flow
 
 ### Meta
@@ -211,6 +221,7 @@ Important verified constraints:
 - The official Meta Business Help docs document business portfolio deletion in UI, but the Business API delete section documents dissociation of relationships/assets, not direct deletion of the business itself via `DELETE /{business_id}`
 - The official Meta Business Help troubleshooting doc states that a business portfolio with system users cannot be deleted until that blocker is resolved
 - In the verified workflow here, trying to mint a token for an existing admin system user with the current regular system-user token failed with `GENERATE_TOKEN_AUDIT_NEEDED`; treat that as evidence that a stronger admin identity may still be required for some business-level admin actions
+- In the verified phase-3 write probe here, creating a pixel with `POST /{business_id}/adspixels` failed with `MANAGE_PIXELS_AUDIT_NEEDED`; treat that as evidence that the current Meta M2M identity is still insufficient for at least some paid-media asset administration actions
 
 Phase-boundary reminder for Meta:
 

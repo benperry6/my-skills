@@ -44,7 +44,7 @@ The canonical bias is:
 8. Treat vendor names already present in the skill as examples, not a whitelist; the skill may recommend a niche or newly relevant vendor even if its name does not yet appear anywhere in the skill
 9. Persist only verified learning: update the skill only after a vendor bootstrap or vendor-flow fix has been proven in real behavior, not just inferred from docs or theory
 10. Treat the Google foundation as a connected cluster by default: `GTM web + GA4 + GSC + Google Ads`, then document clearly which parts are already verified programmatically and which parts still have a real UI bootstrap gap
-11. For owned-domain site projects, add Bing Webmaster Tools to the recommended search baseline, prefer registrar-level DNS TXT verification when the goal is whole-domain ownership rather than a narrower URL-prefix style verification, and keep the BWT bootstrap explicitly marked as unverified until it has been proven in real behavior
+11. For owned-domain site projects, add Bing Webmaster Tools to the recommended search baseline, prefer registrar-level DNS verification when the goal is whole-domain ownership rather than a narrower page-level method, and record the actual live vendor method exposed in the real flow; in the currently verified Bing flow here that method is `CNAME`
 12. If Google ever requires browser fallback, treat Google account identity as a blocking precondition: verify the active top-right Google account and any visible `authuser` or session hint against the explicitly approved Google email before touching the page, and stop immediately if the browser is currently on the wrong Google account
 
 ## Canonical Phase Architecture
@@ -217,7 +217,7 @@ Unless the context proves otherwise, the default doctrine is:
 - If the official flow exposes a non-expiring or "never expires" token option, prefer it and verify the resulting expiry state after minting
 - For Google specifically, the default cluster is `GTM web + GA4 + GSC + Google Ads`; do not silently drop `GSC` or `Google Ads` from the default baseline once Google is part of the approved foundation
 - For search-relevant owned-domain projects, extend the default search baseline with `BWT`
-- When the goal is whole-domain ownership, prefer registrar-level `DNS TXT` verification over narrower page-level or subfolder-level verification methods
+- When the goal is whole-domain ownership, prefer registrar-level DNS verification over narrower page-level or subfolder-level methods; in the currently verified Google Search Console flow that method is `DNS TXT`, and in the currently verified Bing Webmaster Tools flow that method is `CNAME`
 - If Google requires browser fallback because a bootstrap gap is real, verify the active Google account in the top-right account switcher before any action, and do not proceed until that browser identity matches the explicitly approved Google account
 - When a new vendor bootstrap succeeds in real behavior, or when an outdated vendor flow is corrected and re-verified, update the skill so that future projects can reuse the verified path instead of repeating the same research
 - If research findings do not work in real conditions, do not add them to the skill; keep debugging until a real working path is verified or leave the gap explicitly marked as unverified

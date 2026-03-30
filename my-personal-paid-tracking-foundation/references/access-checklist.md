@@ -23,6 +23,8 @@ Use this file when moving from recommendation to implementation.
 - Google Ads manager-account access when Google Ads API administration or account creation is expected
 - Google Ads developer token when Google Ads API administration is expected
 - In the current verified workflow, Google Ads API access works once the approved OAuth identity is attached to a manager account and the developer token has been minted in API Center
+- In the current verified workflow, a domain-level Search Console property can be fully owner-verified once the registrar-level `DNS TXT` record exists and the Site Verification API insert succeeds
+- In the current verified workflow, the Search Console property can then be associated to the GA4 web stream, but the proven path here is the Analytics UI after checking that no public Analytics Admin API resource exists for that association
 - OAuth authorization for Tag Manager, Analytics Admin, Search Console, and Site Verification APIs if API-first setup is expected
 - Google Auth Platform publication status should be checked before relying on durable external-user refresh tokens; prefer production over testing when appropriate
 - If Google Auth Platform is still in `Test` mode, add the explicitly approved Google email as a test user before retrying ADC bootstrap
@@ -44,11 +46,11 @@ Use this file when moving from recommendation to implementation.
 
 ## Bing Webmaster Tools
 
-- Recommended search baseline extension for owned-domain sites, but not yet verified end-to-end in this skill
+- Verified search baseline extension for owned-domain sites in this skill
 - Bing Webmaster Tools account access
 - Verified site ownership in Bing Webmaster Tools
 - OAuth or API key access if Bing Webmaster Tools APIs should be used programmatically
-- Prefer registrar-level `DNS TXT` verification when the canonical ownership target is the full domain rather than a narrower page-level verification method
+- Prefer registrar-level DNS verification when the canonical ownership target is the full domain rather than a narrower page-level verification method; in the currently verified Bing manual flow the DNS method is `CNAME`, not `TXT`
 - Approval of which Microsoft/Bing account should be used when multiple options exist
 
 ### Common identifiers or settings
