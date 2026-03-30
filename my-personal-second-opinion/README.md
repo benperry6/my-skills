@@ -24,6 +24,18 @@ python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runne
   --output-json /tmp/second-opinion-result.json
 ```
 
+Pour un audit post-implementation d'une vraie session Claude Code:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --mode post-implementation-audit \
+  --current-engine codex \
+  --working-directory "$PWD" \
+  --session-cwd "$PWD" \
+  --audit-path src/app/[locale]/cookies/page.tsx \
+  --output-json /tmp/second-opinion-post-impl.json
+```
+
 Le runner:
 
 - appelle uniquement les autres moteurs par defaut
@@ -31,6 +43,14 @@ Le runner:
 - capture les logs complets de chaque tentative
 - ajoute un learning runtime uniquement apres succes reel
 - signale explicitement quand la reparation locale est epuisee et qu'une recherche web orchestrateur est necessaire
+- sait aussi auditer une implementation terminee contre une vraie session Claude + le code courant
+
+Pour ce mode post-implementation:
+
+- `--session-cwd` retrouve automatiquement la bonne session Claude locale
+- `--session-file` permet de figer explicitement la session source
+- `--audit-path` borne l'audit aux fichiers vraiment concernes, ce qui est important dans un repo sale
+- le helper ignore les sessions d'audit generees par ce skill lui-meme et les transcripts sous `subagents/`, pour eviter les boucles
 
 ## Doctrine
 
@@ -129,5 +149,14 @@ Donc, dans l'etat actuel verifie, le skill doit:
 ## Pourquoi c'est important
 
 Ce skill sert justement dans les moments ou on a besoin d'un regard externe supplementaire: plan important, architecture, debug complexe, revue securite, decision a enjeu.
+
+Il sert maintenant aussi **apres implementation** quand on veut verifier:
+
+- si ce qui a ete code couvre vraiment ce qui etait prevu
+- s'il manque des morceaux
+- s'il y a des divergences non assumees
+- quels tests reels restent necessaires avant de conclure
+
+Le helper `scripts/claude_session_bundle.py` sert a retrouver la bonne session Claude, suivre la chaine de transcripts compactes, et remonter les plans references pour nourrir cet audit post-implementation.
 
 Si ce skill casse au moment ou on en a besoin, ce n'est pas un detail. C'est une panne d'infrastructure de raisonnement. La bonne reaction n'est donc pas de l'ignorer, mais de le reparer proprement, de memoriser la solution verifiee, puis de reprendre le travail.

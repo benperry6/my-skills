@@ -20,6 +20,7 @@ SKILL_DIR = Path(__file__).resolve().parents[1]
 REFERENCES_DIR = SKILL_DIR / "references"
 RUNTIME_LEARNING_JSON = REFERENCES_DIR / "runtime-learning.json"
 RUNTIME_LEARNING_MD = REFERENCES_DIR / "runtime-learning.md"
+CLAUDE_SESSION_BUNDLE_SCRIPT = SKILL_DIR / "scripts" / "claude_session_bundle.py"
 
 TARGETS_BY_ENGINE = {
     "claude": ["codex", "gemini"],
@@ -62,6 +63,158 @@ def read_text(path: Path) -> str:
     if not path.exists():
         return ""
     return path.read_text(encoding="utf-8", errors="replace")
+
+
+def run_json_command(command: list[str]) -> dict[str, Any]:
+    completed = subprocess.run(command, check=False, capture_output=True, text=True)
+    if completed.returncode != 0:
+        stderr = completed.stderr.strip() or completed.stdout.strip()
+        raise SystemExit(stderr or f"Command failed: {shlex.join(command)}")
+    payload = json.loads(completed.stdout)
+    if not isinstance(payload, dict):
+        raise SystemExit(f"Expected JSON object from command: {shlex.join(command)}")
+    return payload
+
+
+def git_output(workdir: Path, arguments: list[str], pathspecs: list[str] | None = None) -> str:
+    command = ["git", "-C", str(workdir), *arguments]
+    if pathspecs:
+        command.extend(["--", *pathspecs])
+    completed = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        return ""
+    return completed.stdout.strip()
+
+
+def collect_git_evidence(workdir: Path, pathspecs: list[str] | None = None) -> dict[str, Any]:
+    repo_root = git_output(workdir, ["rev-parse", "--show-toplevel"])
+    if not repo_root:
+        return {
+            "repo_root": "",
+            "status_short": "",
+            "diff_stat": "",
+            "cached_diff_stat": "",
+            "changed_files": [],
+            "audit_paths": pathspecs or [],
+        }
+
+    changed_files = sorted(
+        {
+            *[
+                line
+                for line in git_output(workdir, ["diff", "--name-only"], pathspecs=pathspecs).splitlines()
+                if line
+            ],
+            *[
+                line
+                for line in git_output(workdir, ["diff", "--cached", "--name-only"], pathspecs=pathspecs).splitlines()
+                if line
+            ],
+        }
+    )
+
+    return {
+        "repo_root": repo_root,
+        "status_short": git_output(workdir, ["status", "--short"], pathspecs=pathspecs),
+        "diff_stat": git_output(workdir, ["diff", "--stat"], pathspecs=pathspecs),
+        "cached_diff_stat": git_output(workdir, ["diff", "--cached", "--stat"], pathspecs=pathspecs),
+        "changed_files": changed_files,
+        "audit_paths": pathspecs or [],
+    }
+
+
+def resolve_post_impl_manifest(args: argparse.Namespace, workdir: Path) -> dict[str, Any]:
+    if args.transcript_file:
+        return {
+            "session_file": args.session_file or "",
+            "transcript_files": [str(Path(path).expanduser().resolve()) for path in args.transcript_file],
+            "plan_files": [str(Path(path).expanduser().resolve()) for path in (args.plan_file or [])],
+        }
+
+    if args.session_manifest_json:
+        payload = json.loads(Path(args.session_manifest_json).expanduser().read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            raise SystemExit("--session-manifest-json must contain a JSON object.")
+        return payload
+
+    command = ["python3", str(CLAUDE_SESSION_BUNDLE_SCRIPT), "--format", "json"]
+    if args.session_file:
+        command.extend(["--session-file", args.session_file])
+    elif args.session_cwd:
+        command.extend(["--cwd", args.session_cwd, "--latest"])
+    else:
+        command.extend(["--cwd", str(workdir), "--latest"])
+    return run_json_command(command)
+
+
+def build_post_implementation_prompt(args: argparse.Namespace, workdir: Path) -> tuple[str, dict[str, Any]]:
+    manifest = resolve_post_impl_manifest(args, workdir)
+    transcript_files = manifest.get("transcript_files") or []
+    if not isinstance(transcript_files, list) or not transcript_files:
+        raise SystemExit("Post-implementation audit requires at least one transcript file.")
+    plan_files = manifest.get("plan_files") or []
+    if not isinstance(plan_files, list):
+        raise SystemExit("Invalid plan_files in manifest.")
+
+    audit_paths = args.audit_path or []
+    git_evidence = collect_git_evidence(workdir, pathspecs=audit_paths)
+    transcript_block = "\n".join(f"- {path}" for path in transcript_files)
+    plan_block = "\n".join(f"- {path}" for path in plan_files) if plan_files else "- None discovered automatically."
+    changed_files = "\n".join(f"- {path}" for path in git_evidence["changed_files"]) if git_evidence["changed_files"] else "- No unstaged or staged changed files detected."
+    status_short = git_evidence["status_short"] or "(clean working tree or not inside a git repo)"
+    diff_stat = git_evidence["diff_stat"] or "(no unstaged diff detected)"
+    cached_diff_stat = git_evidence["cached_diff_stat"] or "(no staged diff detected)"
+    extra_focus = args.audit_focus.strip() if args.audit_focus else ""
+    audit_scope_block = (
+        "\n".join(f"- {path}" for path in audit_paths)
+        if audit_paths
+        else "- Whole working tree."
+    )
+
+    prompt = (
+        "Context: We are running a post-implementation audit for a completed Claude Code implementation.\n"
+        f"Working directory: {workdir}\n"
+        f"Repository root: {git_evidence['repo_root'] or 'Not detected'}\n"
+        "Audit scope:\n"
+        f"{audit_scope_block}\n"
+        "Claude transcript files to read fully in chronological order:\n"
+        f"{transcript_block}\n"
+        "Validated plan files to read fully:\n"
+        f"{plan_block}\n"
+        "Current git working-tree status:\n"
+        f"{status_short}\n"
+        "Unstaged diff stat:\n"
+        f"{diff_stat}\n"
+        "Staged diff stat:\n"
+        f"{cached_diff_stat}\n"
+        "Currently changed files:\n"
+        f"{changed_files}\n"
+    )
+    if extra_focus:
+        prompt += f"Additional audit focus from the orchestrator:\n{extra_focus}\n"
+    prompt += (
+        "Task:\n"
+        "1. Read the transcript files fully, oldest to newest.\n"
+        "2. Read the validated plan files fully.\n"
+        "3. Inspect the current code in the working directory.\n"
+        "4. Determine whether everything that was planned was actually implemented, or whether there were omissions, mistakes, or regressions.\n"
+        "5. Determine whether the implementation is plausibly correct in real behavior, and say explicitly what still requires real testing.\n"
+        "6. If you find issues, recommend the smallest complete fix set and the most relevant real tests.\n"
+        "Please return:\n"
+        "(1) Findings first, ordered by severity\n"
+        "(2) Completeness verdict vs the validated plan\n"
+        "(3) Behavior-confidence verdict: what is verified vs what still needs real testing\n"
+        "(4) Exact fixes / next tests\n"
+        "(5) Open questions\n"
+        "Be concrete. Cite file paths when possible.\n"
+    )
+
+    return prompt, {**manifest, "audit_paths": audit_paths}
 
 
 def extract_json(text: str) -> Any | None:
@@ -622,10 +775,44 @@ def run_engine(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Self-healing second-opinion runner.")
+    parser.add_argument(
+        "--mode",
+        choices=["standard", "post-implementation-audit"],
+        default="standard",
+        help="Standard prompt relay or post-implementation audit mode.",
+    )
     parser.add_argument("--current-engine", choices=["claude", "codex", "gemini"])
     parser.add_argument("--targets", nargs="+", choices=["claude", "codex", "gemini"])
     parser.add_argument("--prompt")
     parser.add_argument("--prompt-file")
+    parser.add_argument("--session-file", help="Explicit Claude session file for post-implementation audit.")
+    parser.add_argument(
+        "--session-cwd",
+        help="Resolve the latest Claude session whose recorded cwd matches this path.",
+    )
+    parser.add_argument(
+        "--session-manifest-json",
+        help="Precomputed JSON manifest containing transcript_files and optional plan_files.",
+    )
+    parser.add_argument(
+        "--transcript-file",
+        nargs="+",
+        help="Explicit transcript file list for post-implementation audit, oldest to newest.",
+    )
+    parser.add_argument(
+        "--plan-file",
+        nargs="+",
+        help="Optional validated plan files to include in post-implementation audit mode.",
+    )
+    parser.add_argument(
+        "--audit-focus",
+        help="Extra audit instructions appended to the post-implementation prompt.",
+    )
+    parser.add_argument(
+        "--audit-path",
+        nargs="+",
+        help="Optional git pathspec(s) limiting the post-implementation audit to the relevant files/directories.",
+    )
     parser.add_argument("--working-directory", default=os.getcwd())
     parser.add_argument("--output-json")
     parser.add_argument("--logs-dir")
@@ -638,7 +825,6 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    prompt = load_prompt(args)
 
     current_engine = args.current_engine or detect_current_engine()
     if args.smoke_test:
@@ -650,6 +836,12 @@ def main() -> int:
         targets = args.targets or default_targets_for(current_engine)
 
     workdir = Path(args.working_directory).resolve()
+    prompt_manifest: dict[str, Any] = {}
+    if args.mode == "post-implementation-audit":
+        prompt, prompt_manifest = build_post_implementation_prompt(args, workdir)
+    else:
+        prompt = load_prompt(args)
+
     logs_root = (
         Path(args.logs_dir).resolve()
         if args.logs_dir
@@ -659,6 +851,7 @@ def main() -> int:
 
     summary: dict[str, Any] = {
         "run_at": utc_now(),
+        "mode": args.mode,
         "current_engine": current_engine,
         "targets": targets,
         "working_directory": str(workdir),
@@ -666,6 +859,8 @@ def main() -> int:
         "results": [],
         "persisted_learning": {"added": 0, "committed": False, "pushed": False},
     }
+    if prompt_manifest:
+        summary["audit_manifest"] = prompt_manifest
     learning_records: list[dict[str, Any]] = []
 
     for target in targets:

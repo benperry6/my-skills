@@ -254,6 +254,65 @@ Implication:
 
 - the shared runner is verified to execute the Codex, Claude, and Gemini consultation paths successfully in real behavior on this machine
 
+## 2026-03-30 — Post-implementation audit mode
+
+Verified helper behavior:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/claude_session_bundle.py \
+  --cwd "/Users/benjaminperry/My Drive/ProStrike Holdings/ProStrike Brands/Lost N Found/app" \
+  --latest \
+  --format json
+```
+
+Observed behavior:
+
+- the helper auto-resolved a real Claude source session:
+  - `/Users/benjaminperry/.claude/projects/-Users-benjaminperry-My-Drive-ProStrike-Holdings-ProStrike-Brands-Lost-N-Found-app/30a94e62-2283-4d02-8baa-e8f867e66759.jsonl`
+- after revalidation, it no longer preferred:
+  - self-generated second-opinion audit sessions
+  - transcript files under `/subagents/`
+
+Implication:
+
+- `--session-cwd` is now usable for the post-implementation audit flow without recursively selecting prior audit transcripts
+
+Verified runner path:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --mode post-implementation-audit \
+  --current-engine claude \
+  --targets codex \
+  --working-directory "/private/tmp/second-opinion-post-impl-sandbox" \
+  --session-file "/Users/benjaminperry/.claude/projects/-Users-benjaminperry-My-Drive-ProStrike-Holdings-ProStrike-Brands-Lost-N-Found-app/30a94e62-2283-4d02-8baa-e8f867e66759.jsonl" \
+  --audit-path "src/app/[locale]/cookies/page.tsx" \
+  --audit-focus "Focus on the cookie-banner regression described in the Claude transcript and on whether the current scoped code actually addresses that diagnosis." \
+  --output-json /tmp/second-opinion-post-impl-sandbox-codex.json \
+  --timeout-seconds 300 \
+  --no-git-persist
+```
+
+Observed behavior:
+
+- exit code `0`
+- `mode = "post-implementation-audit"`
+- `audit_manifest.session_file` matched the real Claude transcript passed in
+- `audit_manifest.audit_paths = ["src/app/[locale]/cookies/page.tsx"]`
+- `codex exec ... --output-last-message ...` returned a full audit with:
+  - findings first
+  - completeness verdict
+  - behavior-confidence verdict
+  - exact fixes / next tests
+  - open questions
+- on this machine, that successful Codex audit took about `241816 ms`
+
+Implication:
+
+- the new post-implementation audit mode is verified end-to-end in real behavior
+- on heavier audits, scope control matters; use `--audit-path` to keep the review focused and avoid unrelated repo noise
+- Codex can complete the audit successfully, but heavy post-implementation reviews may need several minutes even on a small scoped repo
+
 Verified working primary path:
 
 ```bash
