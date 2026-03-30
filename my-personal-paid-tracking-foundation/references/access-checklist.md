@@ -26,7 +26,7 @@ Use this file when moving from recommendation to implementation.
 - In the current verified workflow, a domain-level Search Console property can be fully owner-verified once the registrar-level `DNS TXT` record exists and the Site Verification API insert succeeds
 - In the current verified workflow, `sites.add` can also add a narrower URL-prefix property such as `https://lostnfound-app.com/` once the domain-property ownership already exists
 - In the current verified workflow, the Search Console property can then be associated to the GA4 web stream, but the proven path here is the Analytics UI after checking that no public Analytics Admin API resource exists for that association
-- In the current verified workflow, brand-new Google Ads account creation by API is still blocked while the developer token remains at `Explorer` access; `createCustomerClient` needs Basic or Standard access before that path can be claimed as proven
+- In the current verified workflow, the official Google Ads Basic/Standard access request form was submitted successfully on 2026-03-30, but brand-new Google Ads account creation by API is still blocked right now because `createCustomerClient` keeps returning `DEVELOPER_TOKEN_NOT_APPROVED` until Google approves the developer token beyond `Explorer`
 - OAuth authorization for Tag Manager, Analytics Admin, Search Console, and Site Verification APIs if API-first setup is expected
 - Google Auth Platform publication status should be checked before relying on durable external-user refresh tokens; prefer production over testing when appropriate
 - If Google Auth Platform is still in `Test` mode, add the explicitly approved Google email as a test user before retrying ADC bootstrap
@@ -71,7 +71,7 @@ Use this file when moving from recommendation to implementation.
 - When the official token generator exposes `Jamais` or an equivalent non-expiring duration, prefer it for long-lived CLI administration
 - After token generation, verify the real granted scopes and expiry with `debug_token`
 - In the current verified workflow, an admin Meta system-user token can create a business-owned ad account by API
-- In the current verified workflow, pixel creation is currently narrowed to a Pixel Terms of Service prerequisite rather than a generic permission error
+- In the current verified workflow, the Pixel Terms blocker was cleared by advancing the first dataset-creation flow in Business Settings to the ad-account association step, after which pixel creation by API succeeded
 - Pixel or dataset access
 - Conversions API token if server-side forwarding is implemented
 - Ability to grant the asset permissions required by the app/token flow

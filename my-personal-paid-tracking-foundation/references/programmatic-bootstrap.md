@@ -147,7 +147,7 @@ Current Google phase-3 proof map for this skill:
 - `Search Console` URL-prefix property creation: proven in real behavior with `sites.add`; `https://lostnfound-app.com/` was added successfully once the domain-property ownership already existed
 - `GA4 ↔ Google Ads`: proven in real behavior with `googleAdsLinks.create`
 - `Search Console ↔ GA4`: proven in real behavior, but the verified path here is Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource
-- brand-new `Google Ads` account creation purely by API: tested in real behavior, but blocked while the developer token remains at `Explorer` access; `createCustomerClient` returned `DEVELOPER_TOKEN_NOT_APPROVED`, so Basic or Standard access is required before this can be proven here
+- brand-new `Google Ads` account creation purely by API: tested in real behavior, but still blocked right now because the developer token has not yet been approved beyond `Explorer` access; the official access-level request form at `https://support.google.com/adspolicy/contact/new_token_application` was submitted successfully on `2026-03-30`, but an immediate retry of `createCustomerClient` still returned `DEVELOPER_TOKEN_NOT_APPROVED`, so final proof still depends on Google's review
 - `Bing Webmaster Tools` site ownership: proven in real behavior, but the verified path here is vendor UI plus DNS `CNAME`, not a reusable API bootstrap yet
 
 Canonical Search Console ownership rule for this skill:
@@ -175,7 +175,7 @@ Important verified constraint:
 - In the verified Google phase-3 flow here, the Site Verification API successfully verified `lostnfound-app.com` as an `INET_DOMAIN` after the registrar-level `DNS TXT` record was present, and Search Console then resolved `sc-domain:lostnfound-app.com` as `siteOwner`
 - In the verified Google phase-3 flow here, `sites.add` also added `https://lostnfound-app.com/` as a URL-prefix Search Console property after the domain property was already owned
 - In the verified Google phase-3 flow here, the Search Console association to GA4 was created successfully in Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource there
-- In the verified Google phase-3 flow here, the Google Ads API Center still showed `Explorer` access and `customers.createCustomerClient` failed with `DEVELOPER_TOKEN_NOT_APPROVED`; treat brand-new account creation by API as blocked until the developer token has Basic or Standard access
+- In the verified Google phase-3 flow here, the Google Ads API Center still showed `Explorer` access and `customers.createCustomerClient` failed with `DEVELOPER_TOKEN_NOT_APPROVED`; the official Basic/Standard request form at `https://support.google.com/adspolicy/contact/new_token_application` was then submitted successfully on `2026-03-30`, but an immediate retry stayed blocked, so treat brand-new account creation by API as pending Google's review until the access level changes
 - GTM does not require a separate product-link resource in the verified flow here; its role is container and tag deployment plus later codebase wiring rather than a GA-style admin association object
 - `sites.add` can create a Search Console domain-property entry, but that alone does not prove owner-level verification; in the verified real behavior here, `sc-domain:lostnfound-app.com` appeared as `siteUnverifiedUser` until registrar-level DNS TXT ownership is actually present
 - The Site Verification API can generate the required DNS TXT token and can fail cleanly when the token is not yet present; do not claim domain ownership verification before the insert succeeds or the property resolves as a true owner afterwards
@@ -188,7 +188,7 @@ Phase-boundary reminder for Google:
 
 Documented but not yet verified end-to-end in real behavior here:
 
-- Upgrading the current Google Ads developer token from `Explorer` to `Basic` or `Standard` access in real behavior here
+- Final Google approval of the submitted developer-token upgrade from `Explorer` to `Basic` or `Standard`
 
 ### Bing Webmaster Tools
 
@@ -236,13 +236,14 @@ Important verified constraints:
 - In the verified workflow here, trying to mint a token for an existing admin system user with the current regular system-user token failed with `GENERATE_TOKEN_AUDIT_NEEDED`; treat that as evidence that a stronger admin identity may still be required for some business-level admin actions
 - In the verified repair here, generating a non-expiring token for the admin system user `Benjamin Perry` succeeded through the Business Settings system-user token flow
 - In the verified phase-3 write probe here, `POST /{business_id}/adaccount` succeeded with that admin system-user token and created `act_1603679097553676` / `Lost N Found Ads`
-- In the verified follow-up probe here, `POST /{business_id}/adspixels` no longer failed with the earlier generic permission/audit error; it narrowed to subcode `1784018` because the business had not accepted Pixel Terms of Service
+- In the verified follow-up probe here, `POST /{business_id}/adspixels` first narrowed to subcode `1784018` because the business had not accepted Pixel Terms of Service
+- In the verified repair here, advancing the first Business Settings dataset-creation flow to the ad-account association step cleared that vendor-side terms gate enough for `POST /{business_id}/adspixels` to succeed and create pixel `1945194923040904` / `Lost N Found Pixel`
 
 Phase-boundary reminder for Meta:
 
 - proving the Meta bootstrap means the approved business, app, system user, token, and core Graph API probes work in real behavior
 - it does **not** by itself prove that every downstream paid-media asset flow is complete
-- ad-account creation is now proven in real behavior here, but pixel or dataset administration and campaign-management claims still need their own real verification before Meta phase 3 can be treated as fully complete
+- ad-account creation and pixel creation are now proven in real behavior here, but dataset administration beyond the initial terms-clearing flow and broader campaign-management claims still need their own real verification before Meta phase 3 can be treated as fully complete
 
 ## What the final plan must include
 
