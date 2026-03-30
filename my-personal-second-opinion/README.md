@@ -12,6 +12,26 @@ Ce skill n'est plus un simple routeur "appelle les deux autres outils". Il est m
 - il ne doit enregistrer le learning que si le chemin repare fonctionne vraiment
 - puis il reprend automatiquement la mission initiale sans demander a l'utilisateur de relancer le travail
 
+## Point d'entree canonique
+
+Le point d'entree a utiliser est maintenant:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --current-engine codex \
+  --working-directory "$PWD" \
+  --prompt-file /tmp/second-opinion-prompt.txt \
+  --output-json /tmp/second-opinion-result.json
+```
+
+Le runner:
+
+- appelle uniquement les autres moteurs par defaut
+- applique les retries et fallbacks verifies localement
+- capture les logs complets de chaque tentative
+- ajoute un learning runtime uniquement apres succes reel
+- signale explicitement quand la reparation locale est epuisee et qu'une recherche web orchestrateur est necessaire
+
 ## Doctrine
 
 Les principes sont les suivants:
@@ -44,8 +64,14 @@ Les principes sont les suivants:
 Le fichier:
 
 - `references/verified-learning.md`
+- `references/runtime-learning.md`
 
-est la base de connaissance reutilisable du skill.
+sont la base de connaissance reutilisable du skill.
+
+Repartition:
+
+- `verified-learning.md` = base durable et curatee
+- `runtime-learning.md` = incidents reels auto-enregistres par le runner
 
 On y stocke seulement:
 
@@ -78,7 +104,9 @@ Cas reel observe et requalifie:
 
 - le CLI local est configure en `oauth-personal`, pas en `GEMINI_API_KEY`
 - le CLI Gemini a ete mis a jour et reverifie de `0.33.0` vers `0.35.3`
-- `gemini -m pro -p ... --output-format json` est bien la bonne premiere tentative sous abonnement, mais echoue ici pour l'instant en `429 MODEL_CAPACITY_EXHAUSTED`
+- `gemini -m pro -p ... --output-format json` est bien la bonne premiere tentative sous abonnement
+- un smoke test reel via le runner a maintenant reussi avec `gemini-3.1-pro-preview` comme modele principal et `response = "OK"`
+- ce succes a quand meme montre des erreurs internes transitoires cote API (`totalRequests = 4`, `totalErrors = 3`), donc il faut conserver des retries bornes / backoff
 - `gemini -m auto -p ... --output-format json` a reussi apres cette mise a jour et reste sur le routing d'abonnement
 - un run reel reussi de `-m auto` a montre:
   - `utility_router = gemini-2.5-flash-lite`
@@ -92,7 +120,7 @@ Cas reel observe et requalifie:
 Donc, dans l'etat actuel verifie, le skill doit:
 
 - tenter `gemini -m pro` d'abord, avec retries bornes et backoff
-- en cas de `MODEL_CAPACITY_EXHAUSTED` repete, retomber sur `gemini -m auto` avant de figer un modele plus ancien
+- si `pro` ne sort toujours pas de resultat exploitable, retomber sur `gemini -m auto` avant de figer un modele plus ancien
 - garder `gemini-3-flash-preview`, puis `gemini-2.5-flash`, puis `gemini-2.5-pro` comme fallbacks fixes d'urgence
 - conserver le mode headless comme voie canonique pour l'automatisation du skill
 - n'utiliser l'interactif (`/model`, `/auth`) qu'en diagnostic, pas comme strategie normale d'execution

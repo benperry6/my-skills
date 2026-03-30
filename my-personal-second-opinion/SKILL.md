@@ -7,6 +7,27 @@ description: "[My Personal Skill] Use when Claude Code, Codex, or Gemini needs a
 
 Unified skill for getting independent second opinions from external AI engines and keeping the invocation paths current as the CLIs evolve.
 
+## Canonical Entry Point
+
+Do not re-implement the orchestration ad hoc when this skill is invoked. Use the shared runner:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --current-engine codex \
+  --working-directory "$PWD" \
+  --prompt-file /tmp/second-opinion-prompt.txt \
+  --output-json /tmp/second-opinion-result.json
+```
+
+What the runner enforces:
+
+- consults only the OTHER engine(s) by default
+- retries through the locally verified fallback chain
+- captures full logs for every attempt
+- emits whether local repair succeeded or whether web research is still needed
+- persists runtime-learned repairs only after a real successful invocation
+- leaves the orchestrator responsible for any upstream web research that cannot be solved from local evidence alone
+
 ## Core Doctrine
 
 1. **No silent degradation**: if one of the external engine calls fails, do not quietly continue with only the surviving engine unless the user explicitly asked for a single-engine review.
@@ -30,15 +51,22 @@ Unified skill for getting independent second opinions from external AI engines a
 Before invoking any engine, read:
 
 - `references/verified-learning.md`
+- `references/runtime-learning.md`
 
-That file is the reusable memory for:
+These files are the reusable memory for:
 
 - commands that were actually proven to work
 - failure signatures that were actually observed
 - working fallbacks that were actually re-validated
 - outdated paths that were replaced after a real fix
+- recent runtime repair incidents that were auto-captured by the runner
 
-**Do not update it from theory.** Update it only after a repaired path succeeds in real behavior.
+Memory split:
+
+- `references/verified-learning.md` = curated durable base for canonical guidance
+- `references/runtime-learning.md` = auto-managed incident log written by the runner
+
+**Do not update either from theory.** Update them only after a repaired path succeeds in real behavior.
 
 ## Tool Detection — Who Am I?
 
@@ -152,7 +180,8 @@ gemini -m gemini-2.5-pro -p "Your query here" --output-format json > /tmp/gemini
 
 - Re-validated locally after upgrading Gemini CLI from `0.33.0` to `0.35.3`.
 - `gemini -m pro ...` is the correct subscription-backed first attempt for this skill under `oauth-personal`.
-- In this environment, `gemini -m pro ...` currently resolves to `gemini-3.1-pro-preview`, but it returned repeated `429 RESOURCE_EXHAUSTED` / `MODEL_CAPACITY_EXHAUSTED`.
+- A fresh runner smoke test on 2026-03-30 succeeded with `gemini -m pro ...`, `response = "OK"`, and `stats.models.main = gemini-3.1-pro-preview`.
+- That successful run still reported internal API retries/errors in `stats.models.gemini-3.1-pro-preview.api` (`totalRequests = 4`, `totalErrors = 3`), so treat `pro` as the canonical path but keep bounded retry/backoff behavior.
 - `gemini -m auto ...` succeeded in real behavior after the CLI upgrade and kept Gemini on subscription-backed routing. A verified successful run showed:
   - `stats.models.utility_router = gemini-2.5-flash-lite`
   - `stats.models.main = gemini-3-flash-preview`
@@ -229,6 +258,7 @@ Before going to the web, inspect:
 - installed package docs on disk
 - the current version (`<cli> --version`)
 - any previous verified entries in `references/verified-learning.md`
+- any recent incident entries in `references/runtime-learning.md`
 
 ### Step 5 — Research the internet if local evidence is insufficient
 
@@ -252,9 +282,10 @@ Success means:
 
 After a real successful repair:
 
-1. Update `references/verified-learning.md`
-2. Update this `SKILL.md` only if the canonical guidance changed
-3. Replace or mark outdated instructions explicitly
+1. Let the runner append the real incident to `references/runtime-learning.md`
+2. Update `references/verified-learning.md` only if the repair changes the durable canonical path
+3. Update this `SKILL.md` only if the canonical guidance changed
+4. Replace or mark outdated instructions explicitly
 
 Never save:
 
@@ -303,6 +334,7 @@ Before querying any external engine:
 - [ ] inspect git history if history matters
 - [ ] include repository evidence in the prompt
 - [ ] read `references/verified-learning.md`
+- [ ] read `references/runtime-learning.md`
 
 ## Output Discipline
 
@@ -344,6 +376,26 @@ After receiving responses, verify:
 4. **Verified memory**: only real working paths enter the skill
 5. **Transparency**: tell the user which engines were consulted and whether a repair was needed
 6. **Pragmatism**: second opinion is for decisions that matter, not trivialities
+
+## Runner Contract
+
+`scripts/second_opinion_runner.py` is the enforcement layer for this skill.
+
+Use it to:
+
+- route to the other engines
+- capture logs and structured results
+- apply the local retry/fallback policy
+- persist runtime-learned repairs after verified success
+
+Treat a runner result with `needs_web_research = true` as a blocking signal:
+
+1. pause the original task
+2. research the upstream CLI/doc changes
+3. validate the repaired invocation locally
+4. update the curated skill files if the canonical path changed
+5. rerun the second-opinion request
+6. resume the original task automatically
 
 ## Execution Ownership and Automatic Resume
 

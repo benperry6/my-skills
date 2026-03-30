@@ -147,15 +147,14 @@ gemini -m pro -p "Reply with exactly: OK" --output-format json
 Observed behavior:
 
 - after the CLI upgrade, `-m pro` resolved to `gemini-3.1-pro-preview`
-- repeated retries still ended in the same capacity failure:
+- one earlier revalidation run ended in the same capacity failure:
   - `429 RESOURCE_EXHAUSTED`
   - `MODEL_CAPACITY_EXHAUSTED`
 
 Implication:
 
 - `-m pro` is still the correct subscription-backed first attempt under `oauth-personal`
-- but on this machine today it is not yet a stable successful path
-- treat this as a Google-side capacity/routing problem first, not as proof that the invocation syntax is wrong
+- treat capacity failure as a Google-side availability/routing problem first, not as proof that the invocation syntax is wrong
 
 Observed failure in real behavior:
 
@@ -201,6 +200,60 @@ Implication:
 - after `pro` capacity failures, `auto` is the best current subscription-backed degradation path on this machine
 - prefer it before pinning a fixed older model ID
 
+## 2026-03-30 — Runner smoke tests
+
+Verified runner path:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --smoke-test \
+  --current-engine codex \
+  --working-directory "/Users/benjaminperry/My Drive/ProStrike Holdings/ProStrike Brands/Lost N Found" \
+  --output-json /tmp/second-opinion-codex-smoke.json \
+  --no-git-persist
+```
+
+Observed behavior:
+
+- target selection respected "never consult yourself":
+  - current engine `codex`
+  - targets `claude`, `gemini`
+- `claude` returned `OK` with `claude -p ... --output-format json`
+- `gemini` returned `OK` on the first runner strategy `gemini -m pro ...`
+- `stats.models.main = gemini-3.1-pro-preview`
+- the same successful Gemini run still reported transient API churn:
+  - `totalRequests = 4`
+  - `totalErrors = 3`
+- no runtime-learning entry was added because the first strategy succeeded from the runner's point of view
+
+Implication:
+
+- `gemini -m pro ...` is now re-verified as a working primary path on this machine
+- keep bounded retries/backoff because success can still involve transient backend errors before the final usable answer
+- `auto` remains the correct degradation path if `pro` does not end in a usable response
+
+Verified runner path:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --smoke-test \
+  --current-engine claude \
+  --targets codex \
+  --working-directory "/Users/benjaminperry/My Drive/ProStrike Holdings/ProStrike Brands/Lost N Found" \
+  --output-json /tmp/second-opinion-claude-smoke.json \
+  --no-git-persist
+```
+
+Observed behavior:
+
+- `codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check --output-last-message ...` returned `OK`
+- exit code `0`
+- the runner captured the final answer from the output file as intended
+
+Implication:
+
+- the shared runner is verified to execute the Codex, Claude, and Gemini consultation paths successfully in real behavior on this machine
+
 Verified working primary path:
 
 ```bash
@@ -237,7 +290,7 @@ Implication:
   3. `gemini-3-flash-preview`
   4. `gemini-2.5-flash`
   5. `gemini-2.5-pro`
-- `gemini-3.1-pro-preview` remains worth retrying during future repair incidents, but it is not a verified default until it succeeds in real behavior here
+- `gemini-3.1-pro-preview` is now verified as the current `pro` resolution in real successful behavior here
 - `gemini-3.1-flash-lite-preview` should not be promoted in this environment unless it is first re-validated successfully
 
 ## Update Rule
