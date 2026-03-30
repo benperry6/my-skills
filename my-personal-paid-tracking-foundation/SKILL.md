@@ -45,7 +45,7 @@ The canonical bias is:
 9. Persist only verified learning: update the skill only after a vendor bootstrap or vendor-flow fix has been proven in real behavior, not just inferred from docs or theory
 10. Treat the Google foundation as a connected cluster by default: `GTM web + GA4 + GSC + Google Ads`, then document clearly which parts are already verified programmatically and which parts still have a real UI bootstrap gap
 11. For owned-domain site projects, add Bing Webmaster Tools to the recommended search baseline, prefer registrar-level DNS verification when the goal is whole-domain ownership rather than a narrower page-level method, and record the actual live vendor method exposed in the real flow; in the currently verified Bing flow here that method is `CNAME`
-12. If Google ever requires browser fallback, treat Google account identity as a blocking precondition: verify the active top-right Google account email before touching the page, treat `authuser=*`, account indexes, or similar session hints as unstable non-authoritative metadata, and stop immediately if the visible browser email is not the explicitly approved Google account
+12. If Google ever requires browser fallback, treat Google account identity as a blocking precondition: verify the active top-right Google account email before touching the page, treat `authuser=*`, `login_hint`, account indexes, or similar session hints as unstable non-authoritative metadata or routing hints rather than proof of identity, prefer opening Google support/vendor flows from an already verified Google service context for the approved account when possible, and stop immediately if the visible browser email is not the explicitly approved Google account
 
 ## Canonical Phase Architecture
 

@@ -54,9 +54,10 @@ If a real Google bootstrap gap forces browser fallback:
 
 1. Verify the explicitly approved Google account email first
 2. Verify the active Google account email shown in the top-right account switcher before any action
-3. Treat `authuser=*`, account indexes, and similar session hints as unstable non-authoritative metadata, not as proof of identity
-4. Treat any mismatch between the visible browser email and the approved Google email as a hard stop
-5. Do not create, rename, approve, or submit anything in Google until the visible browser email matches the approved Google account
+3. Treat `authuser=*`, `login_hint`, account indexes, and similar session hints as unstable non-authoritative metadata or routing hints, not as proof of identity
+4. When possible, open Google support or vendor-specific fallback flows from an already verified Google service context for the approved account, then re-check the visible top-right email on the destination page before submitting
+5. Treat any mismatch between the visible browser email and the approved Google email as a hard stop
+6. Do not create, rename, approve, or submit anything in Google until the visible browser email matches the approved Google account
 
 Do not treat "a Google account is already signed in" as sufficient proof that the correct Google account is selected.
 
@@ -147,7 +148,7 @@ Current Google phase-3 proof map for this skill:
 - `Search Console` URL-prefix property creation: proven in real behavior with `sites.add`; `https://lostnfound-app.com/` was added successfully once the domain-property ownership already existed
 - `GA4 ↔ Google Ads`: proven in real behavior with `googleAdsLinks.create`
 - `Search Console ↔ GA4`: proven in real behavior, but the verified path here is Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource
-- brand-new `Google Ads` account creation purely by API: tested in real behavior, but still blocked right now because the developer token has not yet been approved beyond `Explorer` access; the official access-level request form at `https://support.google.com/adspolicy/contact/new_token_application` was submitted successfully on `2026-03-30`, but an immediate retry of `createCustomerClient` still returned `DEVELOPER_TOKEN_NOT_APPROVED`, so final proof still depends on Google's review
+- brand-new `Google Ads` account creation purely by API: tested in real behavior, but still blocked right now because the developer token has not yet been approved beyond `Explorer` access; after detecting an earlier form submission from the wrong Google account, the official access-level request form at `https://support.google.com/adspolicy/contact/new_token_application` was re-submitted successfully on `2026-03-30` from a support page whose visible top-right Google account email was `benjaminperry06@gmail.com`, but the API Center still showed `Explorer` access immediately afterwards, so final proof still depends on Google's review
 - `Bing Webmaster Tools` site ownership: proven in real behavior, but the verified path here is vendor UI plus DNS `CNAME`, not a reusable API bootstrap yet
 
 Canonical Search Console ownership rule for this skill:
@@ -166,7 +167,7 @@ Important verified constraint:
 - In the current verified repair path, if an older Google project returns `DEVELOPER_TOKEN_PROHIBITED`, the right fix is not to keep two active Google M2M projects forever; create one new clean unified project, verify every required Google service there, migrate local state, and retire the blocked project
 - Existing OAuth client secrets in Google Auth Platform are not redisplayable later; if the current secret is lost, add a new secret and capture it at creation time
 - If Google Auth Platform remains in `Test` mode, adding the approved Google email as a test user is enough to unblock real ADC bootstrap for that approved account; do not record the Google OAuth path as durable production bootstrap until production mode itself has also been verified in real behavior
-- During a real Google browser fallback in a multi-account session, the active browser identity must be checked explicitly in the top-right Google account switcher before any action; failing to do so can send work to the wrong Google account
+- During a real Google browser fallback in a multi-account session, the active browser identity must be checked explicitly in the top-right Google account switcher before any action; failing to do so can send work to the wrong Google account, even when `authuser=*` or a support-form URL looks plausible
 - The GTM API does not expose GTM account creation in the verified flow here; creating the first GTM account/container required a browser fallback for the GTM Terms of Service, after which the resulting GTM assets were fully readable again via the GTM API
 - The Analytics Admin API does not expose direct account creation in the verified flow here; the verified path uses `accounts:provisionAccountTicket`, then a browser Terms-of-Service completion, then API-driven creation of the GA4 property, web stream, Measurement Protocol secret, and `googleAdsLinks` link
 - Creating a Measurement Protocol secret in GA4 can fail until `acknowledgeUserDataCollection` has been sent on the property; treat that acknowledgement as a prerequisite in the API-first flow
@@ -175,7 +176,7 @@ Important verified constraint:
 - In the verified Google phase-3 flow here, the Site Verification API successfully verified `lostnfound-app.com` as an `INET_DOMAIN` after the registrar-level `DNS TXT` record was present, and Search Console then resolved `sc-domain:lostnfound-app.com` as `siteOwner`
 - In the verified Google phase-3 flow here, `sites.add` also added `https://lostnfound-app.com/` as a URL-prefix Search Console property after the domain property was already owned
 - In the verified Google phase-3 flow here, the Search Console association to GA4 was created successfully in Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource there
-- In the verified Google phase-3 flow here, the Google Ads API Center still showed `Explorer` access and `customers.createCustomerClient` failed with `DEVELOPER_TOKEN_NOT_APPROVED`; the official Basic/Standard request form at `https://support.google.com/adspolicy/contact/new_token_application` was then submitted successfully on `2026-03-30`, but an immediate retry stayed blocked, so treat brand-new account creation by API as pending Google's review until the access level changes
+- In the verified Google phase-3 flow here, the Google Ads API Center still showed `Explorer` access after a corrected same-day re-submission of the official Basic/Standard request form from a page whose visible top-right Google account email was `benjaminperry06@gmail.com`; treat brand-new account creation by API as pending Google's review until the access level changes
 - GTM does not require a separate product-link resource in the verified flow here; its role is container and tag deployment plus later codebase wiring rather than a GA-style admin association object
 - `sites.add` can create a Search Console domain-property entry, but that alone does not prove owner-level verification; in the verified real behavior here, `sc-domain:lostnfound-app.com` appeared as `siteUnverifiedUser` until registrar-level DNS TXT ownership is actually present
 - The Site Verification API can generate the required DNS TXT token and can fail cleanly when the token is not yet present; do not claim domain ownership verification before the insert succeeds or the property resolves as a true owner afterwards

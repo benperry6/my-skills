@@ -81,7 +81,7 @@ La doctrine capturee ici est simple :
 - avant de suggerer le navigateur, on recherche sur internet dans les docs officielles et les APIs si un chemin machine-to-machine credible existe
 - quand une regie expose un vrai chemin machine-to-machine credible, on privilegie API/CLI/MCP avant le navigateur
 - le navigateur reste un fallback de bootstrap, pas le mode operatoire par defaut
-- si Google impose un fallback navigateur, la seule preuve d'identite valable est l'adresse email visible du compte actif dans le switcher en haut a droite; `authuser=*` et les index de compte ne sont pas des preuves fiables
+- si Google impose un fallback navigateur, la seule preuve d'identite valable est l'adresse email visible du compte actif dans le switcher en haut a droite; `authuser=*`, `login_hint` et les index de compte ne sont pas des preuves fiables, et il faut preferer ouvrir les formulaires/supports Google depuis une session vendor deja verifiee sur le bon compte
 - pour toute regie, on vise les permissions machine-to-machine les plus larges et pertinentes que le flow officiel expose reellement, puis on verifie en vrai les scopes et capacites accordes
 - quand le flow officiel expose dynamiquement la liste des permissions ou la duree du token, on inspecte les options reelles au moment du bootstrap au lieu de figer une liste historique dans le skill
 - quand une regie permet un token machine-to-machine non expirant, on le prefere et on verifie ensuite l'etat d'expiration reel du token
