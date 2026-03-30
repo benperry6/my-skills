@@ -28,9 +28,42 @@ TARGETS_BY_ENGINE = {
     "gemini": ["claude", "codex"],
 }
 
+POST_IMPLEMENTATION_RUBRIC = [
+    {
+        "name": "Plan coverage",
+        "description": "Did the delivered implementation actually cover what the transcript or validated plan said should be shipped?",
+    },
+    {
+        "name": "Scope drift",
+        "description": "Did the implementation add, remove, or change material behavior that was not justified by the stated goal?",
+    },
+    {
+        "name": "Correctness risk",
+        "description": "Based on the code and local evidence, what defects, regressions, or edge-case failures are most plausible?",
+    },
+    {
+        "name": "Runtime confidence",
+        "description": "What is already verified by evidence, and what still needs real runtime confirmation before trusting the change?",
+    },
+    {
+        "name": "Test adequacy",
+        "description": "Do the current tests or proposed tests meaningfully cover the risky behavior, or is there still a verification gap?",
+    },
+]
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def timestamp_slug() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def slugify(value: str) -> str:
+    cleaned = "".join(char.lower() if char.isalnum() else "-" for char in value.strip())
+    collapsed = "-".join(part for part in cleaned.split("-") if part)
+    return collapsed or "audit"
 
 
 def detect_current_engine() -> str | None:
@@ -175,6 +208,10 @@ def build_post_implementation_prompt(args: argparse.Namespace, workdir: Path) ->
         if audit_paths
         else "- Whole working tree."
     )
+    rubric_block = "\n".join(
+        f"- {criterion['name']}: {criterion['description']}"
+        for criterion in POST_IMPLEMENTATION_RUBRIC
+    )
 
     prompt = (
         "Context: We are running a post-implementation audit for a completed Claude Code implementation.\n"
@@ -194,6 +231,8 @@ def build_post_implementation_prompt(args: argparse.Namespace, workdir: Path) ->
         f"{cached_diff_stat}\n"
         "Currently changed files:\n"
         f"{changed_files}\n"
+        "Evaluation rubric:\n"
+        f"{rubric_block}\n"
     )
     if extra_focus:
         prompt += f"Additional audit focus from the orchestrator:\n{extra_focus}\n"
@@ -207,14 +246,114 @@ def build_post_implementation_prompt(args: argparse.Namespace, workdir: Path) ->
         "6. If you find issues, recommend the smallest complete fix set and the most relevant real tests.\n"
         "Please return:\n"
         "(1) Findings first, ordered by severity\n"
-        "(2) Completeness verdict vs the validated plan\n"
-        "(3) Behavior-confidence verdict: what is verified vs what still needs real testing\n"
-        "(4) Exact fixes / next tests\n"
-        "(5) Open questions\n"
+        "(2) Rubric scorecard: for each rubric criterion, mark PASS / CONCERN / FAIL with a brief reason\n"
+        "(3) Completeness verdict vs the validated plan\n"
+        "(4) Behavior-confidence verdict: what is verified vs what still needs real testing\n"
+        "(5) Exact fixes / next tests\n"
+        "(6) Open questions\n"
         "Be concrete. Cite file paths when possible.\n"
     )
 
-    return prompt, {**manifest, "audit_paths": audit_paths}
+    return prompt, {**manifest, "audit_paths": audit_paths, "rubric": POST_IMPLEMENTATION_RUBRIC}
+
+
+def build_audit_artifact_payload(summary: dict[str, Any], prompt: str) -> dict[str, Any]:
+    return {
+        "generated_at": utc_now(),
+        "mode": summary.get("mode"),
+        "current_engine": summary.get("current_engine"),
+        "working_directory": summary.get("working_directory"),
+        "audit_manifest": summary.get("audit_manifest", {}),
+        "targets": summary.get("targets", []),
+        "prompt": prompt,
+        "results": summary.get("results", []),
+    }
+
+
+def render_audit_artifact_markdown(payload: dict[str, Any]) -> str:
+    lines = [
+        "# Second Opinion Audit",
+        "",
+        f"- Generated at: `{payload.get('generated_at', '')}`",
+        f"- Mode: `{payload.get('mode', '')}`",
+        f"- Current engine: `{payload.get('current_engine', '')}`",
+        f"- Working directory: `{payload.get('working_directory', '')}`",
+        "",
+    ]
+
+    manifest = payload.get("audit_manifest", {})
+    if isinstance(manifest, dict) and manifest:
+        lines.extend(["## Audit Context", ""])
+        session_file = manifest.get("session_file")
+        if session_file:
+            lines.append(f"- Session file: `{session_file}`")
+        transcript_files = manifest.get("transcript_files") or []
+        if transcript_files:
+            lines.append("- Transcript files:")
+            for item in transcript_files:
+                lines.append(f"  - `{item}`")
+        plan_files = manifest.get("plan_files") or []
+        if plan_files:
+            lines.append("- Plan files:")
+            for item in plan_files:
+                lines.append(f"  - `{item}`")
+        audit_paths = manifest.get("audit_paths") or []
+        if audit_paths:
+            lines.append("- Audit scope:")
+            for item in audit_paths:
+                lines.append(f"  - `{item}`")
+        rubric = manifest.get("rubric") or []
+        if rubric:
+            lines.extend(["", "## Rubric", ""])
+            for criterion in rubric:
+                if isinstance(criterion, dict):
+                    lines.append(f"- **{criterion.get('name', 'Criterion')}**: {criterion.get('description', '')}")
+        lines.append("")
+
+    lines.extend(["## Prompt", "", "```text", payload.get("prompt", "").rstrip(), "```", ""])
+
+    results = payload.get("results") or []
+    for result in results:
+        if not isinstance(result, dict):
+            continue
+        lines.extend([f"## Result — {result.get('engine', 'unknown')}", ""])
+        lines.append(f"- Success: `{result.get('success', False)}`")
+        if result.get("repaired"):
+            lines.append("- Repaired path: `true`")
+        if result.get("needs_web_research"):
+            lines.append("- Needs web research: `true`")
+        models = result.get("models") or {}
+        if models:
+            lines.append(f"- Models: `{json.dumps(models, sort_keys=True)}`")
+        lines.extend(["", payload_result_block(result), ""])
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def payload_result_block(result: dict[str, Any]) -> str:
+    response = (result.get("response") or "").rstrip()
+    if not response:
+        return "_No response captured._"
+    return "```text\n" + response + "\n```"
+
+
+def write_audit_artifacts(
+    summary: dict[str, Any],
+    prompt: str,
+    report_dir: Path,
+    report_prefix: str,
+) -> dict[str, Any]:
+    report_dir.mkdir(parents=True, exist_ok=True)
+    stem = f"{timestamp_slug()}-{slugify(report_prefix)}"
+    json_path = report_dir / f"{stem}.json"
+    md_path = report_dir / f"{stem}.md"
+    payload = build_audit_artifact_payload(summary, prompt)
+    json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+    md_path.write_text(render_audit_artifact_markdown(payload), encoding="utf-8")
+    return {
+        "json_path": str(json_path),
+        "markdown_path": str(md_path),
+    }
 
 
 def extract_json(text: str) -> Any | None:
@@ -813,6 +952,15 @@ def parse_args() -> argparse.Namespace:
         nargs="+",
         help="Optional git pathspec(s) limiting the post-implementation audit to the relevant files/directories.",
     )
+    parser.add_argument(
+        "--audit-report-dir",
+        help="Optional directory where a durable post-implementation audit artifact should be written.",
+    )
+    parser.add_argument(
+        "--audit-report-prefix",
+        default="second-opinion-audit",
+        help="Filename prefix used when writing durable post-implementation audit artifacts.",
+    )
     parser.add_argument("--working-directory", default=os.getcwd())
     parser.add_argument("--output-json")
     parser.add_argument("--logs-dir")
@@ -879,6 +1027,14 @@ def main() -> int:
     if learning_records and args.persist_learning:
         summary["persisted_learning"] = persist_runtime_learning(
             learning_records, enable_git_persist=args.git_persist
+        )
+
+    if args.mode == "post-implementation-audit" and args.audit_report_dir:
+        summary["audit_artifact"] = write_audit_artifacts(
+            summary=summary,
+            prompt=prompt,
+            report_dir=Path(args.audit_report_dir).expanduser().resolve(),
+            report_prefix=args.audit_report_prefix,
         )
 
     if args.output_json:

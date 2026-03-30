@@ -313,6 +313,44 @@ Implication:
 - on heavier audits, scope control matters; use `--audit-path` to keep the review focused and avoid unrelated repo noise
 - Codex can complete the audit successfully, but heavy post-implementation reviews may need several minutes even on a small scoped repo
 
+## 2026-03-30 — Post-implementation audit rubric and durable artifacts
+
+Verified runner path:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --mode post-implementation-audit \
+  --current-engine claude \
+  --targets codex \
+  --working-directory "/private/tmp/second-opinion-post-impl-sandbox" \
+  --session-file "/Users/benjaminperry/.claude/projects/-Users-benjaminperry-My-Drive-ProStrike-Holdings-ProStrike-Brands-Lost-N-Found-app/30a94e62-2283-4d02-8baa-e8f867e66759.jsonl" \
+  --audit-path "src/app/[locale]/cookies/page.tsx" \
+  --audit-focus "Focus on the cookie-banner regression described in the Claude transcript and on whether the current scoped code actually addresses that diagnosis." \
+  --audit-report-dir /private/tmp/second-opinion-audit-artifacts \
+  --audit-report-prefix cookie-banner-post-impl \
+  --output-json /tmp/second-opinion-post-impl-sandbox-codex-artifact.json \
+  --timeout-seconds 300 \
+  --no-git-persist
+```
+
+Observed behavior:
+
+- exit code `0`
+- `mode = "post-implementation-audit"`
+- `results[0].success = true`
+- `audit_manifest.rubric` was present in the output JSON
+- the Codex answer included the requested `Rubric Scorecard` section
+- `audit_artifact` was written with both files:
+  - `/private/tmp/second-opinion-audit-artifacts/20260330T165353Z-cookie-banner-post-impl.json`
+  - `/private/tmp/second-opinion-audit-artifacts/20260330T165353Z-cookie-banner-post-impl.md`
+- on this machine, that successful Codex audit with artifact output took about `259125 ms`
+
+Implication:
+
+- the post-implementation audit now has an explicit grading frame instead of a free-form review only
+- `--audit-report-dir` is verified as a durable handoff path for later correction or later-session replay
+- the artifact should be treated as an auditable handoff, not as proof that runtime behavior is correct by itself
+
 Verified working primary path:
 
 ```bash

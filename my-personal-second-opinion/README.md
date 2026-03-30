@@ -33,6 +33,7 @@ python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runne
   --working-directory "$PWD" \
   --session-cwd "$PWD" \
   --audit-path src/app/[locale]/cookies/page.tsx \
+  --audit-report-dir .claude/audits \
   --output-json /tmp/second-opinion-post-impl.json
 ```
 
@@ -50,7 +51,9 @@ Pour ce mode post-implementation:
 - `--session-cwd` retrouve automatiquement la bonne session Claude locale
 - `--session-file` permet de figer explicitement la session source
 - `--audit-path` borne l'audit aux fichiers vraiment concernes, ce qui est important dans un repo sale
+- `--audit-report-dir` ecrit un artefact durable (`.json` + `.md`) pour transmettre l'audit a une phase de correction ou a une session suivante
 - le helper ignore les sessions d'audit generees par ce skill lui-meme et les transcripts sous `subagents/`, pour eviter les boucles
+- l'audit utilise maintenant une grille explicite: `Plan coverage`, `Scope drift`, `Correctness risk`, `Runtime confidence`, `Test adequacy`
 
 ## Doctrine
 
