@@ -114,7 +114,7 @@ Verified sequence used successfully:
 1. Create or choose a dedicated GCP project for tracking access
 2. Enable the needed APIs such as Tag Manager, Analytics Admin, Search Console, Site Verification, and Google Ads API
 3. Create the OAuth client needed for local programmatic access
-4. Keep the full Google M2M cluster on one approved GCP project unless the user explicitly approves a split into multiple projects
+4. Prefer one approved GCP project for the Google M2M cluster by default, but do not overrule a verified Google Ads developer-token pairing constraint just to preserve that preference
 5. Add the approved Google operator account as a test user when the app is still in test mode and the scopes are not yet approved for general external use
 6. Mint local credentials for CLI/API use
 7. If `gcloud auth application-default login` crashes on a scope-normalization warning, retry with `https://www.googleapis.com/auth/userinfo.email` instead of the short `email` scope
@@ -150,8 +150,9 @@ Important verified constraint:
 - Google Cloud project display names are limited to 30 characters, so the canonical access label may need a shortened variant such as `Paid Media Vendor API Access`
 - If `gcloud auth application-default login` crashes on a scope-normalization warning during ADC bootstrap, retry with `https://www.googleapis.com/auth/userinfo.email` instead of the short `email` scope
 - In the current verified ADC state, GTM, GA4, Search Console API, and Site Verification API probes work once the OAuth bootstrap includes `webmasters` and `siteverification`
-- In the current verified local state for this skill, the active single-project Google M2M cluster runs on `tracking-skills-access` / `Paid Media Vendor API Access`; do not split Google Ads into a second GCP project unless the user explicitly approves that separation
-- In the current verified Google Ads API state, the approved OAuth identity `benjaminperry06@gmail.com` has access to manager `9095768791` (`Lost N Found`) and `customers:listAccessibleCustomers` works with the developer token minted in the API Center
+- In the current verified ADC state, `tracking-skills-access` / `Paid Media Vendor API Access` works for GTM, GA4, Search Console API, and Site Verification API
+- In the current verified Google Ads API state, an official Google Ads client call on project `412482570662` / `tracking-skills-access` returns `DEVELOPER_TOKEN_PROHIBITED` with the message `Developer token is not allowed with project '412482570662'`
+- Google documents `DEVELOPER_TOKEN_PROHIBITED` as a project-pairing constraint: once a Google API Console project has been paired to a developer token from one manager account, switching to a developer token under a different manager account requires a new Google API Console project unless the Cloud-managed access-levels path under a Google Cloud organization is available
 - Existing OAuth client secrets in Google Auth Platform are not redisplayable later; if the current secret is lost, add a new secret and capture it at creation time
 - During a real Google browser fallback in a multi-account session, the active browser identity must be checked explicitly in the top-right Google account switcher before any action; failing to do so can send work to the wrong Google account
 
