@@ -57,7 +57,8 @@ Its default posture is:
 14. When implementing a recommended asset, verify that it is actually wired into the real product flow and trigger path; never stop at creating dead code, an unused template, or an uncalled helper
 15. Treat cookie banners as hybrid compliance + marketing + measurement + performance surfaces; never review only the wording while ignoring the real consent runtime, performance footprint, or choice architecture
 16. For cookie-banner optimization, separate what is proved on raw consent from what is proved on net business impact; never present "more coercive = more business" as settled fact without scoped evidence
-17. When the evidence for the final business KPI is incomplete, default to the strongest generalizable doctrine and label any more aggressive option as inference-only or test-only
+17. For explicit business-first cookie-banner questions, structure the answer in two layers: `prouvé` and `inféré`; if the user still wants one practical direction under incomplete evidence, default to the inferred layer while labeling it clearly as inference rather than proof
+18. Preserve unresolved cookie-banner research gaps in a reusable form so the same missing question can be re-researched later from zero
 
 When the user only asks for analysis, stay at advice level.
 
@@ -238,6 +239,12 @@ When the user asks which cookie-banner direction is "best for business", explici
 
 If the final KPI is not publicly proved for the scoped model, say so plainly instead of guessing.
 
+If the user still wants a single practical recommendation anyway:
+
+- give the current inferred best synthesis
+- label it as inferred rather than proved
+- state the exact research gap that prevented a fully proved answer
+
 ### Step 7 — Decide the action lane
 
 Choose one or more lanes explicitly:
@@ -413,9 +420,9 @@ Use:
 When the request is specifically about cookie-banner optimization, also include:
 
 - `Ce qui est prouvé`
-- `Ce qui est probable`
-- `Ce qui n'est pas démontré`
-- `Ce qui reste une hypothèse de test`
+- `Ce qui a été inféré`
+- `Ce qui reste non démontré`
+- `Comment relancer cette recherche`
 
 For audits, findings come before summary.
 

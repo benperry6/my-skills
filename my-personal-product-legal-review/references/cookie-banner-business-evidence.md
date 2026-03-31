@@ -9,15 +9,16 @@ Use this file when the user asks a cookie-banner / CMP question in explicitly bu
 This file does not replace `cookie-banner-optimization.md`.
 It adds the missing evidence ladder for business-first decisions.
 
-## The Evidence Ladder
+## How To Use This File
 
-Always separate these questions:
+For explicit business-first cookie-banner questions, answer in this order:
 
-1. What increases raw consent or immediate interaction?
-2. What is proved to improve the final business KPI?
-3. What is only an inference or test hypothesis?
+1. `Ce qui est prouvé`
+2. `Ce qui a été inféré`
+3. `Ce qui reste non démontré`
+4. `Comment relancer cette recherche`
 
-Do not collapse them into one answer.
+If the user still wants one practical direction despite the missing proof, default to section 2, but say clearly that it is inferred and not proved.
 
 ## What Is Proved
 
@@ -76,56 +77,68 @@ Keep these models separate:
 
 If the scoped business is not ad-supported, do not use publisher revenue results as if they settled the question.
 
-## Default Doctrine When Evidence Is Incomplete
+## What Has Been Inferred From The Available Evidence
 
-If the user wants the best generalizable default for business-first cookie optimization and no local experiment exists, use this doctrine:
+If the user forces a single business-first recommendation under incomplete public proof, the current inferred best synthesis is:
 
-- bottom sheet / bottom placement first
-- short first layer
-- `Accept all`, `Reject all`, and `Customize / Settings` visible on the first layer
-- category-first preference center
-- measurement resilience improved through stack choices, not only through coercive choice architecture
+- bottom sheet / sticky bottom sheet
+- short and compact first layer
+- no full-screen modal by default
+- `Accept all` as the primary button
+- `Customize` as the secondary button
+- `Reject all` as a less salient text link on the first layer rather than an equivalent primary button
 
-Why this remains the default:
+Why this is the current inference:
 
-- it is the strongest cross-business doctrine supported by the available public evidence
-- it avoids overstating the case for more coercive designs
-- it still leaves room for optimization through copy, visual presence, measurement setup, and runtime quality
-
-## Inference-Only Fallback
-
-If the user explicitly asks for the strongest **inference** despite missing proof, you may state it as an inference only.
-
-The current inference from the preserved exploratory discussion is:
-
-- keep the low-friction format (`bottom sheet`, not full-screen by default)
-- increase assertiveness more through choice hierarchy than through full-screen blocking
-- if the user wants to push acceptance harder, the speculative direction is:
-  - `Accept all` as primary button
-  - `Customize` as secondary
-  - `Reject all` less salient than accept
+- the format stays low-friction to avoid the known downside risk of more intrusive barriers
+- the choice hierarchy is where the available evidence most clearly supports a raw-consent lift
+- it is the best synthesis the preserved discussion reached once it tried to optimize for acceptance while still accounting for bounce risk
 
 But label this clearly:
 
-- not proved as best for global business
-- only a hypothesis
-- test-only, not doctrine
+- inferred, not proved
+- current best synthesis under incomplete public evidence
+- valid only when the user explicitly wants the strongest business-first direction despite missing proof
 
-Never present this fallback as the skill's default recommendation.
+Do not rebrand this as "data-proved" or "universally best".
 
-## Required Output Framing
+## What Still Remains Unanswered
 
-For business-first cookie-banner questions, classify the answer into:
+The unresolved question that the preserved research still failed to settle is:
 
-- `Prouvé`
-- `Probable`
-- `Non démontré`
-- `Hypothèse testable`
+`For non-publisher product / SaaS / ecommerce / lead-gen sites, which cookie-banner configuration maximizes net business once both raw acceptance and bounce / abandonment / downstream conversion are jointly accounted for?`
 
-If the user asks for a single recommendation anyway, state whether it is:
+More specifically, public evidence is still missing or insufficient on:
 
-- a data-backed default doctrine
-- or an inference chosen under incomplete evidence
+- bottom-sheet vs more intrusive modal on the final composite KPI
+- visible reject vs weakened reject on the final composite KPI
+- revenue/session or conversion impact for non-publisher businesses under these exact banner choices
+- whether the raw-consent gain from weaker reject salience survives once extra bounce or friction is included
+
+Keep this gap alive in the skill instead of pretending it has been solved.
+
+## How To Re-Run The Missing Research Later
+
+When the user wants to retry this search from zero, use a prompt with these constraints:
+
+- the target KPI is not raw consent alone
+- the target KPI is net business impact, including both acceptance and bounce / abandonment
+- distinguish publisher evidence from product / SaaS / ecommerce / lead-gen evidence
+- prioritize public quantitative studies, A/B tests, field experiments, or case studies that measure both acceptance and downstream business effects
+- if the public proof still does not exist, say so plainly
+
+Minimum rerun question:
+
+`Find public quantitative evidence that jointly measures cookie-banner design, consent lift, bounce or abandonment, and downstream business KPIs for non-publisher product / SaaS / ecommerce / lead-gen sites. Compare bottom-sheet vs intrusive modal, and visible reject vs weakened reject.`
+
+## Operational Split
+
+When writing the final answer, keep the split explicit:
+
+- `Prouvé` = only what the public evidence actually demonstrates
+- `Inféré` = the current best synthesis when the user still wants one directional answer
+- `Non démontré` = the exact missing proof
+- `Recherche à relancer` = the preserved missing question and how to ask it again
 
 ## Preserved Sources
 

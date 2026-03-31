@@ -124,19 +124,23 @@ Recommend by default:
 - category-first preferences
 - improved measurement through runtime quality and stack choices
 
-### 2. Inference-only aggressive hypothesis
+This is still the safest operational baseline for compliance-first or mixed compliance/business review.
 
-If the user explicitly asks for the strongest business-first hypothesis despite incomplete proof, you may discuss:
+### 2. Business-first inferred direction
+
+If the user explicitly asks for the strongest business-first direction despite incomplete proof on the final KPI, do not stop at the conservative baseline.
+
+You may state the current inferred direction:
 
 - low-friction format
-- stronger accept hierarchy
-- weaker reject salience
+- stronger accept hierarchy than reject
+- weaker reject salience on the first layer
 
 But always label it as:
 
-- inference only
-- not proved on the final business KPI
-- suitable for testing, not for default doctrine
+- inferred rather than proved
+- not settled on the final business KPI
+- the current best synthesis under incomplete public evidence
 
 ## Performance review checklist
 

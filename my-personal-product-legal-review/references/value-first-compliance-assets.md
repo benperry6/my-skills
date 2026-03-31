@@ -62,8 +62,8 @@ For this surface, value-first means:
 
 If the user explicitly asks for a more aggressive business-first direction despite incomplete proof:
 
-- you may discuss it as an inference or test hypothesis
-- you must not present it as the default doctrine
+- you may discuss it as an inferred direction
+- you must not present it as a proved result
 - you must say clearly when the evidence only proves a raw-consent lift and not net business gain
 
 Sequence the asset like this:
