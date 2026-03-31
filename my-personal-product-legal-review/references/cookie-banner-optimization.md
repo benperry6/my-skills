@@ -186,6 +186,17 @@ Check:
 - banner scripts and assets are loaded with an intentional strategy
 - mobile viewport and safe-area behavior are acceptable
 
+## Mobile preference-center stability
+
+A common failure mode is a first layer that looks fine while the second-layer preferences state breaks on mobile.
+
+Check:
+
+- the opened preference center on the smallest supported mobile viewport, not just the default first layer
+- the confirm / save actions remain reachable without relying on awkward page-level scrolling
+- if the content exceeds the available viewport, the card is capped to the visible viewport and scrolls internally
+- dynamic viewport units and safe areas are handled intentionally rather than left to default browser behavior
+
 ## Accessibility review checklist
 
 Check:
@@ -217,5 +228,6 @@ Call these out explicitly:
 - banner copy optimized in isolation from the real tracking runtime
 - a legally "present" banner that is technically disconnected from the real consent logic
 - a banner that destroys mobile UX or Core Web Vitals while claiming to be optimized
+- a preference center taller than the mobile viewport with no internal scroll, leaving toggles or save actions partially unreachable
 - a proved lift on raw consent being presented as if it proved higher global business
 - publisher-only revenue evidence being used to settle a product / SaaS / ecommerce question
