@@ -18,6 +18,7 @@ Use this file when moving from recommendation to implementation.
 - Default Google foundation for this skill: `GTM web + GA4 + GSC + Google Ads`
 - Google Tag Manager account access
 - GA4 property access
+- Google Analytics Data API access when CLI-side GA4 validation or reporting is expected
 - Search Console property access or the ability to verify ownership programmatically
 - Google Ads account access
 - Google Ads manager-account access when Google Ads API administration or account creation is expected
@@ -26,6 +27,7 @@ Use this file when moving from recommendation to implementation.
 - In the current verified workflow, a domain-level Search Console property can be fully owner-verified once the authoritative-DNS `TXT` record exists and the Site Verification API insert succeeds; the registrar and the DNS host can differ, and the current `lostnfound-app.com` live setup is `Hostinger registrar + Cloudflare DNS`
 - In the current verified workflow, `sites.add` can also add a narrower URL-prefix property such as `https://lostnfound-app.com/` once the domain-property ownership already exists
 - In the current verified workflow, the Search Console property can then be associated to the GA4 web stream, but the proven path here is the Analytics UI after checking that no public Analytics Admin API resource exists for that association
+- In the current verified workflow, `analyticsdata.googleapis.com` can be enabled on the unified Google project and then used via `properties/{property_id}:runRealtimeReport` to validate GA4 ingestion from CLI; on 2026-03-31, a Measurement Protocol event named `manual_realtime_api_server_probe` returned `rowCount=1` immediately afterwards on property `530524280`
 - In the current verified workflow, the official Google Ads Basic/Standard access request form was submitted successfully on 2026-03-30, but brand-new Google Ads account creation by API is still blocked right now because `createCustomerClient` keeps returning `DEVELOPER_TOKEN_NOT_APPROVED` until Google approves the developer token beyond `Explorer`
 - OAuth authorization for Tag Manager, Analytics Admin, Search Console, and Site Verification APIs if API-first setup is expected
 - Google Auth Platform publication status should be checked before relying on durable external-user refresh tokens; prefer production over testing when appropriate

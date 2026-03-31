@@ -115,7 +115,7 @@ If a vendor imposes naming limits, use the closest shorter variant that preserve
 Verified sequence used successfully:
 
 1. Create or choose a dedicated GCP project for tracking access
-2. Enable the needed APIs such as Tag Manager, Analytics Admin, Search Console, Site Verification, and Google Ads API
+2. Enable the needed APIs such as Tag Manager, Analytics Admin, Analytics Data, Search Console, Site Verification, and Google Ads API
 3. Create the OAuth client needed for local programmatic access
 4. Prefer one approved GCP project for the Google M2M cluster by default, but do not overrule a verified Google Ads developer-token pairing constraint just to preserve that preference
 5. Add the approved Google operator account as a test user when the app is still in test mode and the scopes are not yet approved for general external use
@@ -138,9 +138,10 @@ Documented programmatic path to pursue before any browser fallback:
 
 1. Use the Tag Manager API for GTM account/container/tag administration
 2. Use the Analytics Admin API for GA4 property, web data stream, and `googleAdsLinks` administration
-3. Use the Search Console API plus the Site Verification API to add and verify Search Console properties programmatically when possible
-4. Treat Google Ads API administration as a separate bootstrap that requires a manager account plus a developer token
-5. Check the current official docs for Google-service associations each time; if the association is documented only in help-center UI flows and not in a developers API surface, mark it as a real UI bootstrap gap instead of pretending the CLI path is already verified
+3. Keep the Google Analytics Data API available when GA4 is in scope so realtime or report-side verification can be done from CLI during debugging and validation
+4. Use the Search Console API plus the Site Verification API to add and verify Search Console properties programmatically when possible
+5. Treat Google Ads API administration as a separate bootstrap that requires a manager account plus a developer token
+6. Check the current official docs for Google-service associations each time; if the association is documented only in help-center UI flows and not in a developers API surface, mark it as a real UI bootstrap gap instead of pretending the CLI path is already verified
 
 Current Google phase-3 proof map for this skill:
 
@@ -149,6 +150,7 @@ Current Google phase-3 proof map for this skill:
 - `Search Console` domain property creation and ownership verification: proven in real behavior with `Search Console API + Site Verification API + authoritative DNS TXT`; in the current live `lostnfound-app.com` setup the registrar is Hostinger and the authoritative DNS host is Cloudflare
 - `Search Console` URL-prefix property creation: proven in real behavior with `sites.add`; `https://lostnfound-app.com/` was added successfully once the domain-property ownership already existed
 - `GA4 ↔ Google Ads`: proven in real behavior with `googleAdsLinks.create`
+- `GA4 Data API realtime verification`: proven in real behavior after enabling `analyticsdata.googleapis.com`; on `2026-03-31`, `properties/530524280:runRealtimeReport` returned `rowCount=1` for a Measurement Protocol event named `manual_realtime_api_server_probe`, so this API is now part of the verified CLI debugging path for GA4 ingestion
 - `Search Console ↔ GA4`: proven in real behavior, but the verified path here is Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource
 - brand-new `Google Ads` account creation purely by API: tested in real behavior, but still blocked right now because the developer token has not yet been approved beyond `Explorer` access; after detecting an earlier form submission from the wrong Google account, the official access-level request form at `https://support.google.com/adspolicy/contact/new_token_application` was re-submitted successfully on `2026-03-30` from a support page whose visible top-right Google account email was `benjaminperry06@gmail.com`, but the API Center still showed `Explorer` access immediately afterwards, so final proof still depends on Google's review
 - `Bing Webmaster Tools` site ownership and API-key reuse: proven in real behavior; the verified path here used vendor UI plus DNS `CNAME` to establish ownership, then a generated API key succeeded with `GetUserSites`, `GetSiteRoles`, and `SubmitUrl`
