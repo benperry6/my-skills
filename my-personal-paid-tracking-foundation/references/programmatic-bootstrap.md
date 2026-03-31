@@ -190,6 +190,7 @@ Phase-boundary reminder for Google:
 - proving the Google bootstrap means the approved project, OAuth path, scopes, and core APIs respond in real behavior
 - it does **not** by itself prove that Search Console properties were created, ownership was verified, GA4 was linked to Google Ads, or a brand-new Google Ads account was created end-to-end
 - those items belong to the later asset-creation and service-linking phase and need their own real verification before they can be treated as complete
+- even after those assets and links exist, runtime vendor ingestion still belongs to Phase 4 and needs its own proof path
 
 Documented but not yet verified end-to-end in real behavior here:
 
@@ -253,6 +254,7 @@ Phase-boundary reminder for Meta:
 - proving the Meta bootstrap means the approved business, app, system user, token, and core Graph API probes work in real behavior
 - it does **not** by itself prove that every downstream paid-media asset flow is complete
 - ad-account creation, system-user assignment to the ad account, pixel creation, and paused campaign creation are now proven in real behavior here, but ad set / ad / creative flows and broader dataset administration beyond the initial terms-clearing flow still need their own real verification before Meta phase 3 can be treated as fully complete
+- even when those asset/admin flows are complete, browser-side or server-side vendor ingestion still belongs to Phase 4 and needs its own proof path
 
 ## What the final plan must include
 

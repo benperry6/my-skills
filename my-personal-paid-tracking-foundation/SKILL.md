@@ -50,7 +50,7 @@ The canonical bias is:
 
 ## Canonical Phase Architecture
 
-This skill must reason explicitly in 3 major phases:
+This skill must reason explicitly in 4 major phases:
 
 ### Phase 1 — Prepare the codebase
 
@@ -90,15 +90,31 @@ Use the verified vendor access to operate the real vendor layer:
 
 - the required vendor assets and inter-service links are proven in real behavior, not just documented
 
+### Phase 4 — Verify live data flow and debug runtime issues
+
+Prove that the implemented tracking actually sends usable data in real conditions:
+
+- verify browser-side vendor loading after consent where relevant
+- verify server-side or first-party relays when they are part of the architecture
+- verify final vendor ingestion via CLI/API when a credible programmatic path exists
+- document the verified debugging path so future projects can reuse it without re-researching the same vendor behavior
+
+**Phase-4 completion gate:**
+
+- the important runtime data flows are proven in real behavior with the strongest available verification path
+- any remaining vendor-side verification gaps are explicitly labeled as real platform limitations, not silent uncertainty
+
 ### Mandatory phase guardrails
 
 - `Phase 2 complete` does **not** mean `Phase 3 complete`
+- `Phase 3 complete` does **not** mean `Phase 4 complete`
 - a default vendor cluster such as `GTM web + GA4 + GSC + Google Ads` does **not** mean every inter-service link is already verified
+- creating or linking an asset is not the same thing as proving live data ingestion
 - every final answer should label each phase explicitly as `complete`, `partially complete`, or `unverified`
 
 ## Decision Workflow
 
-The workflow below supports the 3-phase architecture above. When execution begins, always map the work back to `Phase 1`, `Phase 2`, or `Phase 3` explicitly instead of treating the whole skill as one undifferentiated block.
+The workflow below supports the 4-phase architecture above. When execution begins, always map the work back to `Phase 1`, `Phase 2`, `Phase 3`, or `Phase 4` explicitly instead of treating the whole skill as one undifferentiated block.
 
 ### Step 1 — Classify the project
 
@@ -192,6 +208,7 @@ Read:
 
 - `references/programmatic-bootstrap.md`
 - `references/access-checklist.md`
+- `references/runtime-verification.md`
 
 When a vendor was not documented before, or when a documented flow had become outdated and had to be debugged:
 
@@ -201,6 +218,23 @@ When a vendor was not documented before, or when a documented flow had become ou
 - only then update the skill references with the concise verified learning
 
 Do not save theoretical findings, untested doc snippets, or speculative fixes into the skill.
+
+### Step 8 — Execute runtime verification
+
+Read:
+
+- `references/runtime-verification.md`
+
+When Phase 3 work appears complete:
+
+- choose the strongest available verification path for each important vendor flow
+- prefer CLI/API verification when the vendor exposes it and it works from the current machine
+- use browser/runtime observation only when it is genuinely needed
+- separate clearly:
+  - asset/admin proof
+  - runtime/browser proof
+  - final vendor-ingestion proof
+- save the verified runbook only after the proof works in real behavior
 
 ## Canonical Doctrine
 
@@ -224,6 +258,7 @@ Unless the context proves otherwise, the default doctrine is:
 - When a new vendor bootstrap succeeds in real behavior, or when an outdated vendor flow is corrected and re-verified, update the skill so that future projects can reuse the verified path instead of repeating the same research
 - If research findings do not work in real conditions, do not add them to the skill; keep debugging until a real working path is verified or leave the gap explicitly marked as unverified
 - Browser fallback is acceptable only when the programmatic path genuinely does not exist yet or still has a hard bootstrap gap
+- Runtime verification is a first-class phase of the workflow, not an optional polish step after implementation
 
 This doctrine exists for a business reason, not a tooling reason:
 
@@ -281,7 +316,7 @@ The final output of this skill should always include these sections:
 
 1. **Diagnostic**
    - short classification of the project and current stage
-   - explicit phase status for `Phase 1`, `Phase 2`, and `Phase 3`
+   - explicit phase status for `Phase 1`, `Phase 2`, `Phase 3`, and `Phase 4`
 2. **Recommended stack**
    - the opinionated foundation to use now
 3. **Why this is the right trade-off now**

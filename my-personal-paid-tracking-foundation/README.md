@@ -24,9 +24,9 @@ Il doit :
 - produire un plan d'implementation concret
 - lister ce que l'agent peut faire et ce que l'utilisateur doit fournir
 
-## Architecture canonique en 3 etapes
+## Architecture canonique en 4 etapes
 
-Ce skill doit raisonner explicitement en 3 grandes etapes :
+Ce skill doit raisonner explicitement en 4 grandes etapes :
 
 ### 1. Preparer la codebase
 
@@ -52,10 +52,21 @@ Utiliser ces acces pour operer la couche paid media reelle :
 - relier les services entre eux quand le chemin API est reel et verifie
 - connecter concretement la codebase aux plateformes
 
+### 4. Verifier le flux de donnees en comportement reel
+
+Prouver que l'implementation envoie vraiment les donnees utiles :
+
+- verifier le chargement runtime des vendors apres consentement quand c'est pertinent
+- verifier les relais server-side / first-party quand ils existent
+- verifier l'ingestion finale vendor avec la meilleure voie disponible, idealement en CLI/API
+- documenter le runbook de verification et de debug pour pouvoir le reutiliser sur les projets suivants
+
 ### Garde-fous de passage
 
 - finir l'etape 2 ne veut **pas** dire que l'etape 3 est finie
+- finir l'etape 3 ne veut **pas** dire que l'etape 4 est finie
 - avoir Google comme cluster par defaut ne veut **pas** dire que toutes les liaisons Google sont deja prouvees
+- creer un asset ou une liaison ne veut **pas** dire que les donnees remontent deja en comportement reel
 - une etape n'est consideree complete que si son resultat est verifie en comportement reel, pas seulement documente
 
 ## La these derriere ce skill
@@ -101,6 +112,7 @@ La doctrine capturee ici est simple :
 - le bon niveau d'ambition selon le type de projet
 - les pre-requis d'acces et d'identifiants
 - la facon d'obtenir ces acces et identifiants par voie programmatique quand c'est possible
+- la facon de verifier ensuite les flux de donnees en comportement reel et de documenter les runbooks de debug reutilisables
 - la facon d'obtenir le jeu de permissions et la duree de token les plus larges que le flow officiel expose reellement au moment du bootstrap
 - la selection explicite du bon compte / business / projet avant toute action
 - la capitalisation des nouveaux learnings verifies quand on documente une nouvelle regie ou qu'on corrige une procedure devenue obsolete

@@ -119,6 +119,15 @@ Treat this as "verified maximum for the current tested flow", not as a promise t
 - Existing API routes or backend endpoints that can relay first-party events
 - Secrets for any vendor server-side API calls
 
+## Runtime verification and debug
+
+- Access to the live runtime that should be verified, such as the public Vercel alias or the current production domain
+- A clear statement of which environment is intentionally live and which one must not be touched yet
+- CLI/API verification access for vendor-side ingestion when the vendor exposes it
+- A place to persist the verified runtime/debug state, such as `~/.config/tracking-skills/access-bootstrap.json`
+- For Google when GA4 is in scope, keep `analyticsdata.googleapis.com` available so `runRealtimeReport` can be used as a CLI-side ingestion check instead of relying only on browser DevTools
+- For Meta browser-side verification, expect the loader and config requests to be easier to observe than the final beacon in some headless runs; if the final `facebook.com/tr` request is not visible in a specific headless probe, treat that result as inconclusive unless a stronger counter-proof exists
+
 ## Consent / legal
 
 - Confirmation of legal posture by geography
