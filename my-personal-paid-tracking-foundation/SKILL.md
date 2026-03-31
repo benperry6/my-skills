@@ -38,14 +38,15 @@ The canonical bias is:
 2. Avoid paying for heavy infrastructure before the business is proven
 3. Keep a clean upgrade path toward a more industrial setup later
 4. Open only the vendors that match the real channel plan, not every vendor that could theoretically matter
-5. Prefer CLI/API/MCP orchestration over browser clicking whenever the vendor exposes a credible machine-to-machine path
-6. Research the current official docs and API surface on the internet before declaring a vendor "browser-only"
-7. Never choose a vendor account, business, profile, or cloud project without explicit user approval when multiple valid options may exist
-8. Treat vendor names already present in the skill as examples, not a whitelist; the skill may recommend a niche or newly relevant vendor even if its name does not yet appear anywhere in the skill
-9. Persist only verified learning: update the skill only after a vendor bootstrap or vendor-flow fix has been proven in real behavior, not just inferred from docs or theory
-10. Treat the Google foundation as a connected cluster by default: `GTM web + GA4 + GSC + Google Ads`, then document clearly which parts are already verified programmatically and which parts still have a real UI bootstrap gap
-11. For owned-domain site projects, add Bing Webmaster Tools to the recommended search baseline, prefer verification at the authoritative DNS host when the goal is whole-domain ownership rather than a narrower page-level method, and record the actual live vendor method exposed in the real flow; the registrar and the DNS host may differ, and in the currently verified `lostnfound-app.com` flow here the registrar is `Hostinger` while the authoritative DNS host is `Cloudflare`; in the currently verified Bing flow here the method is `CNAME`
-12. If Google ever requires browser fallback, treat Google account identity as a blocking precondition: verify the active top-right Google account email before touching the page, treat `authuser=*`, `login_hint`, account indexes, or similar session hints as unstable non-authoritative metadata or routing hints rather than proof of identity, prefer opening Google support/vendor flows from an already verified Google service context for the approved account when possible, and stop immediately if the visible browser email is not the explicitly approved Google account
+5. Before any browser action on a third-party platform, explicitly check whether a CLI/API/MCP path exists and actually works with a real probe
+6. If that programmatic path exists and works, it becomes the mandatory default; do not use the browser unless the programmatic path is absent, broken, or insufficient for the exact operation
+7. Research the current official docs and API surface on the internet before declaring a vendor "browser-only"
+8. Never choose a vendor account, business, profile, or cloud project without explicit user approval when multiple valid options may exist
+9. Treat vendor names already present in the skill as examples, not a whitelist; the skill may recommend a niche or newly relevant vendor even if its name does not yet appear anywhere in the skill
+10. Persist only verified learning: update the skill only after a vendor bootstrap or vendor-flow fix has been proven in real behavior, not just inferred from docs or theory
+11. Treat the Google foundation as a connected cluster by default: `GTM web + GA4 + GSC + Google Ads`, then document clearly which parts are already verified programmatically and which parts still have a real UI bootstrap gap
+12. For owned-domain site projects, add Bing Webmaster Tools to the recommended search baseline, prefer verification at the authoritative DNS host when the goal is whole-domain ownership rather than a narrower page-level method, and record the actual live vendor method exposed in the real flow; the registrar and the DNS host may differ, and in the currently verified `lostnfound-app.com` flow here the registrar is `Hostinger` while the authoritative DNS host is `Cloudflare`; in the currently verified Bing flow here the method is `CNAME`
+13. If Google ever requires browser fallback, treat Google account identity as a blocking precondition: verify the active top-right Google account email before touching the page, treat `authuser=*`, `login_hint`, account indexes, or similar session hints as unstable non-authoritative metadata or routing hints rather than proof of identity, prefer opening Google support/vendor flows from an already verified Google service context for the approved account when possible, and stop immediately if the visible browser email is not the explicitly approved Google account
 
 ## Canonical Phase Architecture
 
@@ -141,9 +142,10 @@ Before suggesting any browser work:
 
 - research the current official docs and API surface on the internet for each vendor the recommendation needs
 - determine whether a credible programmatic bootstrap path exists
+- verify with a real read/write probe that the CLI/API/MCP path actually works from the current machine and credentials when that is possible
 - state clearly what is verified, what is uncertain, and what still needs live validation
 
-If a credible programmatic path exists, do not jump straight to the browser.
+If a credible programmatic path exists and the real probe works, the browser is no longer the default fallback. Use the programmatic path unless it is genuinely absent, broken, or insufficient for the exact operation, and if browser fallback still becomes necessary explain why the programmatic path was not enough.
 
 ### Step 5 — Audit available access and require account approval
 

@@ -8,11 +8,13 @@ For every vendor:
 
 1. Search the current official docs and API surface on the internet first
 2. Determine whether a credible CLI/API/MCP path exists
-3. Reuse existing access if it already exists and the user approves the account choice
-4. Ask for the exact missing authorization if the path exists but access is incomplete
-5. Use the browser only when the programmatic path is genuinely missing or blocked by a real bootstrap gap
-6. If the official flow exposes permissions or token-duration choices dynamically, inspect those live options instead of relying on a frozen historical list
-7. Prefer a non-expiring option when the official flow exposes one, then verify the actual expiry in the minted token
+3. Probe that path in real behavior from the current machine and credentials whenever a low-risk read/write check is possible
+4. Reuse existing access if it already exists and the user approves the account choice
+5. Ask for the exact missing authorization if the path exists but access is incomplete
+6. If the probed programmatic path works, it becomes the mandatory default and browser work is no longer justified for that operation
+7. Use the browser only when the programmatic path is genuinely missing, broken, or blocked by a real bootstrap gap that the probe exposed
+8. If the official flow exposes permissions or token-duration choices dynamically, inspect those live options instead of relying on a frozen historical list
+9. Prefer a non-expiring option when the official flow exposes one, then verify the actual expiry in the minted token
 
 Do not treat Meta as a special exception. Apply the same logic to Google, Meta, TikTok, LinkedIn, Microsoft, Reddit, Pinterest, Snap, or any other vendor that becomes relevant.
 

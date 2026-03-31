@@ -33,7 +33,9 @@ Use this file when moving from recommendation to implementation.
 - After OAuth bootstrap, verify the actual granted scopes with a live token inspection call instead of assuming the requested scope list was granted
 - If the Google foundation includes `GSC`, the OAuth bootstrap must actually grant Search Console scopes; otherwise Search Console API calls will fail with `insufficient_scope`
 - When the canonical Search Console property should cover the whole domain, prefer a domain property (`INET_DOMAIN`) with authoritative-DNS `TXT` verification instead of relying on a narrower URL-prefix property
-- If Google browser fallback is ever needed, verify the active top-right Google account email against the explicitly approved Google email before doing anything; never use `authuser=*` or account-index numbers as identity proof in a multi-account Google browser session
+- Before any browser action on a third-party platform, verify whether a CLI/API/MCP path exists and actually works with a real probe from the current machine and credentials
+- If that programmatic path exists and works, use it as the mandatory default and treat browser work as disallowed unless the path is absent, broken, or insufficient for the exact operation
+- If Google browser fallback is ever needed, verify the active top-right Google account email against the explicitly approved Google email before doing anything; never use `authuser=*`, `login_hint`, or account-index numbers as identity proof in a multi-account Google browser session
 - If Google Ads returns `DEVELOPER_TOKEN_PROHIBITED` on a previously used project, prefer one new clean unified project and retire the blocked project after migration instead of normalizing two active Google M2M projects
 - Approval of which Google account / GCP project should be used when multiple options exist
 

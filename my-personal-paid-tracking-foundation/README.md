@@ -78,9 +78,10 @@ La doctrine capturee ici est simple :
 - Google et Meta sont les bases par defaut; dans le cluster Google, la base par defaut est `GTM web + GA4 + GSC + Google Ads`, puis toute autre regie peut etre ouverte des le depart seulement si elle est reellement coherente avec le produit et le channel plan
 - pour un site possede en propre, la base search doit aussi inclure `Bing Webmaster Tools`, avec une verification canonique du domaine via le provider DNS autoritatif quand on veut couvrir tout le domaine; le registrar et le DNS host peuvent etre differents, et dans le setup reel verifie ici `lostnfound-app.com` est en `Hostinger registrar + Cloudflare DNS`; dans le flow Bing reel verifie ici, la methode etait un `CNAME`, pas un `TXT`
 - les vendors nommes dans le skill sont des exemples, pas une whitelist; le skill peut recommander une regie non nommee si elle est vraiment pertinente pour le contexte business
-- avant de suggerer le navigateur, on recherche sur internet dans les docs officielles et les APIs si un chemin machine-to-machine credible existe
-- quand une regie expose un vrai chemin machine-to-machine credible, on privilegie API/CLI/MCP avant le navigateur
-- le navigateur reste un fallback de bootstrap, pas le mode operatoire par defaut
+- avant toute action en navigateur sur une regie ou plateforme tierce, on verifie explicitement si un chemin CLI/API/MCP existe
+- quand ce chemin programmatique existe, on le sonde en vrai avec un read/write probe adapte pour verifier qu'il fonctionne depuis la machine et les credentials courants
+- si ce chemin programmatique existe et fonctionne, il devient la voie obligatoire par defaut; le navigateur n'est autorise que s'il est absent, casse, ou insuffisant pour l'operation exacte
+- le navigateur reste donc un fallback de bootstrap justifie, pas le mode operatoire par defaut
 - si Google impose un fallback navigateur, la seule preuve d'identite valable est l'adresse email visible du compte actif dans le switcher en haut a droite; `authuser=*`, `login_hint` et les index de compte ne sont pas des preuves fiables, et il faut preferer ouvrir les formulaires/supports Google depuis une session vendor deja verifiee sur le bon compte
 - pour toute regie, on vise les permissions machine-to-machine les plus larges et pertinentes que le flow officiel expose reellement, puis on verifie en vrai les scopes et capacites accordes
 - quand le flow officiel expose dynamiquement la liste des permissions ou la duree du token, on inspecte les options reelles au moment du bootstrap au lieu de figer une liste historique dans le skill
