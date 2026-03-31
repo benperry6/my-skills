@@ -30,6 +30,13 @@ Do not blur these two jobs.
 - `my-personal-context-distillation` = build and maintain the evidence bank that supports customer truth
 - `product-marketing-context` = compile a derivative context file for downstream skills
 
+When public web research needs a broader sourcing pass, this skill may also use the public `customer-research` skill as a helper.
+
+- `customer-research` = optional sourcing and extraction helper
+- `.agents/customer-research/` = non-canonical scratch workspace for that helper
+- `docs/context-sources/voc-bank.csv` = normalized durable evidence bank
+- `.agents/know-your-customer.md` = synthesized customer truth after normalization and gating
+
 ## Handoff Contract To `product-marketing-context`
 
 This handoff is easy to get subtly wrong.
@@ -51,6 +58,28 @@ Practical rule:
 3. read the downstream skill
 4. execute its workflow using the canonical files as primary sources
 5. only then say that `product-marketing-context` was run
+
+## Helper Contract To `customer-research`
+
+This helper contract must stay strict, or the KYC layer becomes messy fast.
+
+When `know-your-customer.md` is in scope and a deeper public research pass is needed:
+
+- you may consult or invoke the public `customer-research` skill as a sourcing and extraction helper
+- do not patch `customer-research` locally to make this stack-specific behavior work; the durable adaptation belongs here
+- route the helper's raw output into `.agents/customer-research/`
+- treat `.agents/customer-research/` as a scratch workspace, not as a canonical file set
+- normalize any reusable audience evidence into `docs/context-sources/voc-bank.csv`
+- only then synthesize or update `.agents/know-your-customer.md`
+- do not let `customer-research` own the final KYC deliverable, the bank/KYC consistency check, or the completion gate
+
+Practical rule:
+
+1. decide whether direct KYC research is enough, or whether `customer-research` should be used as a helper
+2. if the helper is used, let it gather and structure raw findings inside `.agents/customer-research/`
+3. convert the durable evidence into `docs/context-sources/voc-bank.csv`
+4. synthesize into `.agents/know-your-customer.md`
+5. evaluate the KYC here against the consistency check and completion gate
 
 ## Why This Skill Exists
 
@@ -83,6 +112,7 @@ Canonical files live at the root of `.agents/`:
   know-your-customer.md
   performance-memory.md
   product-marketing-context.md
+  customer-research/
 ```
 
 Human-maintained source materials live under `docs/`:
@@ -99,6 +129,7 @@ The canonical files are agent-maintained.
 The `docs/context-sources/` materials are human-originated or transcript-originated.
 `voc-bank.csv` is the persistent evidence layer for customer research. It is agent-maintained, but should remain human-readable and spreadsheet-friendly.
 It must follow the schema defined in [references/voc-bank-schema.md](references/voc-bank-schema.md).
+`.agents/customer-research/` is a local scratch workspace for helper-produced raw findings when the public `customer-research` skill is used. It is not source of truth, and nothing inside it counts as durable KYC evidence until it has been normalized into `voc-bank.csv`.
 
 ## When To Use
 
@@ -378,6 +409,15 @@ Populate the evidence quality columns consistently:
 Use the controlled values in [references/voc-bank-schema.md](references/voc-bank-schema.md).
 Do not leave those fields blank on newly added rows.
 
+### `customer-research` scratch output is not proof until normalized
+
+When the public `customer-research` helper is used, its raw output belongs in `.agents/customer-research/`.
+
+- use that workspace for raw findings, source notes, helper-produced summaries, and reusable intermediate artifacts
+- do not treat those scratch files as canonical memory
+- do not cite scratch findings as proof in `know-your-customer.md` until the durable evidence has been normalized into `docs/context-sources/voc-bank.csv`
+- if the scratch workspace and the bank disagree, reconcile the original sources and the bank first, then refresh the scratch layer if needed
+
 ### KYC work is completion-gated
 
 When `know-your-customer.md` is in scope, the job is not complete just because one research/synthesis cycle ran.
@@ -469,6 +509,7 @@ python3 ~/.agents/skills/my-personal-context-distillation/scripts/init_context_t
 This creates:
 
 - `.agents/`
+- `.agents/customer-research/`
 - `docs/context-sources/`
 - the four canonical files, if missing
 - `docs/context-sources/voc-bank.csv`, if missing
@@ -486,6 +527,7 @@ Read:
 
 If source files exist, inspect:
 
+- `.agents/customer-research/`, when prior helper outputs are relevant to the current KYC pass
 - `docs/context-sources/*.md`
 - `docs/context-sources/voc-bank.csv`
 - any user-provided transcript in the request
@@ -526,6 +568,8 @@ For `know-your-customer.md`, do not stop at the founder transcript.
 
 Use the founder's description of the audience only as a directional seed, then do real voice-of-customer research on the web. Search as much as needed until the major customer sections are supported by actual public evidence.
 
+If the current pass would benefit from a broader public-source sweep, you may use the public `customer-research` skill as a helper. When you do, route its raw output into `.agents/customer-research/` and treat that workspace as provisional scratch, not as proof.
+
 Persist what you find in `docs/context-sources/voc-bank.csv` before or while synthesizing.
 
 Acceptable public sources include:
@@ -561,12 +605,13 @@ Evidence quality rules:
 
 Required loop:
 
-1. research
-2. persist evidence in `voc-bank.csv`
-3. synthesize or update `know-your-customer.md`
-4. check that the synthesis is consistent with the actual evidence bank
-5. evaluate against the KYC checklist and completion gate
-6. if too weak and more plausible evidence sources remain, repeat
+1. decide whether the pass can be done directly here or whether `customer-research` should help with sourcing
+2. research directly, or use `customer-research` to gather raw findings into `.agents/customer-research/`
+3. normalize the durable evidence into `voc-bank.csv`
+4. synthesize or update `know-your-customer.md`
+5. check that the synthesis is consistent with the actual evidence bank
+6. evaluate against the KYC checklist and completion gate
+7. if too weak and more plausible evidence sources remain, repeat
 
 Do not stop after synthesis if the consistency check or the completion gate still fails.
 

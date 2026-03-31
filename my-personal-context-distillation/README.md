@@ -172,6 +172,7 @@ Il maintient les fichiers canoniques suivants dans `.agents/` :
 Et quand le sujet client est concerné, il maintient aussi :
 
 - `docs/context-sources/voc-bank.csv`
+- `.agents/customer-research/` comme workspace brut non canonique quand le helper public `customer-research` est utilisé
 
 ## Ce dont ce skill a besoin en input
 
@@ -263,6 +264,16 @@ C'est pourquoi ce skill impose une discipline particulière sur le KYC :
 - les zones non prouvées doivent rester partielles ou aller dans `Open Questions`
 
 La `VoC Bank` sert justement à garder la preuve derrière la synthèse.
+
+Quand une passe de recherche web plus large est utile, le skill peut s'appuyer sur le skill public `customer-research` comme helper de sourcing et d'extraction.
+
+Mais le contrat doit rester strict :
+
+- `customer-research` peut produire du brut dans `.agents/customer-research/`
+- ce dossier n'est pas une mémoire canonique
+- rien ne va directement de ce brut vers le KYC final
+- les éléments réutilisables doivent d'abord être normalisés dans `docs/context-sources/voc-bank.csv`
+- ensuite seulement, le skill met à jour `.agents/know-your-customer.md`
 
 ## Ce qu'il ne faut pas faire
 
@@ -393,11 +404,12 @@ L'objectif est de produire un contenu :
 ## Workflow
 
 1. On dépose les sources dans `docs/context-sources/`
-2. Le skill distille ces sources vers les fichiers canoniques
-3. Il maintient la `VoC Bank` si le KYC est concerné
-4. Si le contexte est encore trop faible, le skill doit le dire explicitement et demander davantage de matière avant d'aller plus loin
-5. Une fois le contexte suffisamment solide, on lance `product-marketing-context`
-6. Ensuite seulement, on lance les skills d'exécution marketing
+2. Si le KYC a besoin d'une vraie recherche web large, le skill peut utiliser `customer-research` comme helper et faire écrire son brut dans `.agents/customer-research/`
+3. Le skill normalise les éléments durables de ce brut vers `docs/context-sources/voc-bank.csv`
+4. Le skill distille ensuite les sources et la `VoC Bank` vers les fichiers canoniques
+5. Si le contexte est encore trop faible, le skill doit le dire explicitement et demander davantage de matière avant d'aller plus loin
+6. Une fois le contexte suffisamment solide, on lance `product-marketing-context`
+7. Ensuite seulement, on lance les skills d'exécution marketing
 
 ## Comment l'utiliser concrètement
 

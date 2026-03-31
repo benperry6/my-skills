@@ -32,6 +32,10 @@ def main() -> int:
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
+    helper_workspace = root / ".agents" / "customer-research"
+    helper_workspace.mkdir(parents=True, exist_ok=True)
+    print(f"ok  ensured directory: {helper_workspace}")
+
     docs_sources = root / "docs" / "context-sources"
     docs_sources.mkdir(parents=True, exist_ok=True)
     print(f"ok  ensured directory: {docs_sources}")

@@ -129,6 +129,22 @@ Contract:
 - do not confuse tags with facts
 - do not replace the bank with a prose summary
 
+## `.agents/customer-research/`
+
+Purpose:
+
+- non-canonical scratch workspace for the public `customer-research` helper
+- reusable holding area for raw findings, source notes, helper-produced summaries, and other intermediate research artifacts
+- staging layer before durable evidence is normalized into `docs/context-sources/voc-bank.csv`
+
+Contract:
+
+- file names inside this workspace may be flexible and run-specific
+- nothing in this workspace counts as canonical customer truth by itself
+- if a finding from this workspace matters for KYC, convert it into traceable bank rows before it influences `.agents/know-your-customer.md`
+- do not let this workspace replace `voc-bank.csv` or become a second canonical KYC memory
+- if the workspace becomes stale, refresh or discard it rather than silently trusting old scratch output
+
 ## `.agents/performance-memory.md`
 
 Preferred anchors:
