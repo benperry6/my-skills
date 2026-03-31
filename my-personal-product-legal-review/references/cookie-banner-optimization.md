@@ -34,12 +34,13 @@ Unless the real product context strongly suggests otherwise, the default baselin
 - bottom placement first
 - short first layer
 - three visible choices on the first layer:
-  - accept all
-  - reject all
+  - a primary accept action
+  - an explicit reject action
   - settings / manage choices
+- labels can be softened when the scope is already obvious from the cookie context, e.g. `Accept` / `Refuse` or `Accepter` / `Refuser`, as long as the meaning stays clear
 - category-first preference center
 - symmetric primary choices
-- persistent re-open path later
+- persistent re-open path later, preferably via a visible footer link on product-like sites rather than a floating chip unless the product context really benefits from the chip pattern
 
 This is the default optimization starting point, not a universal law.
 
@@ -120,9 +121,11 @@ Recommend by default:
 
 - bottom placement
 - short first layer
-- visible `Accept all`, `Reject all`, and `Customize`
+- visible `Accept`, `Refuse`, and `Customize` when the cookie scope is obvious enough for shorter labels
+- keep `Refuse` explicit and immediately clickable, but it may be visually weaker than the primary accept action if the user explicitly chooses the business-first inferred direction
 - category-first preferences
 - improved measurement through runtime quality and stack choices
+- a persistent footer link such as `Cookie preferences` / `Préférences cookies` to reopen preferences later on product-like sites
 
 This is still the safest operational baseline for compliance-first or mixed compliance/business review.
 
@@ -135,6 +138,8 @@ You may state the current inferred direction:
 - low-friction format
 - stronger accept hierarchy than reject
 - weaker reject salience on the first layer
+- softer button labels when the meaning stays obvious
+- footer-link reopen path preferred over a floating chip for cleaner product UI
 
 But always label it as:
 
@@ -178,6 +183,7 @@ Call these out explicitly:
 
 - accept visible, reject hidden
 - reject only accessible through a second layer without strong reason
+- reject buried inside the body copy or confused with the information paragraph
 - misleading color contrast or button hierarchy
 - banner copy optimized in isolation from the real tracking runtime
 - a legally "present" banner that is technically disconnected from the real consent logic

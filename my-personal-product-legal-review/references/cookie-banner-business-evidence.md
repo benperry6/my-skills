@@ -84,14 +84,18 @@ If the user forces a single business-first recommendation under incomplete publi
 - bottom sheet / sticky bottom sheet
 - short and compact first layer
 - no full-screen modal by default
-- `Accept all` as the primary button
+- softer labels when the scope is already obvious from the banner context, e.g. `Accept` / `Refuse` instead of necessarily `Accept all` / `Reject all`
+- `Accept` as the primary button
 - `Customize` as the secondary button
-- `Reject all` as a less salient text link on the first layer rather than an equivalent primary button
+- `Refuse` as a less salient but still explicit text link in the action area on the first layer rather than an equivalent primary button
+- no floating reopen chip by default on product-like sites; prefer a permanent footer link such as `Cookie preferences` / `Préférences cookies` to reopen the preference center later
 
 Why this is the current inference:
 
 - the format stays low-friction to avoid the known downside risk of more intrusive barriers
 - the choice hierarchy is where the available evidence most clearly supports a raw-consent lift
+- softer labels can reduce unnecessary alarm without changing the underlying action, as long as the scope remains clear
+- a footer-based reopen path preserves the expected withdrawal/change function without polluting the viewport like a persistent floating chip
 - it is the best synthesis the preserved discussion reached once it tried to optimize for acceptance while still accounting for bounce risk
 
 But label this clearly:
