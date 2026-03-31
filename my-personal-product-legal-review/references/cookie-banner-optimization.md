@@ -195,6 +195,7 @@ Check:
 - the opened preference center on the smallest supported mobile viewport, not just the default first layer
 - the confirm / save actions remain reachable without relying on awkward page-level scrolling
 - if the content exceeds the available viewport, the card is capped to the visible viewport and scrolls internally
+- if internal scrolling is required on mobile, there is a clear cue that more content exists below the fold, ideally by reusing an existing in-product scroll indicator pattern rather than inventing a one-off
 - dynamic viewport units and safe areas are handled intentionally rather than left to default browser behavior
 
 ## Accessibility review checklist

@@ -214,6 +214,7 @@ Inspect the real implemented consent surface and runtime:
 - whether it creates layout shift, blocks reading, or risks becoming a performance bottleneck
 - whether both the first layer and the opened preference center fit within the smallest supported mobile viewport
 - whether an over-tall preference center scrolls internally instead of clipping controls or action buttons off-screen
+- whether an internally scrollable preference center gives an obvious visual cue on mobile when more content sits below the fold
 - whether consent state is initialized before tags that depend on it
 - whether consent updates are applied on the real page where the interaction occurs
 - whether analytics / ads / measurement firing logic is actually gated by the chosen consent state
