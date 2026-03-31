@@ -2,13 +2,24 @@
 
 This repository stores reusable skills for AI agents.
 
+## Repo Rule Synchronization
+
+This repo follows the same cross-tool rule convention as project repos:
+
+- `CLAUDE.md` is the local source of truth for this repo's rules
+- `AGENTS.md` must remain a symlink to `CLAUDE.md`
+- edit `CLAUDE.md`, not a duplicate `AGENTS.md`
+
 ## Personal Skill Conventions
 
 Skills that are personal to this stack should follow these conventions:
 
 - folder name starts with `my-personal-`
+- source of truth lives in `~/.agents/skills/my-personal-*/SKILL.md`
 - `SKILL.md` frontmatter `name` matches the folder name
 - `SKILL.md` frontmatter `description` starts with `[My Personal Skill]`
+- create matching symlinks in `~/.claude/skills/` and `~/.codex/skills/`
+- by default, changes to personal skills in this repo are committed and pushed to `origin/main` unless the user explicitly asks to keep them local-only
 
 ## Public Skills: No Durable Local Patches
 

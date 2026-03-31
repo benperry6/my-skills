@@ -1,6 +1,6 @@
 # Cross-Tool AI Setup
 
-How to make Claude Code, Codex CLI, and any future AI coding tool share the same rules, memory, and configuration — so switching tools mid-day costs zero context.
+How to make Claude Code, Codex CLI, Gemini CLI, and any future AI tool share the same rules, memory, local infrastructure, and browser-control behavior — so switching tools mid-day costs zero context.
 
 ## The problem this solves
 
@@ -14,6 +14,21 @@ Each AI coding tool has its own instruction file:
 Without coordination, you end up with duplicated rules that diverge over time, memory that only one tool can see, and MCP servers configured three times in three different formats.
 
 This setup eliminates all of that.
+
+## Why this documentation lives in `~/.agents/skills`
+
+This is machine-level infrastructure, not project-level documentation.
+
+It belongs in the shared skills repo because this repo is:
+
+- global instead of tied to a single business repo
+- versioned in Git
+- readable by humans from GitHub through the repo `README`s
+- accessible from every project that already depends on this stack
+
+The rules themselves still live in `~/.claude/CLAUDE.md`.
+
+But the durable human documentation for how the stack is wired, reproduced, and debugged belongs here.
 
 ## Architecture overview
 
@@ -29,11 +44,18 @@ Each repo root:
 Global config:
 ├── ~/.claude/CLAUDE.md          # Real file — global rules for all projects
 ├── ~/.codex/AGENTS.md           # Symlink → ~/.claude/CLAUDE.md
-├── ~/.agents/skills/            # Shared skills (symlinked into both tools)
+├── ~/.gemini/GEMINI.md          # Symlink → ~/.claude/CLAUDE.md
+├── ~/.agents/skills/            # Shared skills (source of truth)
 │   ├── ~/.claude/skills/*       # Symlinks → ~/.agents/skills/*
 │   └── ~/.codex/skills/*        # Symlinks → ~/.agents/skills/*
-└── ~/.codex/mcp/                # MCP wrapper scripts (shared via macOS Keychain)
+│
+├── ~/.gemini/antigravity/global_skills → ~/.agents/skills
+├── ~/.codex/mcp/                # Shared MCP wrapper scripts
+├── ~/.codex/brave-cdp-client/   # Brave native browser-control layer
+└── ~/.codex/chrome-cdp-client/  # Chrome native browser-control layer
 ```
+
+The shared skills repo is itself a versioned repo and should also follow the local `CLAUDE.md` + `AGENTS.md` convention.
 
 ## Setup from scratch on a new machine
 
@@ -62,12 +84,15 @@ Copy these from the old machine (or from Google Drive backup):
 cp <source>/.claude/CLAUDE.md ~/.claude/CLAUDE.md
 
 # Global Codex symlink → same rules
-ln -sf ~/.claude/CLAUDE.md ~/.codex/AGENTS.md
+ln -sf ../.claude/CLAUDE.md ~/.codex/AGENTS.md
+
+# Global Gemini symlink → same rules
+ln -sf ../.claude/CLAUDE.md ~/.gemini/GEMINI.md
 ```
 
-**Why a symlink instead of a copy?** A copy diverges the moment either file is edited. A symlink guarantees both tools always read the exact same content. We tested that both Claude Code and Codex follow symlinks correctly for both reading and writing.
+**Why a symlink instead of a copy?** A copy diverges the moment either file is edited. A symlink guarantees all tools always read the exact same content.
 
-### Step 3 — Symlink skills into both tools
+### Step 3 — Symlink skills into the tools
 
 ```bash
 # Claude Code skills
@@ -81,9 +106,13 @@ for skill in ~/.agents/skills/my-personal-*/; do
     name=$(basename "$skill")
     ln -sf "../../.agents/skills/$name" ~/.codex/skills/"$name"
 done
+
+# Gemini global skill source
+mkdir -p ~/.gemini/antigravity
+ln -sfn ~/.agents/skills ~/.gemini/antigravity/global_skills
 ```
 
-**Why symlinks from a shared source?** Skills are edited in `~/.agents/skills/` (this git repo). Both tools see the same version without manual syncing. The `my-personal-*` prefix convention identifies personal skills.
+**Why a different setup for Gemini?** Gemini discovers shared skills from `~/.gemini/antigravity/global_skills`. Do not duplicate the same shared skills into `~/.gemini/skills/` or Gemini will detect them twice.
 
 ### Step 4 — Set up MCP wrapper scripts
 
@@ -106,8 +135,8 @@ Each wrapper follows this pattern:
 
 ```bash
 #!/bin/bash
-set -euo pipefail
-KEY=$(security find-generic-password -a "$USER" -s KEY_NAME -w 2>/dev/null || true)
+set -eo pipefail
+KEY=$(security find-generic-password -a "${USER:-$(whoami)}" -s KEY_NAME -w 2>/dev/null || true)
 if [ -z "${KEY:-}" ]; then
   echo "KEY_NAME not found in Keychain." >&2
   exit 1
@@ -115,6 +144,8 @@ fi
 export ENV_VAR_NAME="$KEY"
 exec npx -y package-name "$@"
 ```
+
+Avoid `set -u` in shared wrappers. Some tools launch MCP processes with a minimal environment, and `$USER` is not always populated.
 
 Then `chmod +x ~/.codex/mcp/*.sh`.
 
@@ -127,6 +158,81 @@ Then `chmod +x ~/.codex/mcp/*.sh`.
 | Codex | `~/.codex/config.toml` → `[mcp_servers.xxx]` | TOML: `command = "/path/to/wrapper.sh"` |
 
 **Why wrapper scripts?** API keys stay in the Keychain (not in config files that could leak). The same wrapper is referenced by all three tools — change the wrapper once, all tools pick it up.
+
+### Step 4b — Set up native browser automation
+
+This stack uses a browser policy that is intentionally stricter than the defaults of the tools:
+
+- `Brave` is the default browser when the user does not specify one
+- for Claude, prefer `Claude in Chrome` first when it reaches the correct live session
+- otherwise, prefer `CDP/MCP-first` native browser control
+- keep `AppleScript` only as fallback
+- keep `Playwright` for public pages, isolated tests, or cases where a blank profile is acceptable
+
+This policy is defined in `~/.claude/CLAUDE.md`. The implementation lives in shared local scripts under `~/.codex/`.
+
+#### What is installed
+
+| Purpose | File |
+|--------|------|
+| Brave CDP/MCP server | `~/.codex/brave-cdp-client/brave-devtools-server.mjs` |
+| Brave launcher | `~/.codex/brave-cdp-client/launch-brave-ai-safe.sh` |
+| Chrome launcher | `~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh` |
+| Brave MCP wrapper | `~/.codex/mcp/brave-devtools-wrapper.sh` |
+| Chrome MCP wrapper | `~/.codex/mcp/chrome-devtools-wrapper.sh` |
+
+#### How it works today
+
+- `Brave AI-safe` launches Brave with CDP on `127.0.0.1:9222` and restores the prior session.
+- `Chrome AI-safe` launches Chrome with CDP on `127.0.0.1:9223`, using a cloned `user-data-dir` at `~/.codex/browser-profiles/chrome-ai-safe`, then restores the prior session.
+- The Chrome clone exists because the native CDP path was unreliable on the real default profile. The cloned profile keeps the real profile as the source of truth while exposing a stable CDP endpoint.
+- `Brave` stays on the custom local MCP server because the live Brave session needs a custom bootstrap and session-preserving behavior.
+- `Chrome` uses the official `chrome-devtools-mcp` package, attached to the running `Chrome AI-safe` instance via `--browserUrl http://127.0.0.1:9223`.
+- Brave and Chrome can run in parallel because they use separate ports and separate bootstrap logic.
+- Today, the browser devtools wrappers are registered in Codex by default through `~/.codex/config.toml`. The scripts themselves are global local infrastructure and can be wired into other tools later if wanted.
+
+#### Resource protection policy for Brave
+
+- `Brave` is the default browser for short, targeted work in the existing live session.
+- Do **not** use the live Brave session for heavy automation patterns: deep scraping, repeated DOM polling, repeated `Runtime.evaluate` loops, aggressive retries after navigation, or repeated creation of temporary CDP targets/tabs.
+- If Brave shows signs of saturation — repeated timeouts, empty/incomplete snapshots, a page that does not visibly finish loading, or the browser becoming unresponsive — stop quickly, do not intensify retries, do not open extra temporary targets/tabs, and resume only with lighter, more targeted actions in the same Brave session.
+- Do not automatically switch away from Brave just because automation becomes difficult or slow. Switch to Chrome or an isolated browser only if the user explicitly asks for it, or if the Brave session is genuinely unavailable.
+- This is an operational rule, not just a project-specific workaround: large live Brave sessions can remain usable for manual work while becoming unstable under repeated automation pressure.
+
+#### New-machine checklist for the browser layer
+
+1. Copy `~/.codex/mcp/`, `~/.codex/brave-cdp-client/`, and `~/.codex/chrome-cdp-client/`
+2. Copy `~/.codex/config.toml`
+3. Ensure Homebrew `node` exists at the path expected by the wrappers, or update the wrapper paths
+4. Ensure Brave and Chrome are installed in `/Applications/`
+5. Verify `brave-devtools` and `chrome-devtools` entries exist in `~/.codex/config.toml`
+6. Test the endpoints:
+   - `curl -sf http://127.0.0.1:9222/json/version`
+   - `curl -sf http://127.0.0.1:9223/json/version`
+7. If a fresh tool session still reports stale MCP transport errors, restart the tool session itself — not just the browser
+
+#### Fast debug checklist
+
+```bash
+# Is the CDP endpoint up?
+curl -sf http://127.0.0.1:9222/json/version | jq .
+curl -sf http://127.0.0.1:9223/json/version | jq .
+
+# Which process owns the port?
+lsof -nP -iTCP:9222 -sTCP:LISTEN
+lsof -nP -iTCP:9223 -sTCP:LISTEN
+
+# Are the browsers really running with remote debugging?
+ps aux | rg 'Brave Browser|Google Chrome' | rg 'remote-debugging-port'
+```
+
+Useful logs:
+
+- `/tmp/brave-devtools-stderr.log`
+- `/tmp/chrome-devtools-stderr.log`
+- `/tmp/chrome-devtools-mcp.log`
+- `/tmp/brave-cdp.log`
+- `/tmp/chrome-cdp.log`
 
 ### Step 5 — Set up project-level symlinks
 
@@ -163,27 +269,13 @@ Three reasons, all tested empirically:
 ### Step 6 — Verify
 
 ```bash
-# Check global setup
-echo "=== Global rules ==="
-ls -la ~/.claude/CLAUDE.md ~/.codex/AGENTS.md
-
-echo "=== Skills ==="
-ls ~/.claude/skills/my-personal-* 2>/dev/null | wc -l
-ls ~/.codex/skills/my-personal-* 2>/dev/null | wc -l
-
-echo "=== MCP wrappers ==="
-ls ~/.codex/mcp/*.sh | wc -l
-
-# Check each project
-for repo in /path/to/repo1 /path/to/repo2; do
-    echo "=== $repo ==="
-    ls -la "$repo/CLAUDE.md" "$repo/AGENTS.md" "$repo/CLAUDE_MEMORY.md" 2>/dev/null
-done
+bash ~/.agents/skills/setup/verify.sh
 ```
 
 ## Auto-enforcement
 
-The global `~/.claude/CLAUDE.md` contains rules that make Claude Code verify and fix the setup automatically at the start of every session:
+The global `~/.claude/CLAUDE.md` contains short rules that make Claude Code verify and fix the setup automatically at the start of every session in any versioned repo that acts as source of truth for shared rules, skills, or memory.
+That includes normal project repos and shared infrastructure repos like `~/.agents/skills`.
 
 - If `AGENTS.md` is missing → creates the symlink
 - If `AGENTS.md` and `CLAUDE.md` both exist as real files → merges into `CLAUDE.md`, replaces `AGENTS.md` with symlink
@@ -237,190 +329,46 @@ Connected boutiques:
 | Global Claude rules | `~/.claude/CLAUDE.md` | Copy file |
 | Claude Code settings | `~/.claude.json` | Copy file |
 | Codex config | `~/.codex/config.toml` | Copy file |
+| Gemini config | `~/.gemini/settings.json` | Copy file |
 | MCP wrappers | `~/.codex/mcp/*.sh` | Copy directory |
+| Browser CDP clients | `~/.codex/brave-cdp-client/`, `~/.codex/chrome-cdp-client/` | Copy directories |
 | API keys | macOS Keychain | Re-enter or export/import |
 | Gmail tokens | `.gmail_tokens.json` per repo | Copy file |
 | Shopify tokens | `.shopify_tokens.json` per repo | Copy file |
 | Project repos | Google Drive | Automatic sync |
-| Symlinks (global) | `~/.codex/AGENTS.md`, skills | Run Step 2-3 |
+| Symlinks (global) | `~/.codex/AGENTS.md`, `~/.gemini/GEMINI.md`, skills | Run Step 2-3 |
 | Symlinks (per-project) | `AGENTS.md`, memory | Auto-enforced by Claude Code on first session |
 
-**Key insight:** The real data (rules, memory, code) lives either in Google Drive (project repos) or in `~/.claude/` + `~/.codex/` (global config). Symlinks are the glue — they're lightweight and auto-recreated by the enforcement rules.
+**Key insight:** The real data (rules, memory, code) lives either in Google Drive (project repos) or in `~/.claude/` + `~/.codex/` + `~/.gemini/` (global config). Symlinks are the glue — they're lightweight and auto-recreated by the enforcement rules.
 
 ## Full verification script
 
-Run this to check that everything is correctly wired. Copy-paste the entire block into a terminal.
+Run the maintained script in this repo:
 
 ```bash
-#!/bin/bash
-# Cross-tool AI setup — full verification
-# Run from anywhere. Checks global config, skills, all repos, and memory symlinks.
-
-PASS=0
-FAIL=0
-WARN=0
-
-ok()   { echo "  ✅ $1"; ((PASS++)); }
-fail() { echo "  ❌ $1"; ((FAIL++)); }
-warn() { echo "  ⚠️  $1"; ((WARN++)); }
-
-echo "========================================="
-echo "1. GLOBAL CONFIG"
-echo "========================================="
-
-# Global rules
-if [ -f ~/.claude/CLAUDE.md ]; then
-    ok "~/.claude/CLAUDE.md exists ($(wc -c < ~/.claude/CLAUDE.md | tr -d ' ') bytes)"
-else
-    fail "~/.claude/CLAUDE.md MISSING"
-fi
-
-# Codex global symlink
-if [ -L ~/.codex/AGENTS.md ]; then
-    target=$(readlink ~/.codex/AGENTS.md)
-    if [ -f ~/.codex/AGENTS.md ]; then
-        ok "~/.codex/AGENTS.md → $target (target exists)"
-    else
-        fail "~/.codex/AGENTS.md → $target (BROKEN — target missing)"
-    fi
-else
-    fail "~/.codex/AGENTS.md is NOT a symlink"
-fi
-
-echo ""
-echo "========================================="
-echo "2. SKILLS"
-echo "========================================="
-
-source_count=$(ls -d ~/.agents/skills/my-personal-*/ 2>/dev/null | wc -l | tr -d ' ')
-claude_count=$(ls -d ~/.claude/skills/my-personal-*/ 2>/dev/null | wc -l | tr -d ' ')
-codex_count=$(ls -d ~/.codex/skills/my-personal-*/ 2>/dev/null | wc -l | tr -d ' ')
-
-echo "  Source (~/.agents/skills):  $source_count"
-echo "  Claude Code symlinks:       $claude_count"
-echo "  Codex symlinks:             $codex_count"
-
-if [ "$source_count" -eq 0 ]; then
-    warn "No personal skills found in ~/.agents/skills/"
-elif [ "$source_count" = "$claude_count" ] && [ "$source_count" = "$codex_count" ]; then
-    ok "All $source_count skills synced to both tools"
-else
-    fail "DESYNC: source=$source_count, claude=$claude_count, codex=$codex_count"
-    # Show which are missing
-    for skill in ~/.agents/skills/my-personal-*/; do
-        name=$(basename "$skill")
-        [ ! -L ~/.claude/skills/"$name" ] && echo "    Missing in Claude Code: $name"
-        [ ! -L ~/.codex/skills/"$name" ] && echo "    Missing in Codex: $name"
-    done
-fi
-
-echo ""
-echo "========================================="
-echo "3. REPOS — CLAUDE.md ↔ AGENTS.md"
-echo "========================================="
-
-# Find all repos with CLAUDE.md or AGENTS.md on Google Drive
-find "/Users/$USER/My Drive" -maxdepth 6 \( -name "CLAUDE.md" -o -name "AGENTS.md" \) 2>/dev/null | \
-    xargs -I{} dirname {} | sort -u | while read dir; do
-
-    echo ""
-    echo "  --- $(basename "$dir") ---"
-
-    # CLAUDE.md
-    if [ -f "$dir/CLAUDE.md" ] && [ ! -L "$dir/CLAUDE.md" ]; then
-        ok "CLAUDE.md — real file ($(wc -c < "$dir/CLAUDE.md" | tr -d ' ') bytes)"
-    elif [ -L "$dir/CLAUDE.md" ]; then
-        warn "CLAUDE.md is a symlink (should be the real file)"
-    elif [ ! -f "$dir/CLAUDE.md" ] && [ -f "$dir/AGENTS.md" ]; then
-        fail "CLAUDE.md MISSING (only AGENTS.md exists — should rename)"
-    fi
-
-    # AGENTS.md
-    if [ -L "$dir/AGENTS.md" ]; then
-        target=$(readlink "$dir/AGENTS.md")
-        if [ "$target" = "CLAUDE.md" ]; then
-            ok "AGENTS.md → CLAUDE.md"
-        else
-            warn "AGENTS.md → $target (expected: CLAUDE.md)"
-        fi
-    elif [ -f "$dir/AGENTS.md" ] && [ -f "$dir/CLAUDE.md" ]; then
-        fail "AGENTS.md is a REAL FILE (should be symlink → CLAUDE.md)"
-    elif [ ! -f "$dir/AGENTS.md" ] && [ -f "$dir/CLAUDE.md" ]; then
-        fail "AGENTS.md MISSING (CLAUDE.md exists but no symlink)"
-    fi
-
-    # CLAUDE_MEMORY.md
-    if [ -f "$dir/CLAUDE_MEMORY.md" ]; then
-        ok "CLAUDE_MEMORY.md exists ($(wc -c < "$dir/CLAUDE_MEMORY.md" | tr -d ' ') bytes)"
-    fi
-done
-
-echo ""
-echo "========================================="
-echo "4. MEMORY SYMLINKS (native → repo)"
-echo "========================================="
-
-for memdir in ~/.claude/projects/*/memory/; do
-    [ -d "$memdir" ] || continue
-    encoded=$(basename "$(dirname "$memdir")")
-
-    if [ -L "$memdir/MEMORY.md" ]; then
-        target=$(readlink "$memdir/MEMORY.md")
-        if [ -f "$target" ]; then
-            ok "$encoded → $(basename "$target")"
-        else
-            fail "BROKEN SYMLINK: $encoded → $target"
-        fi
-    elif [ -f "$memdir/MEMORY.md" ]; then
-        size=$(wc -c < "$memdir/MEMORY.md" | tr -d ' ')
-        if [ "$size" -gt 10 ]; then
-            fail "NOT MIGRATED ($size bytes): $encoded"
-        fi
-    fi
-done
-
-echo ""
-echo "========================================="
-echo "5. MCP WRAPPERS"
-echo "========================================="
-
-wrapper_count=$(ls ~/.codex/mcp/*.sh 2>/dev/null | wc -l | tr -d ' ')
-if [ "$wrapper_count" -gt 0 ]; then
-    ok "$wrapper_count MCP wrapper scripts found"
-    for w in ~/.codex/mcp/*.sh; do
-        if [ -x "$w" ]; then
-            ok "$(basename "$w") — executable"
-        else
-            fail "$(basename "$w") — NOT executable (run: chmod +x $w)"
-        fi
-    done
-else
-    warn "No MCP wrapper scripts in ~/.codex/mcp/"
-fi
-
-echo ""
-echo "========================================="
-echo "SUMMARY"
-echo "========================================="
-echo "  ✅ Pass: $PASS"
-echo "  ❌ Fail: $FAIL"
-echo "  ⚠️  Warn: $WARN"
-if [ "$FAIL" -eq 0 ]; then
-    echo ""
-    echo "  All checks passed."
-else
-    echo ""
-    echo "  $FAIL issue(s) to fix."
-fi
+bash ~/.agents/skills/setup/verify.sh
 ```
 
-Save this as `~/.agents/skills/setup/verify.sh` and run with `bash ~/.agents/skills/setup/verify.sh` at any time.
+It checks the shared rules symlinks, the skill wiring, the project memory symlinks, the MCP wrapper layer, the Gemini global skill hook, and the local browser automation files.
 
 ## Design decisions and trade-offs
 
 ### Why CLAUDE.md is the source of truth (not AGENTS.md)
 
 AGENTS.md is the emerging Linux Foundation standard with broader tool support. But Claude Code is our primary tool, and `CLAUDE.md` is its native format. The symlink makes this transparent — both tools read the same content regardless of which filename they look for.
+
+### Why the browser runbook is documented here
+
+The Brave/Chrome automation layer is not tied to any single product repo.
+
+It is part of the local AI workstation itself:
+
+- shared rules decide when to use it
+- shared wrappers expose it
+- multiple projects depend on it indirectly
+- it must survive a machine migration without relying on memory or chat history
+
+So the durable human documentation belongs here, next to the rest of the cross-tool infrastructure.
 
 ### Why not use Basic Memory (MCP-based cross-tool memory)
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 # Cross-tool AI setup — full verification
-# Run from anywhere. Checks global config, skills, all repos, and memory symlinks.
+# Run from anywhere. Checks global config, skills, repos, memory symlinks,
+# MCP wrappers, Gemini wiring, and the local browser automation layer.
 
 PASS=0
 FAIL=0
@@ -33,6 +34,18 @@ else
     fail "~/.codex/AGENTS.md is NOT a symlink"
 fi
 
+# Gemini global symlink
+if [ -L ~/.gemini/GEMINI.md ]; then
+    target=$(readlink ~/.gemini/GEMINI.md)
+    if [ -f ~/.gemini/GEMINI.md ]; then
+        ok "~/.gemini/GEMINI.md → $target (target exists)"
+    else
+        fail "~/.gemini/GEMINI.md → $target (BROKEN — target missing)"
+    fi
+else
+    fail "~/.gemini/GEMINI.md is NOT a symlink"
+fi
+
 echo ""
 echo "========================================="
 echo "2. SKILLS"
@@ -59,13 +72,32 @@ else
     done
 fi
 
+if [ -L ~/.gemini/antigravity/global_skills ]; then
+    target=$(readlink ~/.gemini/antigravity/global_skills)
+    if [ -d "$target" ]; then
+        ok "~/.gemini/antigravity/global_skills → $target"
+    else
+        fail "~/.gemini/antigravity/global_skills → $target (BROKEN — target missing)"
+    fi
+else
+    fail "~/.gemini/antigravity/global_skills is NOT a symlink"
+fi
+
 echo ""
 echo "========================================="
 echo "3. REPOS — CLAUDE.md ↔ AGENTS.md"
 echo "========================================="
 
-find "/Users/$USER/My Drive" -maxdepth 6 \( -name "CLAUDE.md" -o -name "AGENTS.md" \) 2>/dev/null | \
-    xargs -I{} dirname {} | sort -u | while read dir; do
+{
+    find "/Users/$USER/My Drive" -maxdepth 6 \( -name "CLAUDE.md" -o -name "AGENTS.md" \) -print 2>/dev/null | \
+        while IFS= read -r path; do
+            dirname "$path"
+        done
+
+    if [ -e "$HOME/.agents/skills/CLAUDE.md" ] || [ -e "$HOME/.agents/skills/AGENTS.md" ]; then
+        printf '%s\n' "$HOME/.agents/skills"
+    fi
+} | sort -u | while IFS= read -r dir; do
 
     echo ""
     echo "  --- $(basename "$dir") ---"
@@ -137,6 +169,79 @@ if [ "$wrapper_count" -gt 0 ]; then
     done
 else
     warn "No MCP wrapper scripts in ~/.codex/mcp/"
+fi
+
+if [ -f ~/.codex/config.toml ]; then
+    if rg -q '\[mcp_servers\."brave-devtools"\]' ~/.codex/config.toml; then
+        ok "Codex config registers brave-devtools"
+    else
+        fail "Codex config missing brave-devtools registration"
+    fi
+
+    if rg -q '\[mcp_servers\."chrome-devtools"\]' ~/.codex/config.toml; then
+        ok "Codex config registers chrome-devtools"
+    else
+        fail "Codex config missing chrome-devtools registration"
+    fi
+else
+    fail "~/.codex/config.toml MISSING"
+fi
+
+if rg -q 'chrome-devtools-mcp@latest' ~/.codex/mcp/chrome-devtools-wrapper.sh; then
+    ok "chrome-devtools wrapper uses official chrome-devtools-mcp"
+else
+    warn "chrome-devtools wrapper does not appear to use official chrome-devtools-mcp"
+fi
+
+if rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/brave-devtools-wrapper.sh; then
+    ok "brave-devtools wrapper uses local custom Brave MCP server"
+else
+    warn "brave-devtools wrapper does not appear to use the local custom server"
+fi
+
+echo ""
+echo "========================================="
+echo "6. BROWSER AUTOMATION LAYER"
+echo "========================================="
+
+browser_files=(
+    ~/.codex/mcp/brave-devtools-wrapper.sh
+    ~/.codex/mcp/chrome-devtools-wrapper.sh
+    ~/.codex/brave-cdp-client/brave-devtools-server.mjs
+    ~/.codex/brave-cdp-client/launch-brave-ai-safe.sh
+    ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh
+)
+
+for file in "${browser_files[@]}"; do
+    if [ -e "$file" ]; then
+        if [ -x "$file" ] || [[ "$file" == *.mjs ]]; then
+            ok "$(basename "$file") present"
+        else
+            fail "$(basename "$file") present but NOT executable"
+        fi
+    else
+        fail "$(basename "$file") MISSING"
+    fi
+done
+
+if curl -sf http://127.0.0.1:9222/json/version >/dev/null 2>&1; then
+    ok "Brave CDP endpoint responding on 127.0.0.1:9222"
+else
+    if pgrep -x "Brave Browser" >/dev/null 2>&1; then
+        if pgrep -fal "Brave Browser" | rg -q -- '--remote-debugging-port=9222'; then
+            fail "Brave appears to be running with remote debugging args but 127.0.0.1:9222 is not responding"
+        else
+            warn "Brave is running without CDP on 127.0.0.1:9222 (expected if not launched via Brave AI-safe)"
+        fi
+    else
+        ok "Brave is not currently running; 127.0.0.1:9222 is expected to be absent until Brave AI-safe is launched"
+    fi
+fi
+
+if curl -sf http://127.0.0.1:9223/json/version >/dev/null 2>&1; then
+    ok "Chrome CDP endpoint responding on 127.0.0.1:9223"
+else
+    warn "Chrome CDP endpoint not responding on 127.0.0.1:9223"
 fi
 
 echo ""
