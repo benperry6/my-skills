@@ -44,6 +44,34 @@ Unless the real product context strongly suggests otherwise, the default baselin
 
 This is the default optimization starting point, not a universal law.
 
+## Copy / CRO Lessons
+
+Once the banner is structurally sound and the real runtime is verified, do not overfit the skill to one fixed label set.
+
+For copy and tonality, prefer reusable lessons over rigid wording rules.
+
+Explicitly use:
+
+- `copywriting`
+- `popup-cro`
+
+when the user wants to make the banner feel softer, clearer, more persuasive, or less anxiety-inducing without changing its core structure.
+
+The current lessons to preserve are:
+
+- improve by tone, hierarchy, compacity, and anxiety reduction more than by legalese
+- make the body more user-first
+- explain what the user gains
+- explain what improves in the user's experience
+- make it feel that accepting helps the service be more useful or more relevant for the user, not merely better tracked for the company
+- make categories more positive and concrete
+- reduce jargon such as `advertising`, `publicité`, `campaigns`, `campagnes`, `conversions`, and tracking-stack language when it is not needed for clarity
+- if the optional ads-related category needs a softer presentation, prefer a context-adapted, more desirable framing over a cold `Advertising` / `Publicité` label, as long as the function stays honest and understandable
+- keep all derived copy coherent with that framing, including help text and strict-notice text, so harsher ad language does not reappear elsewhere in the same banner
+
+These are lessons, not hardcoded strings.
+Adapt the final wording to the product context, audience stress level, and honesty constraints.
+
 ## Business-Evidence Guardrail
 
 Do not answer a cookie-banner business question with a single blurred conclusion.
@@ -140,6 +168,7 @@ You may state the current inferred direction:
 - weaker reject salience on the first layer
 - softer button labels when the meaning stays obvious
 - footer-link reopen path preferred over a floating chip for cleaner product UI
+- copy refinement should bias toward perceived usefulness, relevance, and reduced anxiety rather than internal campaign language
 
 But always label it as:
 

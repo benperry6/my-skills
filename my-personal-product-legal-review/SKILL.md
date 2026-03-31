@@ -59,6 +59,7 @@ Its default posture is:
 16. For cookie-banner optimization, separate what is proved on raw consent from what is proved on net business impact; never present "more coercive = more business" as settled fact without scoped evidence
 17. For explicit business-first cookie-banner questions, structure the answer in two layers: `prouvé` and `inféré`; if the user still wants one practical direction under incomplete evidence, default to the inferred layer while labeling it clearly as inference rather than proof
 18. Preserve unresolved cookie-banner research gaps in a reusable form so the same missing question can be re-researched later from zero
+19. When a cookie-banner optimization question becomes a copy/tonality question, keep only the compliance guardrails rigid; treat the rest as reusable persuasion lessons and explicitly use `copywriting` and `popup-cro` to improve tone, hierarchy, compacity, and anxiety reduction
 
 When the user only asks for analysis, stay at advice level.
 

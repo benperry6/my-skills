@@ -89,6 +89,7 @@ If the user forces a single business-first recommendation under incomplete publi
 - `Customize` as the secondary button
 - `Refuse` as a less salient but still explicit text link in the action area on the first layer rather than an equivalent primary button
 - no floating reopen chip by default on product-like sites; prefer a permanent footer link such as `Cookie preferences` / `Préférences cookies` to reopen the preference center later
+- when the user wants a softer persuasive tone, improve the optional ads-related category through user-first relevance framing rather than company-first campaign language
 
 Why this is the current inference:
 
@@ -96,6 +97,7 @@ Why this is the current inference:
 - the choice hierarchy is where the available evidence most clearly supports a raw-consent lift
 - softer labels can reduce unnecessary alarm without changing the underlying action, as long as the scope remains clear
 - a footer-based reopen path preserves the expected withdrawal/change function without polluting the viewport like a persistent floating chip
+- on product-like sites, a softer user-benefit framing can improve desirability without needing to hide the reject action
 - it is the best synthesis the preserved discussion reached once it tried to optimize for acceptance while still accounting for bounce risk
 
 But label this clearly:
