@@ -234,6 +234,31 @@ Useful logs:
 - `/tmp/brave-cdp.log`
 - `/tmp/chrome-cdp.log`
 
+#### Claude in Chrome — "No Chrome extension connected"
+
+If `Claude in Chrome` shows `No Chrome extension connected`, the extension is usually still trying to talk to Claude Desktop instead of Claude Code.
+
+Fast recovery:
+
+1. Kill stale Desktop native hosts:
+   ```bash
+   ps aux | grep "Claude.app.*chrome-native-host" | grep -v grep | awk '{print $2}' | xargs kill 2>/dev/null
+   ```
+2. Force the bridge toward Claude Code:
+   ```bash
+   ~/.claude/scripts/chrome-connect.sh code
+   ```
+3. Reconnect the extension in Chrome:
+   - open `https://clau.de/chrome/reconnect`
+   - wait about 5 seconds
+   - retest the Chrome-side tool path
+
+Automatic cleanup:
+
+- LaunchAgent: `com.anthropic.claude-chrome-cleanup`
+- Script: `~/.claude/scripts/cleanup-chrome-zombies.sh`
+- Purpose: kill zombie native hosts and orphaned MCP processes every 30 minutes
+
 ### Step 5 — Set up project-level symlinks
 
 For each project repo, create the symlinks that share rules and memory:
