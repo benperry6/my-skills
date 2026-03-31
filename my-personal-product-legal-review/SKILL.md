@@ -56,6 +56,8 @@ Its default posture is:
 13. Every proposed block or element in a customer-facing asset must have a unique job; if two blocks carry materially the same message, merge or remove one
 14. When implementing a recommended asset, verify that it is actually wired into the real product flow and trigger path; never stop at creating dead code, an unused template, or an uncalled helper
 15. Treat cookie banners as hybrid compliance + marketing + measurement + performance surfaces; never review only the wording while ignoring the real consent runtime, performance footprint, or choice architecture
+16. For cookie-banner optimization, separate what is proved on raw consent from what is proved on net business impact; never present "more coercive = more business" as settled fact without scoped evidence
+17. When the evidence for the final business KPI is incomplete, default to the strongest generalizable doctrine and label any more aggressive option as inference-only or test-only
 
 When the user only asks for analysis, stay at advice level.
 
@@ -82,6 +84,9 @@ Read:
 If the request touches cookie banners / CMPs, also read:
 
 - `references/cookie-banner-optimization.md`
+- `references/cookie-banner-business-evidence.md`
+- `references/cookie-banner-business-deep-research.md`
+- `references/cookie-banner-business-chatgpt-export.md`
 - `references/cookie-banner-deep-research-report.md`
 
 ## Workflow
@@ -214,12 +219,24 @@ Inspect the real implemented consent surface and runtime:
 For banner creation or revision, use:
 
 - `references/cookie-banner-optimization.md` for the actionable baseline
+- `references/cookie-banner-business-evidence.md` for the business-evidence ladder and proof thresholds
+- `references/cookie-banner-business-deep-research.md` as the preserved business-focused deep research source
+- `references/cookie-banner-business-chatgpt-export.md` as the preserved exploratory decision log
 - `references/cookie-banner-deep-research-report.md` as the preserved full research source
 
 When a cookie banner or CMP needs to be created or updated, treat it as a customer-facing asset that must satisfy both:
 
 - the compliance job first
 - then the value / friction / measurement / performance goals
+
+When the user asks which cookie-banner direction is "best for business", explicitly classify:
+
+- what the evidence proves on raw consent or interaction
+- what the evidence proves on bounce, conversion, revenue, or business health
+- what is still only an inference
+- whether publisher evidence is being misapplied to a non-publisher business model
+
+If the final KPI is not publicly proved for the scoped model, say so plainly instead of guessing.
 
 ### Step 7 — Decide the action lane
 
@@ -393,6 +410,13 @@ Use:
 6. `Ce qui manque pour conclure`
 7. `Actions ou patches recommandés / exécutés`
 
+When the request is specifically about cookie-banner optimization, also include:
+
+- `Ce qui est prouvé`
+- `Ce qui est probable`
+- `Ce qui n'est pas démontré`
+- `Ce qui reste une hypothèse de test`
+
 For audits, findings come before summary.
 
 Default to grouping findings by obligation bucket or real product behavior, not by page, unless the user explicitly asks for a page-by-page format.
@@ -441,4 +465,7 @@ Actively call out these mistakes when relevant:
 - For obligation buckets and surfaces: `references/legal-surface-matrix.md`
 - For value-first compliance assets: `references/value-first-compliance-assets.md`
 - For cookie banner / CMP optimization: `references/cookie-banner-optimization.md`
+- For cookie banner business-evidence framing: `references/cookie-banner-business-evidence.md`
+- For the preserved cookie banner business deep research source: `references/cookie-banner-business-deep-research.md`
+- For the preserved cookie banner exploratory export: `references/cookie-banner-business-chatgpt-export.md`
 - For the preserved cookie banner deep research source: `references/cookie-banner-deep-research-report.md`

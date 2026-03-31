@@ -49,6 +49,8 @@ Check:
 - whether a cookie banner / CMP actually exists and appears in the real flow
 - first-layer structure (accept / reject / settings) and symmetry of the primary choices
 - banner pattern (bottom sheet, top bar, modal, inline) and whether it creates friction or layout issues
+- what is proved on raw consent / interaction versus what is proved on business outcomes
+- whether the business model is publisher / ad-supported or product / SaaS / ecommerce / lead-gen before extrapolating revenue claims
 - whether the preference center is category-first or overly granular by default
 - strictly necessary vs optional trackers
 - consent collection

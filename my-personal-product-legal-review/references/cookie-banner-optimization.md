@@ -6,6 +6,12 @@ This is the concise operational layer.
 The preserved long-form research source lives in:
 
 - `references/cookie-banner-deep-research-report.md`
+- `references/cookie-banner-business-deep-research.md`
+- `references/cookie-banner-business-chatgpt-export.md`
+
+The distilled business-evidence layer lives in:
+
+- `references/cookie-banner-business-evidence.md`
 
 ## What this surface is
 
@@ -36,6 +42,27 @@ Unless the real product context strongly suggests otherwise, the default baselin
 - persistent re-open path later
 
 This is the default optimization starting point, not a universal law.
+
+## Business-Evidence Guardrail
+
+Do not answer a cookie-banner business question with a single blurred conclusion.
+
+Always separate:
+
+- what is proved on raw consent
+- what is proved on interaction or banner ignorance
+- what is proved on the final business KPI
+- what is only an inference or a test hypothesis
+
+Current default evidence posture:
+
+- stronger asymmetry or weaker reject visibility is proved to increase raw consent
+- intrusive barrier formats are proved to force more action and reduce ignored banners
+- neither of those facts is sufficient, by itself, to prove higher global business for product / SaaS / ecommerce / lead-gen sites
+- for those scoped businesses, the strongest generalizable default remains a bottom-sheet style first layer with three visible choices
+
+If the business model is `publisher / ad-supported`, keep that evidence separate.
+Do not transfer publisher revenue findings to non-publisher products as if they were universal.
 
 ## Primary goals
 
@@ -83,6 +110,34 @@ Check:
 
 Do not declare the banner "done" because the UI exists if the runtime is wrong.
 
+## Recommendation Ladder
+
+Use this ladder when the user asks "what should we do?".
+
+### 1. Data-backed default doctrine
+
+Recommend by default:
+
+- bottom placement
+- short first layer
+- visible `Accept all`, `Reject all`, and `Customize`
+- category-first preferences
+- improved measurement through runtime quality and stack choices
+
+### 2. Inference-only aggressive hypothesis
+
+If the user explicitly asks for the strongest business-first hypothesis despite incomplete proof, you may discuss:
+
+- low-friction format
+- stronger accept hierarchy
+- weaker reject salience
+
+But always label it as:
+
+- inference only
+- not proved on the final business KPI
+- suitable for testing, not for default doctrine
+
 ## Performance review checklist
 
 Check:
@@ -123,3 +178,5 @@ Call these out explicitly:
 - banner copy optimized in isolation from the real tracking runtime
 - a legally "present" banner that is technically disconnected from the real consent logic
 - a banner that destroys mobile UX or Core Web Vitals while claiming to be optimized
+- a proved lift on raw consent being presented as if it proved higher global business
+- publisher-only revenue evidence being used to settle a product / SaaS / ecommerce question

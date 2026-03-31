@@ -49,7 +49,8 @@ So for cookie banners:
 
 1. verify the banner vehicle can do the consent/runtime job
 2. verify the banner is compatible with the actual tracking stack
-3. only then optimize the copy, placement, and interaction design for useful consent, lower friction, measurement quality, and performance
+3. distinguish what is proved on raw acceptance from what is proved on the final business KPI
+4. only then optimize the copy, placement, and interaction design for useful consent, lower friction, measurement quality, and performance
 
 Do not optimize banner consent rates with asymmetry or misleading UI and call that "value-first".
 For this surface, value-first means:
@@ -58,6 +59,12 @@ For this surface, value-first means:
 - minimum friction without hiding the real choice
 - better measurement without breaking consent semantics
 - better performance without breaking the consent flow
+
+If the user explicitly asks for a more aggressive business-first direction despite incomplete proof:
+
+- you may discuss it as an inference or test hypothesis
+- you must not present it as the default doctrine
+- you must say clearly when the evidence only proves a raw-consent lift and not net business gain
 
 Sequence the asset like this:
 
