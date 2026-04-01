@@ -1,140 +1,176 @@
 # my-personal-pagespeed-maximizer
 
-`my-personal-pagespeed-maximizer` est un skill personnel de doctrine.
+`my-personal-pagespeed-maximizer` est un skill personnel d'execution pour l'optimisation PageSpeed.
 
-Il existe pour eviter de refaire, page par page et repo par repo, la meme discussion floue sur "est-ce qu'il faut rechecker cette page ?", "est-ce qu'on vise juste le vert ?", ou "est-ce que cette optimisation est vraiment bonne ou juste a la mode ?"
+Il existe pour eviter le faux workflow suivant:
 
-## Ce que ce skill cherche a imposer
+- faire un audit
+- commenter les resultats
+- s'arreter la
 
-Ce skill ne traite pas PageSpeed comme un audit cosmetique.
+Ce n'est pas le comportement voulu.
 
-Il impose une logique operationnelle:
+Le comportement voulu est:
 
-- mesurer d'abord, supposer ensuite
-- utiliser Google PageSpeed Insights comme moteur principal de diagnostic
-- pousser une page jusqu'a son plafond pratique, pas juste jusqu'au vert
-- proteger strictement le visuel et l'UX tant qu'aucun changement visible n'a ete explicitement approuve
-- capitaliser les apprentissages verifies plutot que les intuitions
-- raisonner en langage de performance observable, pas en langage de framework
-
-## La these centrale
-
-La these la plus importante de ce skill est simple:
-
-> on n'optimise pas chaque URL individuellement, on optimise des archetypes de performance
+1. mesurer la vraie page avec Google PageSpeed Insights
+2. comprendre quel type de page on a entre les mains
+3. decider si on doit faire une vraie boucle complete, un re-check cible, ou seulement un guard check
+4. identifier les changements a plus fort levier
+5. appliquer les changements autorises
+6. re-tester apres chaque batch utile
+7. continuer jusqu'au plafond pratique ou jusqu'a une contrainte reelle
 
 Autrement dit:
 
-- une nouvelle page "from scratch" merite souvent une vraie boucle complete
-- une page qui reutilise un template deja valide ne merite pas forcement une boucle complete
-- mais une simple "page sur le meme template" peut quand meme necessiter un rerun si elle change le hero, le LCP probable, les scripts tiers, les embeds, le comportement runtime du premier viewport, ou tout autre levier perf-sensible
+> ce skill n'est pas un audit de performance
+>
+> c'est un moteur d'optimisation PageSpeed de bout en bout
 
-La vraie question n'est donc pas "est-ce une nouvelle page ?"
+## Ce qu'il cherche a imposer
+
+Ce skill impose une logique operationnelle stricte:
+
+- mesurer d'abord, supposer ensuite
+- utiliser Google PageSpeed Insights comme moteur principal de diagnostic
+- raisonner mobile-first
+- viser le maximum pratique, pas juste le vert
+- ne jamais faire de changement visuel sans approbation explicite
+- garder uniquement les optimisations qui ameliorent vraiment la mesure
+- arreter la boucle seulement quand il n'y a plus de gain materiel defendable
+
+## La these centrale
+
+La these la plus importante de ce skill est:
+
+> on n'optimise pas chaque URL individuellement, on optimise des archetypes de performance
+
+Donc:
+
+- une nouvelle page from scratch merite souvent une vraie boucle complete
+- une page qui reutilise un template deja valide ne merite pas forcement une boucle complete
+- mais une page sur un template connu peut quand meme necessiter une re-ouverture du loop si elle change le hero, le LCP probable, les scripts tiers, les embeds, ou la charge runtime du premier viewport
+
+La vraie question n'est pas:
+
+> "est-ce une nouvelle page ?"
 
 La vraie question est:
 
 > "est-ce que cette page introduit un nouveau profil de performance ?"
 
-Si oui, il faut reouvrir la boucle.
-Si non, la page peut heriter d'une validation precedente.
+## Ce que le skill doit faire en usage reel
+
+En usage reel, ce skill doit produire un cycle complet:
+
+### 1. Baseline
+
+- mesurer la page reelle
+- extraire les metriques de base
+- identifier le LCP probable
+- identifier la famille de goulots la plus forte
+
+### 2. Classification
+
+- full archetype optimization
+- targeted variant re-check
+- inherited validation
+
+et si la page est critique, imposer au minimum un guard check direct
+
+### 3. Traduction diagnostic -> action
+
+Le skill ne doit pas juste dire "voici les problemes".
+
+Il doit dire:
+
+- ce qui semble etre la vraie cause
+- quel changement technique tester
+- pourquoi ce changement est prioritaire
+- si ce changement est visible ou invisible pour l'utilisateur
+
+### 4. Execution
+
+Si le changement est autorise, le skill doit l'appliquer.
+
+Le comportement attendu n'est pas:
+
+- audit
+- recommandations
+- stop
+
+Le comportement attendu est:
+
+- audit
+- decisions
+- changements
+- re-mesure
+
+### 5. Re-test
+
+Apres chaque batch utile:
+
+- rerun PSI
+- comparer les vraies metriques
+- garder la modification si elle ameliore reellement le resultat
+- rejeter ou revert si elle degrade
+
+### 6. Stop rule
+
+Le loop ne s'arrete pas quand la page devient "verte".
+
+Il s'arrete quand:
+
+- les principaux goulots ont ete traites
+- les gains restants sont marginaux
+- les gains restants exigent un changement visuel non approuve
+- ou la page a atteint son plafond pratique sous les contraintes actuelles
 
 ## Pourquoi ce skill est strategique
 
-Sans cette doctrine, on tombe generalement dans l'un de ces deux travers:
+Sans cette discipline, on tombe presque toujours dans l'un de ces deux travers:
 
-### 1. Sur-optimiser chaque page
+### 1. Sous-execution
 
-On gaspille du temps, de l'energie et des tokens a rerun un workflow lourd sur des pages qui ne changent presque rien au chemin de rendu reel.
+On fait un audit, on raconte ce qu'on voit, puis on laisse le travail reel a plus tard.
 
-### 2. Sous-optimiser des pages "presque identiques"
+### 2. Sur-execution aveugle
 
-On suppose qu'un template deja optimise couvre automatiquement toutes ses variantes, alors qu'une hero image differente, une video, un embed, ou un script tiers peut suffire a casser le LCP, le TBT, ou le CLS.
+On applique des recettes de perf a la mode sans verifier si elles aident vraiment cette page precise.
 
 Ce skill existe pour eviter ces deux erreurs.
 
 ## Pourquoi il doit rester universel
 
-Sa these ne depend pas d'un framework particulier.
+Ce skill ne doit pas dependre d'un framework particulier.
 
-Elle reste valable pour:
+Il doit raisonner en langage de performance observable:
 
-- un site statique
-- un CMS
-- une SPA
-- un site SSR
-- une app hybride
-- une stack custom
+- LCP
+- premier viewport
+- CSS et JS critiques
+- scripts tiers
+- charge runtime
+- stabilite du layout
+- chemin reseau et reponse serveur
 
-Le skill ne doit donc pas dire "fais du Next.js" ou "fais du React".
-
-Il doit dire:
-
-- quel element est probablement LCP
-- ce qui retarde son rendu
-- ce qui surcharge le premier viewport
-- ce qui casse la stabilite du layout
-- ce qui justifie une boucle complete, un recheck cible, ou un heritage de validation
-
-Ensuite seulement, l'agent qui l'utilise traduit cela dans la stack locale.
-
-## Ce qu'il doit rendre systematique
-
-Le skill doit toujours:
-
-- classer la page dans le bon mode: boucle complete, recheck cible, ou inheritance
-- appliquer la politique de decision dans le bon ordre: full rerun, puis recheck cible, puis seulement heritage
-- raisonner mobile-first
-- traiter les diagnostics PSI comme des hypotheses a tester
-- garder uniquement les changements qui ameliorent vraiment la mesure
-- rejeter ou revert les pseudo-optimisations qui degradent le resultat
-- s'arreter seulement quand il n'y a plus de gain materiel defendable
-
-Et "gain materiel" ne doit pas rester implicite:
-
-- il faut definir ce qui compte comme vrai progres
-- il faut definir ce qui n'est probablement que du bruit
-- il faut definir quand on stoppe au plafond pratique
-
-## Ce qu'il faut maintenant rendre non-negociable
-
-Le skill doit etre explicite sur la politique de skip:
-
-- quand un full rerun est obligatoire
-- quand un recheck cible est obligatoire
-- quand l'heritage de validation est autorise
-- quand un simple garde-fou leger devient obligatoire meme si l'heritage parait legitime
-- et ce que ce garde-fou leger doit faire exactement
-
-Sans cela, un skill de performance devient trop facilement soit trop laxiste, soit trop gourmand.
-
-La regle doit etre:
-
-- sur une page critique, l'heritage peut rester autorise
-- mais il n'autorise jamais a sauter toute verification directe
-
-Et "page critique" ne doit plus etre laisse a l'interpretation libre:
-
-- homepage
-- money page
-- launch page
-- page a trafic important attendu
-- page a cout d'echec eleve
+Ensuite seulement, l'agent traduit cela dans la stack locale.
 
 ## Ce qu'il ne doit pas devenir
 
 Ce skill ne doit pas devenir:
 
 - un audit SEO generaliste
-- une checklist de "best practices" recopiees sans verification
-- une machine a forcer du 100/100 aveuglement meme si cela casse l'UX ou le produit
-- un pretexte pour faire des changements visuels sans validation
-- une fiche de recettes liee a une seule stack
+- une checklist de best practices recopies sans verification
+- une machine a forcer du 100/100 a l'aveugle
+- un pretexte pour modifier le visuel sans approbation
+- une fiche de recettes propre a une seule stack
 
-Sa valeur n'est pas de citer des recettes.
+Sa valeur n'est pas de citer des astuces.
 
 Sa valeur est de porter une discipline:
 
 - evidence first
+- execution complete
 - maximisation reelle
 - respect des contraintes produit
 - optimisation par archetype de performance
