@@ -152,7 +152,7 @@ Current Google phase-3 proof map for this skill:
 - `GA4 ↔ Google Ads`: proven in real behavior with `googleAdsLinks.create`
 - `GA4 Data API realtime verification`: proven in real behavior after enabling `analyticsdata.googleapis.com`; on `2026-03-31`, `properties/530524280:runRealtimeReport` returned `rowCount=1` for a Measurement Protocol event named `manual_realtime_api_server_probe`, so this API is now part of the verified CLI debugging path for GA4 ingestion
 - `Search Console ↔ GA4`: proven in real behavior, but the verified path here is Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource
-- brand-new `Google Ads` account creation purely by API: tested in real behavior, but still blocked right now because the developer token has not yet been approved beyond `Explorer` access; after detecting an earlier form submission from the wrong Google account, the official access-level request form at `https://support.google.com/adspolicy/contact/new_token_application` was re-submitted successfully on `2026-03-30` from a support page whose visible top-right Google account email was `benjaminperry06@gmail.com`, but the API Center still showed `Explorer` access immediately afterwards, so final proof still depends on Google's review
+- brand-new `Google Ads` account creation purely by API: tested again in real behavior after Google approved `Basic` access for developer token `a_kKFXFmtzuc4UMoXad6Xg` on manager `9095768791`; the write no longer fails on `DEVELOPER_TOKEN_NOT_APPROVED`, but a real `createCustomerClient` validate-only probe now fails with `CustomerError.CREATION_DENIED_INELIGIBLE_MCC` and Google's explicit message that the manager must first be linked to a Google Ads account that has spent more than `$1,000` and has a history of policy compliance before it can create new child accounts
 - `Bing Webmaster Tools` site ownership and API-key reuse: proven in real behavior; the verified path here used vendor UI plus DNS `CNAME` to establish ownership, then a generated API key succeeded with `GetUserSites`, `GetSiteRoles`, and `SubmitUrl`
 
 Canonical Search Console ownership rule for this skill:
@@ -180,7 +180,7 @@ Important verified constraint:
 - In the verified Google phase-3 flow here, the Site Verification API successfully verified `lostnfound-app.com` as an `INET_DOMAIN` after the authoritative-DNS `TXT` record was present, and Search Console then resolved `sc-domain:lostnfound-app.com` as `siteOwner`
 - In the verified Google phase-3 flow here, `sites.add` also added `https://lostnfound-app.com/` as a URL-prefix Search Console property after the domain property was already owned
 - In the verified Google phase-3 flow here, the Search Console association to GA4 was created successfully in Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource there
-- In the verified Google phase-3 flow here, the Google Ads API Center still showed `Explorer` access after a corrected same-day re-submission of the official Basic/Standard request form from a page whose visible top-right Google account email was `benjaminperry06@gmail.com`; treat brand-new account creation by API as pending Google's review until the access level changes
+- In the verified Google phase-3 follow-up here, the Google Ads API Center later showed `Basic` access for developer token `a_kKFXFmtzuc4UMoXad6Xg`, and a rerun of `createCustomerClient` via the official google-ads client reached Google Ads successfully but failed with `CustomerError.CREATION_DENIED_INELIGIBLE_MCC`; treat new-account creation as blocked by manager eligibility now, not by developer-token approval
 - GTM does not require a separate product-link resource in the verified flow here; its role is container and tag deployment plus later codebase wiring rather than a GA-style admin association object
 - `sites.add` can create a Search Console domain-property entry, but that alone does not prove owner-level verification; in the verified real behavior here, `sc-domain:lostnfound-app.com` appeared as `siteUnverifiedUser` until authoritative-DNS TXT ownership is actually present
 - The Site Verification API can generate the required DNS TXT token and can fail cleanly when the token is not yet present; do not claim domain ownership verification before the insert succeeds or the property resolves as a true owner afterwards
@@ -194,7 +194,7 @@ Phase-boundary reminder for Google:
 
 Documented but not yet verified end-to-end in real behavior here:
 
-- Final Google approval of the submitted developer-token upgrade from `Explorer` to `Basic` or `Standard`
+- A manager eligibility repair path that satisfies Google's `CREATION_DENIED_INELIGIBLE_MCC` requirement for fresh Google Ads account creation
 
 ### Bing Webmaster Tools
 
