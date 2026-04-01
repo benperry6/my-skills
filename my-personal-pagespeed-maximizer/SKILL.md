@@ -62,7 +62,8 @@ Its default doctrine is:
 6. Optimize page archetypes, not every URL blindly.
 7. Treat PageSpeed recommendations as testable hypotheses, not automatic truths.
 8. Keep only changes that improve the observed result. Revert or reject regressions even if the technique sounded correct in theory.
-9. Stop only when no material gain remains, the remaining gains require unapproved visual changes, or the remaining opportunities are blocked by hard product constraints.
+9. Do not declare a win or regression from a lone suspicious PSI run. Confirm contradictory results before deciding.
+10. Stop only when no material gain remains, the remaining gains require unapproved visual changes, or the remaining opportunities are blocked by hard product constraints.
 
 ## Universality Rule
 
@@ -197,6 +198,8 @@ Use the execution protocol in `references/cheap-guard-check.md` instead of impro
 - identify the current LCP candidate, the major diagnostics, and the strongest bottleneck family
 - distinguish clearly between observed metrics and inferred causes
 
+If the first result is sharply inconsistent with the trusted archetype, recent evidence, or the surrounding reruns, do not jump to a conclusion. Treat it as an unconfirmed signal until it has been checked again.
+
 Never say a page is optimized without fresh evidence.
 
 ### 2. Lock The Constraint Boundary
@@ -244,6 +247,13 @@ After each meaningful change family:
 - re-run PageSpeed Insights
 - compare the actual metrics
 - keep the change only if the evidence justifies it
+
+Use this measurement-consistency rule:
+
+- one run is enough when the result is directionally coherent and the diagnostic families line up
+- if a result looks aberrant, contradictory, or suspicious, run two additional PSI confirmations under the same strategy before calling it a real win or regression
+- decide from the stable signal, not the anomaly: use the median/majority direction plus diagnostic consistency
+- if the reruns still disagree materially, classify the outcome as noisy and avoid institutionalizing the claim
 
 Important:
 
@@ -296,9 +306,10 @@ When this skill finishes, it should provide:
 4. the baseline metrics and top diagnostics
 5. the changes applied or proposed, grouped by bottleneck family
 6. the post-change evidence
-7. the remaining constraints or residual bottlenecks
-8. a final statement of whether the page is at its current practical ceiling
-9. the exact reason why the loop continued or stopped
+7. whether confirmation reruns were needed and how the result was resolved
+8. the remaining constraints or residual bottlenecks
+9. a final statement of whether the page is at its current practical ceiling
+10. the exact reason why the loop continued or stopped
 
 ## Adjacent Skills
 

@@ -56,6 +56,23 @@ Bias toward noise when:
 
 If the result smells like noise, do not institutionalize it as a win.
 
+## Confirmation Rule For Contradictory Runs
+
+When a PSI result sharply contradicts the recent baseline, the expected impact of the change, or a nearby confirmation run, do not decide from that lone run.
+
+Instead:
+
+- rerun PSI two more times under the same strategy
+- look for the median or majority direction
+- verify that the diagnostic families support the same story
+
+If the repeated runs still disagree materially, treat the outcome as noisy rather than proven.
+
+This rule exists to stop two opposite mistakes:
+
+- reverting a good change because of one bad outlier
+- declaring a win because of one flattering outlier
+
 ## Continue The Loop When
 
 Continue when all of these are true:

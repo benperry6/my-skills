@@ -56,6 +56,18 @@ If the real page variant cannot be reached, escalate.
 The purpose is not to optimize yet.
 The purpose is to verify that inherited confidence still holds on the real page.
 
+### 2b. Confirmation Rerun Rule
+
+Do not overreact to one odd PSI run.
+
+If the first guard-check result sharply conflicts with the trusted reference, a nearby rerun, or what the page should plausibly look like, run two more PSI confirmations under the same strategy before deciding.
+
+Use this rule:
+
+- if two of the three runs point in the same direction and the dominant bottleneck family stays broadly similar, treat that as the decision signal
+- if the median/majority signal still supports inheritance, the guard check may still pass
+- if the repeated runs remain materially split or suspicious, do not pretend the page is safely inherited; escalate
+
 ### 3. Compare Against The Trusted Reference
 
 Compare the current page against the trusted archetype or prior validated page.
@@ -86,6 +98,7 @@ The cheap guard check may pass when all of these are true:
 
 - the page loaded correctly
 - the measurement ran successfully
+- any suspicious result was rechecked before conclusion
 - no obvious new critical regression family appeared
 - the result still looks broadly consistent with the trusted archetype
 - there is no strong signal that the page deserves deeper investigation
@@ -100,6 +113,7 @@ If these are true, the acceptable conclusion is:
 Escalate to a targeted re-check when any of these is true:
 
 - the measurement is noisy, ambiguous, or suspicious
+- repeated confirmation runs still disagree materially
 - a new bottleneck family appears but does not yet justify a full rerun
 - the page looks mostly similar but not similar enough for confident inheritance
 - the metrics look weaker than expected in a way that may be caused by a localized delta
@@ -137,5 +151,6 @@ A cheap guard check should explicitly report:
 2. the trusted reference page or archetype
 3. whether the real page loaded correctly
 4. whether PSI was run successfully
-5. whether the guard check passed or escalated
-6. why that outcome was chosen
+5. whether confirmation reruns were needed
+6. whether the guard check passed or escalated
+7. why that outcome was chosen

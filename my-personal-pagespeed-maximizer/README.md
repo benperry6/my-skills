@@ -18,7 +18,8 @@ Le comportement voulu est:
 4. identifier les changements a plus fort levier
 5. appliquer les changements autorises
 6. re-tester apres chaque batch utile
-7. continuer jusqu'au plafond pratique ou jusqu'a une contrainte reelle
+7. si un run contredit fortement l'etat attendu, relancer PSI pour confirmer avant de conclure
+8. continuer jusqu'au plafond pratique ou jusqu'a une contrainte reelle
 
 Autrement dit:
 
@@ -36,6 +37,7 @@ Ce skill impose une logique operationnelle stricte:
 - viser le maximum pratique, pas juste le vert
 - ne jamais faire de changement visuel sans approbation explicite
 - garder uniquement les optimisations qui ameliorent vraiment la mesure
+- ne jamais conclure a une regression ou a une victoire sur un seul run aberrant
 - arreter la boucle seulement quand il n'y a plus de gain materiel defendable
 
 ## La these centrale
@@ -113,6 +115,9 @@ Apres chaque batch utile:
 - comparer les vraies metriques
 - garder la modification si elle ameliore reellement le resultat
 - rejeter ou revert si elle degrade
+
+Si un run est fortement contradictoire, le skill ne doit pas conclure immediatement.
+Il doit rerun PSI pour confirmer, puis decider sur le signal stable plutot que sur l'anomalie isolee.
 
 ### 6. Stop rule
 
