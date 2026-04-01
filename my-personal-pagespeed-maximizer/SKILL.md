@@ -125,6 +125,7 @@ If the classification is uncertain, do not blindly skip. Default to at least a t
 For the detailed fingerprint rules, read `references/performance-fingerprint.md`.
 For the actual skip and inheritance policy, read `references/validation-policy.md`.
 For the actual cheap guard check protocol, read `references/cheap-guard-check.md`.
+For the actual stop rule and definition of material gain, read `references/loop-stop-rule.md`.
 
 ## Validation Inheritance Policy
 
@@ -260,6 +261,8 @@ The loop ends when:
 - the remaining path requires an unapproved visual change
 - the page is at its practical ceiling for the current constraints
 
+Use `references/loop-stop-rule.md` to decide what counts as a material gain and what counts as mere noise.
+
 ### 7. Persist Durable Learning Carefully
 
 If the repo already uses a performance memory file such as `.agents/performance-memory.md`, persist only verified learnings.
@@ -295,6 +298,7 @@ When this skill finishes, it should provide:
 6. the post-change evidence
 7. the remaining constraints or residual bottlenecks
 8. a final statement of whether the page is at its current practical ceiling
+9. the exact reason why the loop continued or stopped
 
 ## Adjacent Skills
 

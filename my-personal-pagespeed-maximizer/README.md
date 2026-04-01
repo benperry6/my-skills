@@ -89,6 +89,12 @@ Le skill doit toujours:
 - rejeter ou revert les pseudo-optimisations qui degradent le resultat
 - s'arreter seulement quand il n'y a plus de gain materiel defendable
 
+Et "gain materiel" ne doit pas rester implicite:
+
+- il faut definir ce qui compte comme vrai progres
+- il faut definir ce qui n'est probablement que du bruit
+- il faut definir quand on stoppe au plafond pratique
+
 ## Ce qu'il faut maintenant rendre non-negociable
 
 Le skill doit etre explicite sur la politique de skip:
