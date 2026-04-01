@@ -82,11 +82,23 @@ Ensuite seulement, l'agent qui l'utilise traduit cela dans la stack locale.
 Le skill doit toujours:
 
 - classer la page dans le bon mode: boucle complete, recheck cible, ou inheritance
+- appliquer la politique de decision dans le bon ordre: full rerun, puis recheck cible, puis seulement heritage
 - raisonner mobile-first
 - traiter les diagnostics PSI comme des hypotheses a tester
 - garder uniquement les changements qui ameliorent vraiment la mesure
 - rejeter ou revert les pseudo-optimisations qui degradent le resultat
 - s'arreter seulement quand il n'y a plus de gain materiel defendable
+
+## Ce qu'il faut maintenant rendre non-negociable
+
+Le skill doit etre explicite sur la politique de skip:
+
+- quand un full rerun est obligatoire
+- quand un recheck cible est obligatoire
+- quand l'heritage de validation est autorise
+- quand un simple garde-fou leger reste recommande meme si l'heritage parait legitime
+
+Sans cela, un skill de performance devient trop facilement soit trop laxiste, soit trop gourmand.
 
 ## Ce qu'il ne doit pas devenir
 

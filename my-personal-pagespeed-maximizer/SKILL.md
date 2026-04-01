@@ -123,6 +123,63 @@ Common signals:
 If the classification is uncertain, do not blindly skip. Default to at least a targeted re-check.
 
 For the detailed fingerprint rules, read `references/performance-fingerprint.md`.
+For the actual skip and inheritance policy, read `references/validation-policy.md`.
+
+## Validation Inheritance Policy
+
+Mode C is allowed only when all of these are true:
+
+1. a prior validated page already exists for the same archetype
+2. that prior validation is still relevant to the current shell and asset path
+3. the new page does not introduce a meaningful perf-sensitive delta
+4. the page is not strategically important enough to justify a fresh guard check anyway
+
+If one of these is false or unknown, do not inherit blindly.
+
+### Mandatory Full Re-Run Cases
+
+A full optimization loop is mandatory when at least one of these is true:
+
+- there is no prior validated archetype to inherit from
+- the page introduces a new shell, new first-screen composition, or new LCP candidate type
+- the route/template changed in a way that likely alters the first-load path
+- the page introduces new third-party tooling in or near first load
+- the prior validation is too stale or no longer trustworthy after major template evolution
+- the page is launch-critical and there is no recent direct evidence on a materially equivalent page
+
+### Mandatory Targeted Re-Check Cases
+
+Do at least a targeted re-check when the archetype seems reusable but one of these is true:
+
+- hero media changed materially in size, type, or delivery path
+- the first viewport runtime burden changed
+- consent, analytics, widgets, embeds, ads, or experiments changed
+- locale, personalization, or audience-specific variants may alter early assets or runtime
+- the page is a top-traffic, top-revenue, or launch-critical URL
+- confidence in inheritance is moderate rather than high
+
+### Safe Inheritance Cases
+
+Inherited validation is reasonable when all of these are true:
+
+- the shell and first viewport are materially the same
+- the likely LCP candidate type is the same
+- early assets and third-party footprint are materially the same
+- the runtime burden in the first viewport is materially the same
+- the prior validation is recent enough to remain credible
+- the page is not strategically important enough to deserve a direct guard check
+
+### Cheap Guard Check Rule
+
+Even when inheritance is allowed, a cheap guard check is preferred for:
+
+- homepage variants
+- money pages
+- launch pages
+- pages expected to receive meaningful paid or PR traffic
+- pages whose failure cost is high even if the archetype looks reused
+
+A cheap guard check is not a full loop. It is a low-cost confirmation that the inherited confidence was justified.
 
 ## Canonical Optimization Loop
 
