@@ -132,7 +132,7 @@ Mode C is allowed only when all of these are true:
 1. a prior validated page already exists for the same archetype
 2. that prior validation is still relevant to the current shell and asset path
 3. the new page does not introduce a meaningful perf-sensitive delta
-4. the page is not strategically important enough to justify a fresh guard check anyway
+4. the page is not a critical page that requires a direct guard check by default
 
 If one of these is false or unknown, do not inherit blindly.
 
@@ -167,11 +167,11 @@ Inherited validation is reasonable when all of these are true:
 - early assets and third-party footprint are materially the same
 - the runtime burden in the first viewport is materially the same
 - the prior validation is recent enough to remain credible
-- the page is not strategically important enough to deserve a direct guard check
+- the page is not a critical page that requires a direct guard check by default
 
 ### Cheap Guard Check Rule
 
-Even when inheritance is allowed, a cheap guard check is preferred for:
+Even when inheritance is allowed, a cheap guard check is mandatory by default for:
 
 - homepage variants
 - money pages
@@ -180,6 +180,8 @@ Even when inheritance is allowed, a cheap guard check is preferred for:
 - pages whose failure cost is high even if the archetype looks reused
 
 A cheap guard check is not a full loop. It is a low-cost confirmation that the inherited confidence was justified.
+
+If one of these critical-page conditions is true, do not conclude with pure inherited validation alone. Conclude with inherited validation plus mandatory guard check, or escalate further if the page looks noisy.
 
 ## Canonical Optimization Loop
 
@@ -283,11 +285,12 @@ When this skill finishes, it should provide:
 
 1. the chosen mode: full optimization, targeted re-check, or inherited validation
 2. the reason for that classification
-3. the baseline metrics and top diagnostics
-4. the changes applied or proposed, grouped by bottleneck family
-5. the post-change evidence
-6. the remaining constraints or residual bottlenecks
-7. a final statement of whether the page is at its current practical ceiling
+3. whether a mandatory guard check applied because the page is critical
+4. the baseline metrics and top diagnostics
+5. the changes applied or proposed, grouped by bottleneck family
+6. the post-change evidence
+7. the remaining constraints or residual bottlenecks
+8. a final statement of whether the page is at its current practical ceiling
 
 ## Adjacent Skills
 

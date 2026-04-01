@@ -58,7 +58,7 @@ Inherited validation is allowed only when all of these are true:
 - early assets and third-party footprint are materially unchanged
 - first-viewport runtime burden is materially unchanged
 - the prior validation is still recent enough to remain credible
-- the page is not important enough to justify a direct confirmation anyway
+- the page is not a critical page that requires direct confirmation by default
 
 If one of these is weak or unknown, fall back to a targeted re-check.
 
@@ -73,14 +73,15 @@ Instead, evaluate recency by change exposure:
 
 Recency here is structural, not just calendar-based.
 
-## Cheap Guard Check
+## Critical Pages And Cheap Guard Check
 
-Even when inherited validation is allowed, a cheap guard check is preferred for:
+Even when inherited validation is otherwise allowed, a cheap guard check is mandatory by default for:
 
 - homepage variants
 - launch pages
 - key commercial pages
 - URLs expected to absorb meaningful traffic quickly
+- URLs whose failure cost is high even if the archetype looks reused
 
 A cheap guard check is intentionally small:
 
@@ -90,6 +91,12 @@ A cheap guard check is intentionally small:
 
 If the guard check looks noisy or suspicious, escalate to a targeted re-check.
 
+Important:
+
+- critical pages may inherit an archetype, but they do not inherit the right to skip direct confirmation
+- on these pages, the minimum acceptable outcome is `inherited validation allowed` plus a passed cheap guard check
+- if the cheap guard check cannot be run, do not pretend the inheritance is enough
+
 ## Decision Output
 
 Every decision should end with one of these explicit statements:
@@ -97,5 +104,6 @@ Every decision should end with one of these explicit statements:
 - `full optimization required`
 - `targeted re-check required`
 - `inherited validation allowed`
+- `inherited validation allowed, mandatory guard check required`
 
 And it should always state why.
