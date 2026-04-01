@@ -37,9 +37,12 @@ What the runner enforces:
 - consults only the OTHER engine(s) by default
 - retries through the locally verified fallback chain
 - captures full logs for every attempt
+- writes a machine-readable run state to `--output-json` with explicit `status`, `completed_targets`, `overall_success`, and `blocking_failure`
+- exposes live per-target progress in `target_progress`, including `strategy`, `last_activity_at`, and `response_preview` when available
 - emits whether local repair succeeded or whether web research is still needed
 - persists runtime-learned repairs only after a real successful invocation
 - leaves the orchestrator responsible for any upstream web research that cannot be solved from local evidence alone
+- prefers streaming plus activity detection over short per-attempt timeout caps for slow-but-healthy Claude/Gemini runs
 
 ## Core Doctrine
 
@@ -216,11 +219,17 @@ codex exec --dangerously-bypass-approvals-and-sandbox \
 Primary verified structured-output pattern:
 
 ```bash
-claude -p "Your query here" --output-format json > /tmp/claude-review.json 2>&1
+claude -p "Your query here" --output-format stream-json \
+  --include-partial-messages \
+  --verbose \
+  --no-chrome \
+  --disable-slash-commands > /tmp/claude-review.json 2>&1
 ```
 
 - `-p` is verified locally for headless mode.
-- `--output-format json` gives a clean machine-readable result.
+- `--output-format stream-json` gives observable progress plus a final machine-readable result.
+- `--include-partial-messages --verbose` is required for the currently verified streaming path.
+- `--no-chrome --disable-slash-commands` reduces startup overhead while preserving the normal auth path on this machine.
 - `--output-format text` is acceptable when a plain-text answer is enough.
 
 ### Gemini

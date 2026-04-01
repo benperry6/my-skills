@@ -51,6 +51,62 @@ Implication:
 
 - Prefer `--output-format json` when the orchestrator needs deterministic parsing.
 
+## 2026-04-01 — Claude CLI headless overhead reduction
+
+Verified on this machine:
+
+```bash
+claude -p "Reply with exactly: OK" --output-format json \
+  --no-chrome \
+  --disable-slash-commands
+```
+
+Observed behavior:
+
+- exit code `0`
+- still uses the normal working auth path on this machine
+- returned a structured JSON payload successfully
+- on a real second-opinion prompt, the same path completed successfully in about `61s`
+
+Observed contrast:
+
+- `claude -p ... --output-format json --bare` failed immediately with:
+  - `Not logged in · Please run /login`
+
+Implication:
+
+- for this skill, `--no-chrome --disable-slash-commands` is the durable low-overhead headless Claude path
+- do not switch this skill to `--bare` unless the auth path is explicitly migrated as well
+
+## 2026-04-01 — Streaming + liveness is safer than short timeout caps
+
+Verified on this machine:
+
+```bash
+claude -p "Reply with exactly: OK" --output-format stream-json \
+  --include-partial-messages \
+  --verbose \
+  --no-chrome \
+  --disable-slash-commands
+
+gemini -m auto -p "Reply with exactly: OK" --output-format stream-json
+```
+
+Observed behavior:
+
+- both CLIs emit newline-delimited JSON events during execution
+- Claude requires `--verbose` for `--output-format stream-json`
+- Claude emits early `stream_event` / `content_block_delta` activity before the final result
+- Gemini emits `message` and `result` events after startup noise
+- on a real second-opinion prompt, the runner was able to expose live `target_progress.last_activity_at` and `response_preview` while Claude continued working for about `221s`
+- the same real prompt finished successfully for both Claude and Gemini without being misclassified as a hang
+
+Implication:
+
+- for this skill, slow Claude/Gemini runs should not be judged only by short completion timeouts
+- prefer streaming output plus inactivity detection, with a more generous hard timeout guardrail
+- the runner should expose observable progress in `--output-json` so the orchestrator can distinguish “still working” from “actually stalled”
+
 ## 2026-03-27 — Gemini CLI
 
 Observed failure in real behavior:
@@ -218,6 +274,57 @@ Observed behavior:
 - target selection respected "never consult yourself":
   - current engine `codex`
   - targets `claude`, `gemini`
+
+## 2026-04-01 — Runner fail-closed state contract
+
+Verified runner path (success case):
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --smoke-test \
+  --current-engine codex \
+  --working-directory "/Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/ShopifyMCP_Codex" \
+  --logs-dir /tmp/so-smoke-20260401 \
+  --output-json /tmp/so-smoke-20260401.json \
+  --timeout-seconds 20 \
+  --no-git-persist
+```
+
+Observed behavior:
+
+- exit code `0`
+- top-level JSON now included:
+  - `status = "success"`
+  - `completed_targets = ["claude", "gemini"]`
+  - `overall_success = true`
+  - `blocking_failure = false`
+
+Verified runner path (forced blocked case):
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --current-engine codex \
+  --working-directory "/Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/ShopifyMCP_Codex" \
+  --prompt-file /tmp/second-opinion-prompt.txt \
+  --logs-dir /tmp/so-blocked-20260401 \
+  --output-json /tmp/so-blocked-20260401.json \
+  --timeout-seconds 15 \
+  --no-git-persist
+```
+
+Observed behavior:
+
+- exit code `1`
+- top-level JSON now included:
+  - `status = "blocked"`
+  - `completed_targets = ["claude", "gemini"]`
+  - `overall_success = false`
+  - `blocking_failure = true`
+
+Implication:
+
+- the runner now fails closed in an explicit machine-readable way instead of leaving an ambiguous partial state to the orchestrator
+- the runtime-learning incident log is useful after a repaired success, but it is not the primary guardrail against silent degradation; the top-level runner status is
 - `claude` returned `OK` with `claude -p ... --output-format json`
 - `gemini` returned `OK` on the first runner strategy `gemini -m pro ...`
 - `stats.models.main = gemini-3.1-pro-preview`

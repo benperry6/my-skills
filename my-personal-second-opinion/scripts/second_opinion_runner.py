@@ -2,14 +2,17 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import os
+import queue
 import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -107,6 +110,15 @@ def run_json_command(command: list[str]) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise SystemExit(f"Expected JSON object from command: {shlex.join(command)}")
     return payload
+
+
+def write_summary(path: str | None, summary: dict[str, Any]) -> None:
+    if not path:
+        return
+    Path(path).write_text(
+        json.dumps(summary, indent=2, ensure_ascii=True) + "\n",
+        encoding="utf-8",
+    )
 
 
 def git_output(workdir: Path, arguments: list[str], pathspecs: list[str] | None = None) -> str:
@@ -375,6 +387,14 @@ def extract_response_text(payload: Any) -> str:
             value = payload.get(key)
             if isinstance(value, str):
                 return value.strip()
+            if isinstance(value, dict):
+                nested = extract_response_text(value)
+                if nested:
+                    return nested
+            if isinstance(value, list):
+                nested = extract_response_text(value)
+                if nested:
+                    return nested
         if isinstance(payload.get("messages"), list):
             chunks: list[str] = []
             for item in payload["messages"]:
@@ -439,6 +459,9 @@ def prompt_models(payload: Any) -> dict[str, Any]:
             models = stats.get("models")
             if isinstance(models, dict):
                 return models
+        model_usage = payload.get("modelUsage")
+        if isinstance(model_usage, dict):
+            return model_usage
     return {}
 
 
@@ -625,13 +648,31 @@ def codex_attempts(prompt: str, workdir: Path, attempt_dir: Path) -> list[dict[s
 def claude_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
     return [
         {
-            "name": "claude-json",
-            "command": ["claude", "-p", prompt, "--output-format", "json"],
-            "parse_json": True,
+            "name": "claude-stream-json",
+            "command": [
+                "claude",
+                "-p",
+                prompt,
+                "--output-format",
+                "stream-json",
+                "--include-partial-messages",
+                "--verbose",
+                "--no-chrome",
+                "--disable-slash-commands",
+            ],
+            "parse_stream_json": True,
         },
         {
             "name": "claude-text",
-            "command": ["claude", "-p", prompt, "--output-format", "text"],
+            "command": [
+                "claude",
+                "-p",
+                prompt,
+                "--output-format",
+                "text",
+                "--no-chrome",
+                "--disable-slash-commands",
+            ],
             "parse_json": False,
         },
     ]
@@ -642,13 +683,13 @@ def gemini_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
     attempts = [
         {
             "name": "gemini-pro",
-            "command": ["gemini", "-m", "pro", "-p", prompt, "--output-format", "json"],
-            "parse_json": True,
+            "command": ["gemini", "-m", "pro", "-p", prompt, "--output-format", "stream-json"],
+            "parse_stream_json": True,
         },
         {
             "name": "gemini-auto",
-            "command": ["gemini", "-m", "auto", "-p", prompt, "--output-format", "json"],
-            "parse_json": True,
+            "command": ["gemini", "-m", "auto", "-p", prompt, "--output-format", "stream-json"],
+            "parse_stream_json": True,
         },
     ]
 
@@ -658,25 +699,25 @@ def gemini_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
                 {
                     "name": "gemini-3-flash-preview",
                     "command": [
-                        "gemini",
-                        "-m",
-                        "gemini-3-flash-preview",
-                        "-p",
-                        prompt,
-                        "--output-format",
-                        "json",
-                    ],
-                    "parse_json": True,
+                    "gemini",
+                    "-m",
+                    "gemini-3-flash-preview",
+                    "-p",
+                    prompt,
+                    "--output-format",
+                    "stream-json",
+                ],
+                    "parse_stream_json": True,
                 },
                 {
                     "name": "gemini-2.5-flash",
-                    "command": ["gemini", "-m", "gemini-2.5-flash", "-p", prompt, "--output-format", "json"],
-                    "parse_json": True,
+                    "command": ["gemini", "-m", "gemini-2.5-flash", "-p", prompt, "--output-format", "stream-json"],
+                    "parse_stream_json": True,
                 },
                 {
                     "name": "gemini-2.5-pro",
-                    "command": ["gemini", "-m", "gemini-2.5-pro", "-p", prompt, "--output-format", "json"],
-                    "parse_json": True,
+                    "command": ["gemini", "-m", "gemini-2.5-pro", "-p", prompt, "--output-format", "stream-json"],
+                    "parse_stream_json": True,
                 },
             ]
         )
@@ -692,9 +733,9 @@ def gemini_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
                         "-p",
                         prompt,
                         "--output-format",
-                        "json",
+                        "stream-json",
                     ],
-                    "parse_json": True,
+                    "parse_stream_json": True,
                 },
                 {
                     "name": "gemini-3-flash-preview",
@@ -705,9 +746,9 @@ def gemini_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
                         "-p",
                         prompt,
                         "--output-format",
-                        "json",
+                        "stream-json",
                     ],
-                    "parse_json": True,
+                    "parse_stream_json": True,
                 },
             ]
         )
@@ -724,16 +765,254 @@ def build_attempts(engine: str, prompt: str, workdir: Path, attempt_dir: Path) -
     raise ValueError(f"Unsupported engine: {engine}")
 
 
+def strategy_timeout_seconds(engine: str, strategy_name: str, default_timeout: int) -> int:
+    if "stream" in strategy_name:
+        return max(default_timeout, 300)
+    return default_timeout
+
+
+def strategy_inactivity_timeout_seconds(engine: str, strategy_name: str, default_timeout: int) -> int:
+    if "stream" in strategy_name:
+        return min(default_timeout, 180)
+    return default_timeout
+
+
+def extract_stream_payload(line: str) -> Any | None:
+    stripped = line.strip()
+    if not stripped:
+        return None
+    if stripped[0] not in "[{":
+        return None
+    try:
+        return json.loads(stripped)
+    except json.JSONDecodeError:
+        return None
+
+
+def update_stream_state(engine: str, payload: Any, state: dict[str, Any]) -> None:
+    if not isinstance(payload, dict):
+        return
+
+    models = prompt_models(payload)
+    if models:
+        state["models"] = models
+
+    if engine == "claude":
+        payload_type = payload.get("type")
+        if payload_type == "assistant":
+            text = extract_response_text(payload)
+            if text:
+                state["final_response"] = text
+        elif payload_type == "result":
+            result_text = payload.get("result")
+            if isinstance(result_text, str) and result_text.strip():
+                state["final_response"] = result_text.strip()
+        elif payload_type == "stream_event":
+            event = payload.get("event")
+            if isinstance(event, dict) and event.get("type") == "content_block_delta":
+                delta = event.get("delta")
+                if isinstance(delta, dict) and delta.get("type") == "text_delta":
+                    text = delta.get("text")
+                    if isinstance(text, str) and text:
+                        state["response_fragments"].append(text)
+        return
+
+    if engine == "gemini":
+        payload_type = payload.get("type")
+        if payload_type == "message" and payload.get("role") == "assistant":
+            content = payload.get("content")
+            if isinstance(content, str) and content:
+                state["response_fragments"].append(content)
+        return
+
+
+def finalize_stream_response(state: dict[str, Any]) -> str:
+    final_response = state.get("final_response", "").strip()
+    if final_response:
+        return final_response
+    return "".join(state.get("response_fragments", [])).strip()
+
+
+def execute_streaming_attempt(
+    engine: str,
+    strategy: dict[str, Any],
+    workdir: Path,
+    attempt_dir: Path,
+    timeout_seconds: int,
+    progress_callback: Any | None,
+) -> dict[str, Any]:
+    attempt_dir.mkdir(parents=True, exist_ok=True)
+    started_at = time.time()
+    command = strategy["command"]
+    attempt_timeout = strategy_timeout_seconds(engine, strategy["name"], timeout_seconds)
+    inactivity_timeout = strategy_inactivity_timeout_seconds(engine, strategy["name"], timeout_seconds)
+    stdout_path = attempt_dir / "stdout.log"
+    stderr_path = attempt_dir / "stderr.log"
+
+    if shutil.which(command[0]) is None:
+        return {
+            "strategy": strategy["name"],
+            "command": shlex.join(command),
+            "success": False,
+            "returncode": 127,
+            "classification": "cli-missing",
+            "failure_signature": f"{command[0]} not found in PATH",
+            "duration_ms": 0,
+            "stdout_path": str(stdout_path),
+            "stderr_path": str(stderr_path),
+            "models": {},
+            "timeout_seconds": attempt_timeout,
+            "inactivity_timeout_seconds": inactivity_timeout,
+        }
+
+    state = {"response_fragments": [], "final_response": "", "models": {}}
+    line_queue: queue.Queue[tuple[str, str | None, float]] = queue.Queue()
+
+    with stdout_path.open("w", encoding="utf-8") as stdout_file, stderr_path.open(
+        "w", encoding="utf-8"
+    ) as stderr_file:
+        process = subprocess.Popen(
+            command,
+            cwd=str(workdir),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            bufsize=1,
+        )
+
+        def reader(stream: Any, source: str) -> None:
+            try:
+                for line in iter(stream.readline, ""):
+                    line_queue.put((source, line, time.time()))
+            finally:
+                try:
+                    stream.close()
+                except Exception:
+                    pass
+                line_queue.put((source, None, time.time()))
+
+        stdout_thread = threading.Thread(target=reader, args=(process.stdout, "stdout"), daemon=True)
+        stderr_thread = threading.Thread(target=reader, args=(process.stderr, "stderr"), daemon=True)
+        stdout_thread.start()
+        stderr_thread.start()
+
+        last_activity_at = started_at
+        last_progress_flush = 0.0
+        closed_streams = 0
+        timed_out = False
+        timeout_reason = ""
+
+        if progress_callback:
+            progress_callback(
+                {
+                    "phase": "attempt-running",
+                    "strategy": strategy["name"],
+                    "command": shlex.join(command),
+                    "started_at": utc_now(),
+                    "timeout_seconds": attempt_timeout,
+                    "inactivity_timeout_seconds": inactivity_timeout,
+                }
+            )
+
+        while True:
+            now = time.time()
+            hard_deadline_exceeded = now - started_at > attempt_timeout
+            inactivity_exceeded = now - last_activity_at > inactivity_timeout
+            if hard_deadline_exceeded or inactivity_exceeded:
+                timed_out = True
+                timeout_reason = "timeout" if hard_deadline_exceeded else "inactivity-timeout"
+                process.kill()
+                break
+
+            try:
+                source, line, event_time = line_queue.get(timeout=0.25)
+            except queue.Empty:
+                if process.poll() is not None and closed_streams >= 2 and line_queue.empty():
+                    break
+                continue
+
+            if line is None:
+                closed_streams += 1
+                if process.poll() is not None and closed_streams >= 2 and line_queue.empty():
+                    break
+                continue
+
+            if source == "stdout":
+                stdout_file.write(line)
+                stdout_file.flush()
+                payload = extract_stream_payload(line)
+                if payload is not None:
+                    update_stream_state(engine, payload, state)
+            else:
+                stderr_file.write(line)
+                stderr_file.flush()
+
+            last_activity_at = event_time
+            if progress_callback and (event_time - last_progress_flush >= 1.0):
+                preview = finalize_stream_response(state)[:200]
+                progress_callback(
+                    {
+                        "phase": "attempt-running",
+                        "strategy": strategy["name"],
+                        "last_activity_at": datetime.fromtimestamp(event_time, timezone.utc)
+                        .replace(microsecond=0)
+                        .isoformat(),
+                        "response_preview": preview,
+                    }
+                )
+                last_progress_flush = event_time
+
+        process.wait()
+        stdout_thread.join(timeout=1)
+        stderr_thread.join(timeout=1)
+
+    stdout_text = read_text(stdout_path)
+    stderr_text = read_text(stderr_path)
+    combined = "\n".join(part for part in (stdout_text, stderr_text) if part).strip()
+    response = finalize_stream_response(state)
+    success = process.returncode == 0 and bool(response)
+    classification = ""
+    failure_sig = ""
+    if timed_out:
+        classification = timeout_reason
+        failure_sig = (
+            "Timed out while waiting for command completion."
+            if timeout_reason == "timeout"
+            else "No new output detected before inactivity timeout."
+        )
+    elif not success:
+        classification = classify_failure(combined, process.returncode)
+        failure_sig = failure_signature(combined)
+
+    return {
+        "strategy": strategy["name"],
+        "command": shlex.join(command),
+        "success": success,
+        "returncode": process.returncode if process.returncode is not None else 1,
+        "response": response,
+        "duration_ms": int((time.time() - started_at) * 1000),
+        "stdout_path": str(stdout_path),
+        "stderr_path": str(stderr_path),
+        "models": state.get("models", {}),
+        "classification": classification,
+        "failure_signature": failure_sig,
+        "timeout_seconds": attempt_timeout,
+        "inactivity_timeout_seconds": inactivity_timeout,
+    }
+
+
 def execute_attempt(
     engine: str,
     strategy: dict[str, Any],
     workdir: Path,
     attempt_dir: Path,
     timeout_seconds: int,
+    progress_callback: Any | None = None,
 ) -> dict[str, Any]:
     attempt_dir.mkdir(parents=True, exist_ok=True)
     started_at = time.time()
     command = strategy["command"]
+    attempt_timeout = strategy_timeout_seconds(engine, strategy["name"], timeout_seconds)
     if shutil.which(command[0]) is None:
         return {
             "strategy": strategy["name"],
@@ -747,6 +1026,16 @@ def execute_attempt(
             "stderr_path": "",
         }
 
+    if strategy.get("parse_stream_json"):
+        return execute_streaming_attempt(
+            engine=engine,
+            strategy=strategy,
+            workdir=workdir,
+            attempt_dir=attempt_dir,
+            timeout_seconds=timeout_seconds,
+            progress_callback=progress_callback,
+        )
+
     if engine == "codex":
         log_path = attempt_dir / "combined.log"
         try:
@@ -758,7 +1047,7 @@ def execute_attempt(
                     stderr=subprocess.STDOUT,
                     text=True,
                     check=False,
-                    timeout=timeout_seconds,
+                    timeout=attempt_timeout,
                 )
         except subprocess.TimeoutExpired:
             return {
@@ -772,6 +1061,7 @@ def execute_attempt(
                 "stdout_path": str(log_path),
                 "stderr_path": "",
                 "models": {},
+                "timeout_seconds": attempt_timeout,
             }
         answer_text = read_text(strategy["answer_file"]).strip()
         success = completed.returncode == 0 and bool(answer_text)
@@ -788,6 +1078,7 @@ def execute_attempt(
             "models": {},
             "classification": "" if success else classify_failure(output_text, completed.returncode),
             "failure_signature": "" if success else failure_signature(output_text),
+            "timeout_seconds": attempt_timeout,
         }
 
     stdout_path = attempt_dir / "stdout.log"
@@ -803,7 +1094,7 @@ def execute_attempt(
                 stderr=stderr_file,
                 text=True,
                 check=False,
-                timeout=timeout_seconds,
+                timeout=attempt_timeout,
             )
     except subprocess.TimeoutExpired:
         return {
@@ -817,6 +1108,7 @@ def execute_attempt(
             "stdout_path": str(stdout_path),
             "stderr_path": str(stderr_path),
             "models": {},
+            "timeout_seconds": attempt_timeout,
         }
 
     stdout_text = read_text(stdout_path)
@@ -839,6 +1131,7 @@ def execute_attempt(
         "models": models,
         "classification": "" if success else classify_failure(combined, completed.returncode),
         "failure_signature": "" if success else failure_signature(combined),
+        "timeout_seconds": attempt_timeout,
     }
 
 
@@ -849,6 +1142,7 @@ def run_engine(
     workdir: Path,
     logs_root: Path,
     timeout_seconds: int,
+    progress_callback: Any | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any] | None]:
     target_dir = logs_root / target_engine
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -858,9 +1152,51 @@ def run_engine(
 
     for index, strategy in enumerate(strategies, start=1):
         attempt_dir = target_dir / f"attempt-{index:02d}"
-        result = execute_attempt(target_engine, strategy, workdir, attempt_dir, timeout_seconds)
+        if progress_callback:
+            progress_callback(
+                target_engine,
+                {
+                    "state": "running",
+                    "attempt": index,
+                    "attempts_total": len(strategies),
+                    "strategy": strategy["name"],
+                    "started_at": utc_now(),
+                },
+            )
+        result = execute_attempt(
+            target_engine,
+            strategy,
+            workdir,
+            attempt_dir,
+            timeout_seconds,
+            progress_callback=(
+                None
+                if progress_callback is None
+                else lambda payload, target=target_engine, index=index, total=len(strategies): progress_callback(
+                    target,
+                    {
+                        "state": "running",
+                        "attempt": index,
+                        "attempts_total": total,
+                        **payload,
+                    },
+                )
+            ),
+        )
         attempts.append(result)
         if result["success"]:
+            if progress_callback:
+                progress_callback(
+                    target_engine,
+                    {
+                        "state": "completed",
+                        "attempt": index,
+                        "attempts_total": len(strategies),
+                        "strategy": strategy["name"],
+                        "completed_at": utc_now(),
+                        "success": True,
+                    },
+                )
             summary = {
                 "engine": target_engine,
                 "success": True,
@@ -892,6 +1228,18 @@ def run_engine(
         if result["classification"] in {"cli-missing", "auth", "git-topology", "timeout"} and target_engine != "gemini":
             break
 
+    if progress_callback:
+        progress_callback(
+            target_engine,
+            {
+                "state": "completed",
+                "attempt": len(attempts),
+                "attempts_total": len(strategies),
+                "completed_at": utc_now(),
+                "success": False,
+                "classification": attempts[-1]["classification"] if attempts else "unknown",
+            },
+        )
     last_failure = attempts[-1] if attempts else {
         "classification": "unknown",
         "failure_signature": "No attempts executed.",
@@ -999,9 +1347,15 @@ def main() -> int:
 
     summary: dict[str, Any] = {
         "run_at": utc_now(),
+        "status": "running",
         "mode": args.mode,
         "current_engine": current_engine,
         "targets": targets,
+        "pending_targets": list(targets),
+        "completed_targets": [],
+        "all_targets_required": True,
+        "overall_success": None,
+        "blocking_failure": False,
         "working_directory": str(workdir),
         "logs_root": str(logs_root),
         "results": [],
@@ -1010,19 +1364,59 @@ def main() -> int:
     if prompt_manifest:
         summary["audit_manifest"] = prompt_manifest
     learning_records: list[dict[str, Any]] = []
+    progress_by_target: dict[str, dict[str, Any]] = {}
+    progress_lock = threading.Lock()
 
-    for target in targets:
-        result, learning_record = run_engine(
-            current_engine=current_engine,
-            target_engine=target,
-            prompt=prompt,
-            workdir=workdir,
-            logs_root=logs_root,
-            timeout_seconds=args.timeout_seconds,
-        )
-        summary["results"].append(result)
-        if learning_record is not None and args.persist_learning:
-            learning_records.append(learning_record)
+    def handle_progress(target: str, payload: dict[str, Any]) -> None:
+        with progress_lock:
+            progress_by_target[target] = {**progress_by_target.get(target, {}), **payload}
+            summary["target_progress"] = {key: progress_by_target[key] for key in targets if key in progress_by_target}
+            write_summary(args.output_json, summary)
+
+    write_summary(args.output_json, summary)
+
+    results_by_target: dict[str, dict[str, Any]] = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, len(targets))) as executor:
+        future_map = {
+            executor.submit(
+                run_engine,
+                current_engine=current_engine,
+                target_engine=target,
+                prompt=prompt,
+                workdir=workdir,
+                logs_root=logs_root,
+                timeout_seconds=args.timeout_seconds,
+                progress_callback=handle_progress,
+            ): target
+            for target in targets
+        }
+        for future in concurrent.futures.as_completed(future_map):
+            target = future_map[future]
+            try:
+                result, learning_record = future.result()
+            except Exception as exc:  # pragma: no cover - defensive reporting path
+                result = {
+                    "engine": target,
+                    "success": False,
+                    "response": "",
+                    "models": {},
+                    "attempts": [],
+                    "repaired": False,
+                    "needs_web_research": True,
+                    "final_failure_classification": "runner-exception",
+                    "final_failure_signature": str(exc),
+                }
+                learning_record = None
+
+            results_by_target[target] = result
+            summary["results"] = [results_by_target[item] for item in targets if item in results_by_target]
+            summary["pending_targets"] = [item for item in targets if item not in results_by_target]
+            summary["completed_targets"] = [item for item in targets if item in results_by_target]
+            if any(not item.get("success", False) for item in summary["results"]):
+                summary["blocking_failure"] = True
+            if learning_record is not None and args.persist_learning:
+                learning_records.append(learning_record)
+            write_summary(args.output_json, summary)
 
     if learning_records and args.persist_learning:
         summary["persisted_learning"] = persist_runtime_learning(
@@ -1037,14 +1431,15 @@ def main() -> int:
             report_prefix=args.audit_report_prefix,
         )
 
-    if args.output_json:
-        Path(args.output_json).write_text(
-            json.dumps(summary, indent=2, ensure_ascii=True) + "\n",
-            encoding="utf-8",
-        )
+    overall_success = all(result["success"] for result in summary["results"])
+    summary["overall_success"] = overall_success
+    summary["blocking_failure"] = not overall_success
+    summary["status"] = "success" if overall_success else "blocked"
+    summary.pop("pending_targets", None)
+    write_summary(args.output_json, summary)
 
     print(json.dumps(summary, indent=2, ensure_ascii=True))
-    return 0 if all(result["success"] for result in summary["results"]) else 1
+    return 0 if overall_success else 1
 
 
 if __name__ == "__main__":
