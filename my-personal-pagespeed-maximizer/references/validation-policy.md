@@ -164,6 +164,8 @@ A cheap guard check is intentionally small:
 
 If the guard check looks noisy or suspicious, escalate to a targeted re-check.
 
+For the detailed execution protocol, read `cheap-guard-check.md`.
+
 Important:
 
 - critical pages may inherit an archetype, but they do not inherit the right to skip direct confirmation

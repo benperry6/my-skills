@@ -124,6 +124,7 @@ If the classification is uncertain, do not blindly skip. Default to at least a t
 
 For the detailed fingerprint rules, read `references/performance-fingerprint.md`.
 For the actual skip and inheritance policy, read `references/validation-policy.md`.
+For the actual cheap guard check protocol, read `references/cheap-guard-check.md`.
 
 ## Validation Inheritance Policy
 
@@ -184,6 +185,7 @@ A cheap guard check is not a full loop. It is a low-cost confirmation that the i
 If one of these critical-page conditions is true, do not conclude with pure inherited validation alone. Conclude with inherited validation plus mandatory guard check, or escalate further if the page looks noisy.
 
 Use the explicit page definitions in `references/validation-policy.md` instead of improvising what counts as a critical page.
+Use the execution protocol in `references/cheap-guard-check.md` instead of improvising what a guard check means.
 
 ## Canonical Optimization Loop
 

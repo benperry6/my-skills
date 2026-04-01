@@ -97,6 +97,7 @@ Le skill doit etre explicite sur la politique de skip:
 - quand un recheck cible est obligatoire
 - quand l'heritage de validation est autorise
 - quand un simple garde-fou leger devient obligatoire meme si l'heritage parait legitime
+- et ce que ce garde-fou leger doit faire exactement
 
 Sans cela, un skill de performance devient trop facilement soit trop laxiste, soit trop gourmand.
 
