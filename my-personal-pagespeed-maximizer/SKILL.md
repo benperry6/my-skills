@@ -11,6 +11,17 @@ This skill turns PageSpeed optimization into a repeatable operating model instea
 
 Its job is to decide whether a page needs a full optimization loop, a lighter targeted re-check, or no full rerun at all, then push the page as close as possible to its practical maximum on Google PageSpeed Insights under the approved product and UX constraints.
 
+## Required Inputs
+
+Before running the optimization loop, make sure these inputs exist or can be verified:
+
+- a real target URL, preview URL, or other directly testable page address
+- enough access to load the real page variant that matters
+- the current approval boundary for visible vs invisible changes
+- enough context to know whether this is a new archetype, a meaningful variant, or a content-only instance
+
+If the page cannot be measured for real, do not pretend to optimize it. Stop at diagnostics about what is missing.
+
 ## Use This Skill When
 
 Use this skill when the user wants any variation of:
@@ -26,7 +37,7 @@ Typical triggers:
 
 - a new landing page, pricing page, blog template, homepage, sales page, or other new page archetype
 - a major change to a page shell or above-the-fold composition
-- a change to hero media, embeds, scripts, fonts, or hydration behavior on an existing template
+- a change to hero media, embeds, scripts, fonts, or first-viewport runtime behavior on an existing template
 - a reported PageSpeed / Core Web Vitals regression
 - a request to determine whether a content-only page can inherit a previously validated template
 
@@ -53,6 +64,24 @@ Its default doctrine is:
 8. Keep only changes that improve the observed result. Revert or reject regressions even if the technique sounded correct in theory.
 9. Stop only when no material gain remains, the remaining gains require unapproved visual changes, or the remaining opportunities are blocked by hard product constraints.
 
+## Universality Rule
+
+This skill must stay framework-agnostic by default.
+
+It should reason in terms of:
+
+- LCP candidate
+- above-the-fold media
+- script and style loading
+- runtime work in the first viewport
+- third-party overhead
+- server delay and network path
+- layout stability
+
+It should not anchor its reasoning to one framework, one bundler, or one rendering model unless the current repo explicitly requires that translation.
+
+When a framework-specific idea becomes relevant, express the generic performance problem first, then map it to the local implementation details.
+
 ## Decision Gate Before The Optimization Loop
 
 Before touching code, classify the page into one of these three modes.
@@ -65,9 +94,9 @@ Common signals:
 
 - new page template or route shell
 - new above-the-fold component composition
-- different server/client rendering boundary in the first viewport
+- different first-viewport rendering model or runtime behavior
 - different LCP candidate type such as text hero vs image hero vs video hero
-- major refactor of layout, data fetching, hydration, or asset loading strategy
+- major refactor of layout, data fetching, runtime behavior, or asset loading strategy
 
 ### Mode B - Targeted Variant Re-check
 
@@ -89,7 +118,7 @@ Common signals:
 
 - same shell, same first viewport structure, same scripts, same font path, same LCP candidate type
 - only copy, metadata, internal links, taxonomy, or body content changed
-- no meaningful change to first-load assets or hydration work
+- no meaningful change to first-load assets or first-viewport runtime work
 
 If the classification is uncertain, do not blindly skip. Default to at least a targeted re-check.
 
@@ -123,7 +152,7 @@ Prefer interventions in roughly this order:
 1. LCP candidate visibility and delivery
 2. above-the-fold media and asset loading
 3. render-blocking fonts, CSS, and JS
-4. hydration and client-bundle pressure in the first viewport
+4. first-viewport runtime and bundle pressure
 5. third-party scripts and consent/runtime overhead
 6. data-fetching waterfalls and server delays
 7. CLS sources
@@ -154,7 +183,7 @@ After each meaningful change family:
 
 Important:
 
-- never assume `lazy loading`, `preconnect`, `font migration`, `dynamic import`, or any other common pattern is automatically beneficial
+- never assume lazy loading, preconnects, font-loading changes, code splitting, or any other common pattern is automatically beneficial
 - if the metric worsens, treat that as a failed hypothesis and undo or avoid institutionalizing it
 
 ### 6. Continue Until The Residual Opportunity Is Truly Small
@@ -203,8 +232,7 @@ When this skill finishes, it should provide:
 6. the remaining constraints or residual bottlenecks
 7. a final statement of whether the page is at its current practical ceiling
 
-## Framework-Specific Follow-Ons
+## Adjacent Skills
 
-- For React / Next.js performance work, also load `vercel-react-best-practices` when the page implementation lives in that ecosystem.
 - For broader technical SEO questions beyond performance, use `seo-audit`.
 - For tracking, consent, or vendor-script decisions that materially affect performance, `analytics-tracking` may be relevant as a companion skill.

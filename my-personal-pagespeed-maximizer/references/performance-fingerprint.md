@@ -37,9 +37,9 @@ When comparing a new page to an already validated page type, inspect these dimen
 - same image class, dimensions, compression, formats, and loading behavior or not
 - same video, embed, or iframe footprint or not
 
-5. Client/server rendering boundary
-- same amount of hydration in the first viewport or not
-- same client islands or interactive shells above the fold or not
+5. Rendering model and runtime
+- same amount of first-viewport runtime work or not
+- same interactive shell above the fold or not
 
 6. Third-party footprint
 - same trackers, consent tools, widgets, chat, ads, embeds, and experiments or not
@@ -70,7 +70,7 @@ Do not blindly inherit validation when any of these changed:
 - the hero image became significantly heavier
 - a video or embed entered the first viewport
 - a chat widget, ad tech, consent layer, experiment framework, or analytics tool changed
-- the first viewport moved from server-heavy to client-heavy rendering
+- the first viewport moved from low-runtime to high-runtime behavior
 - a new carousel, slider, map, or personalization layer was introduced
 - the likely LCP element changed type
 - the page introduced locale-specific assets or alternate font/runtime behavior

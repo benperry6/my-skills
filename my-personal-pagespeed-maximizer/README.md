@@ -15,6 +15,7 @@ Il impose une logique operationnelle:
 - pousser une page jusqu'a son plafond pratique, pas juste jusqu'au vert
 - proteger strictement le visuel et l'UX tant qu'aucun changement visible n'a ete explicitement approuve
 - capitaliser les apprentissages verifies plutot que les intuitions
+- raisonner en langage de performance observable, pas en langage de framework
 
 ## La these centrale
 
@@ -26,7 +27,7 @@ Autrement dit:
 
 - une nouvelle page "from scratch" merite souvent une vraie boucle complete
 - une page qui reutilise un template deja valide ne merite pas forcement une boucle complete
-- mais une simple "page sur le meme template" peut quand meme necessiter un rerun si elle change le hero, le LCP probable, les scripts tiers, les embeds, la hydration, ou tout autre levier perf-sensible
+- mais une simple "page sur le meme template" peut quand meme necessiter un rerun si elle change le hero, le LCP probable, les scripts tiers, les embeds, le comportement runtime du premier viewport, ou tout autre levier perf-sensible
 
 La vraie question n'est donc pas "est-ce une nouvelle page ?"
 
@@ -51,6 +52,31 @@ On suppose qu'un template deja optimise couvre automatiquement toutes ses varian
 
 Ce skill existe pour eviter ces deux erreurs.
 
+## Pourquoi il doit rester universel
+
+Sa these ne depend pas d'un framework particulier.
+
+Elle reste valable pour:
+
+- un site statique
+- un CMS
+- une SPA
+- un site SSR
+- une app hybride
+- une stack custom
+
+Le skill ne doit donc pas dire "fais du Next.js" ou "fais du React".
+
+Il doit dire:
+
+- quel element est probablement LCP
+- ce qui retarde son rendu
+- ce qui surcharge le premier viewport
+- ce qui casse la stabilite du layout
+- ce qui justifie une boucle complete, un recheck cible, ou un heritage de validation
+
+Ensuite seulement, l'agent qui l'utilise traduit cela dans la stack locale.
+
 ## Ce qu'il doit rendre systematique
 
 Le skill doit toujours:
@@ -70,6 +96,7 @@ Ce skill ne doit pas devenir:
 - une checklist de "best practices" recopiees sans verification
 - une machine a forcer du 100/100 aveuglement meme si cela casse l'UX ou le produit
 - un pretexte pour faire des changements visuels sans validation
+- une fiche de recettes liee a une seule stack
 
 Sa valeur n'est pas de citer des recettes.
 

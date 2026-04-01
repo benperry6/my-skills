@@ -18,7 +18,7 @@ When LCP is the main bottleneck, inspect:
 
 - whether the likely LCP element is hidden, animated late, faded in, or delayed on first paint
 - whether the hero image or hero media is oversized, badly compressed, badly prioritized, or served through a slow path
-- whether the first viewport depends on client hydration instead of server delivery
+- whether the first viewport depends on too much runtime work before the hero is really visible
 - whether data waterfalls delay the hero
 - whether render-blocking fonts, CSS, or JS postpone the first meaningful render
 
@@ -36,7 +36,7 @@ When responsiveness or blocking time is weak, inspect:
 
 - heavy client bundles
 - too much JavaScript above the fold
-- unnecessary hydration
+- unnecessary first-viewport runtime work
 - large third-party scripts loading too early
 - analytics, chat, consent, ads, or widgets competing for main-thread time
 - expensive synchronous work during first load
@@ -55,7 +55,7 @@ When CLS is weak, inspect:
 - unsized images, embeds, and iframes
 - injected banners, cookie surfaces, or dynamic bars
 - layout changes caused by late font swaps
-- components that change height after hydration
+- components that change height after runtime initialization
 - placeholders that do not match final dimensions
 
 ## Render-Blocking / Unused JavaScript / Network Choke Points
@@ -70,7 +70,7 @@ When PSI highlights render-blocking or wasted JS, inspect:
 
 Important caution:
 
-- techniques such as `next/font`, `preconnect`, `dynamic import`, or `lazy loading` are not universally positive
+- techniques such as preconnects, framework-level font changes, component code splitting, or lazy loading are not universally positive
 - a supposed best practice can improve one metric while degrading another
 
 ## Third-Party Overhead
