@@ -105,6 +105,14 @@ La regle doit etre:
 - sur une page critique, l'heritage peut rester autorise
 - mais il n'autorise jamais a sauter toute verification directe
 
+Et "page critique" ne doit plus etre laisse a l'interpretation libre:
+
+- homepage
+- money page
+- launch page
+- page a trafic important attendu
+- page a cout d'echec eleve
+
 ## Ce qu'il ne doit pas devenir
 
 Ce skill ne doit pas devenir:

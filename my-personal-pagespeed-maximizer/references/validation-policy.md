@@ -73,6 +73,79 @@ Instead, evaluate recency by change exposure:
 
 Recency here is structural, not just calendar-based.
 
+## Critical Page Definitions
+
+Apply these definitions literally unless the user explicitly overrides them.
+
+### Critical Page
+
+A page is critical if at least one of these is true:
+
+- it is a homepage or main market entry page
+- it is a money page
+- it is a launch page
+- it is expected to absorb meaningful paid, PR, partner, or campaign traffic soon
+- its failure would create a high business cost relative to an ordinary content page
+
+If there is real doubt, bias toward classifying the page as critical until clarified.
+
+### Money Page
+
+A money page is any page whose primary purpose is to create, capture, or accelerate revenue.
+
+Typical examples:
+
+- pricing pages
+- sales pages
+- signup or trial-start pages
+- checkout or payment pages
+- lead-capture pages tied to revenue intent
+- demo request pages
+- upgrade, paywall, or plan-selection pages
+- high-intent comparison or product pages that sit close to conversion
+
+Not every product page is automatically a money page.
+The test is whether the page is materially part of the revenue path, not whether it merely mentions the product.
+
+### Homepage
+
+A homepage is the main default entry page for the site, product, or market segment being optimized.
+
+This usually includes:
+
+- the root homepage
+- a locale homepage that functions as a primary market entry page
+- a campaign-specific replacement homepage if it temporarily becomes the main entry experience
+
+### Launch Page
+
+A launch page is any page expected to receive concentrated attention in a bounded launch window.
+
+Typical examples:
+
+- a page tied to a product launch
+- a page tied to a PR push
+- a page tied to an email blast
+- a page tied to a paid campaign rollout
+- a page tied to a partnership or affiliate push
+
+The test is not the URL name.
+The test is whether the page is about to receive concentrated important traffic where a missed regression would be costly.
+
+### High Failure Cost
+
+A page has high failure cost when a performance regression would cause outsized business harm compared with an ordinary informational page.
+
+Typical examples:
+
+- revenue loss
+- lead loss
+- launch underperformance
+- wasted paid spend
+- broken first impression on a flagship entry page
+
+When high failure cost is plausible, default toward guard checking rather than pure inheritance.
+
 ## Critical Pages And Cheap Guard Check
 
 Even when inherited validation is otherwise allowed, a cheap guard check is mandatory by default for:
