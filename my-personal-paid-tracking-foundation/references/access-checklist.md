@@ -43,6 +43,7 @@ Use this file when moving from recommendation to implementation.
 - When the canonical Search Console property should cover the whole domain, prefer a domain property (`INET_DOMAIN`) with authoritative-DNS `TXT` verification instead of relying on a narrower URL-prefix property
 - Before any browser action on a third-party platform, verify whether a CLI/API/MCP path exists and actually works with a real probe from the current machine and credentials
 - If that programmatic path exists and works, use it as the mandatory default and treat browser work as disallowed unless the path is absent, broken, or insufficient for the exact operation
+- If the user explicitly names a browser for one task, account, or vendor flow, keep that browser choice scoped to that exact need; do not carry it over to unrelated later steps, and otherwise fall back to the global default-browser rule
 - If an existing browser tab is reused to inspect vendor state, refresh it before concluding anything from its contents unless that tab was opened by the current investigation moments ago
 - If Google browser fallback is ever needed, verify the active top-right Google account email against the explicitly approved Google email before doing anything; never use `authuser=*`, `login_hint`, or account-index numbers as identity proof in a multi-account Google browser session
 - If Google Ads returns `DEVELOPER_TOKEN_PROHIBITED` on a previously used project, prefer one new clean unified project and retire the blocked project after migration instead of normalizing two active Google M2M projects
