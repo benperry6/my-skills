@@ -153,7 +153,8 @@ Current Google phase-3 proof map for this skill:
 - `GA4 Data API realtime verification`: proven in real behavior after enabling `analyticsdata.googleapis.com`; on `2026-03-31`, `properties/530524280:runRealtimeReport` returned `rowCount=1` for a Measurement Protocol event named `manual_realtime_api_server_probe`, so this API is now part of the verified CLI debugging path for GA4 ingestion
 - `Search Console ↔ GA4`: proven in real behavior, but the verified path here is Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource
 - brand-new `Google Ads` account creation purely by API: tested again in real behavior after Google approved `Basic` access for developer token `a_kKFXFmtzuc4UMoXad6Xg` on manager `9095768791`; the write no longer fails on `DEVELOPER_TOKEN_NOT_APPROVED`, but a real `createCustomerClient` validate-only probe now fails with `CustomerError.CREATION_DENIED_INELIGIBLE_MCC` and Google's explicit message that the manager must first be linked to a Google Ads account that has spent more than `$1,000` and has a history of policy compliance before it can create new child accounts
-- `Bing Webmaster Tools` site ownership and API-key reuse: proven in real behavior; the verified path here used vendor UI plus DNS `CNAME` to establish ownership, then a generated API key succeeded with `GetUserSites`, `GetSiteRoles`, and `SubmitUrl`
+- existing `Google Ads` client-account invitation to the MCC: proven from the manager side in real behavior with `CustomerClientLinkService.create`, which created pending link `customers/9095768791/customerClientLinks/1427894407~6549032536`; proven from the client-account browser side that the pending request surfaces in `Managers` UI for `[AA] ProStrike Micka_1` / `142-789-4407` under visible email `prostrike.mp@gmail.com`; a real click on `Grant access` reached Google's internal `ManagerLinkRequestService.Mutate` endpoint but was blocked by `AUTH_ERROR_REAUTH_PROOF_TOKEN_REQUIRED`, so treat client-side acceptance as a separate guarded step even after the pending invite is present
+- `Bing Webmaster Tools` site ownership and API-key reuse: proven in real behavior; the verified path here used vendor UI plus DNS `CNAME` to establish ownership, then a generated API key succeeded with `GetUserSites`, `GetSiteRoles`, and `SubmitUrl`; in the verified/public Bing surfaces here the owned site is still represented as a URL entry (`https://...`), not as a Google Search Console-style domain-property object
 
 Canonical Search Console ownership rule for this skill:
 
@@ -181,6 +182,9 @@ Important verified constraint:
 - In the verified Google phase-3 flow here, `sites.add` also added `https://lostnfound-app.com/` as a URL-prefix Search Console property after the domain property was already owned
 - In the verified Google phase-3 flow here, the Search Console association to GA4 was created successfully in Analytics UI after checking the public Analytics Admin API discovery surface and finding no public Search Console association resource there
 - In the verified Google phase-3 follow-up here, the Google Ads API Center later showed `Basic` access for developer token `a_kKFXFmtzuc4UMoXad6Xg`, and a rerun of `createCustomerClient` via the official google-ads client reached Google Ads successfully but failed with `CustomerError.CREATION_DENIED_INELIGIBLE_MCC`; treat new-account creation as blocked by manager eligibility now, not by developer-token approval
+- In the verified Google follow-up here, an older linked client account `[AA] ProStrike Micka_1` / `142-789-4407` had an existing `ENABLED` campaign (`PMAX ITE` / `21390751580`); once billing and advertiser-verification repair work progressed far enough for the account to serve again, that campaign resumed real spend (`$5.52` on `2026-04-01`, `$8.237458` on `2026-04-02`) and Google charged a real `$10.00` `Threshold charge`; therefore, any Google Ads account-unblock flow must query campaign states first, warn the user if any campaign is already `ENABLED`, and pause unwanted campaigns before continuing unless the user explicitly wants them to resume
+- In the verified Google follow-up here, the local `.google-ads.yaml` refresh token later became revoked, but the approved `gcloud auth application-default` identity for `benjaminperry06@gmail.com` still worked; using the official Google Ads Python client with `use_application_default_credentials: true` restored a clean CLI probe path without reminting a user refresh token first
+- In the verified Google follow-up here, after linking `[AA] ProStrike Micka_1` / `142-789-4407` to MCC `9095768791`, repairing it to an `ENABLED` and billable state, and rerunning the probe through ADC, `CustomerService.createCustomerClient` finally succeeded and created child account `customers/6528887954`
 - GTM does not require a separate product-link resource in the verified flow here; its role is container and tag deployment plus later codebase wiring rather than a GA-style admin association object
 - `sites.add` can create a Search Console domain-property entry, but that alone does not prove owner-level verification; in the verified real behavior here, `sc-domain:lostnfound-app.com` appeared as `siteUnverifiedUser` until authoritative-DNS TXT ownership is actually present
 - The Site Verification API can generate the required DNS TXT token and can fail cleanly when the token is not yet present; do not claim domain ownership verification before the insert succeeds or the property resolves as a true owner afterwards
@@ -195,6 +199,7 @@ Phase-boundary reminder for Google:
 Documented but not yet verified end-to-end in real behavior here:
 
 - A manager eligibility repair path that satisfies Google's `CREATION_DENIED_INELIGIBLE_MCC` requirement for fresh Google Ads account creation
+- A reusable acceptance flow for a pending Google Ads MCC invitation when the client-side UI blocks the confirm step with `AUTH_ERROR_REAUTH_PROOF_TOKEN_REQUIRED`
 
 ### Bing Webmaster Tools
 
@@ -209,6 +214,7 @@ Verified ownership path used successfully here:
 Important verified constraints:
 
 - In the currently verified Bing manual flow here, whole-site ownership for `https://lostnfound-app.com/` was completed with a vendor-issued `CNAME`, not a `TXT`
+- In the currently verified/public Bing surfaces here, the owned object is still a site URL (`https://lostnfound-app.com/`); no public Bing equivalent to a Search Console `sc-domain:` property has yet been verified
 - Successful verification was confirmed by the transition from the onboarding grid to the site dashboard and the post-verification message that Bing was still processing reports
 - In the currently verified Bing API flow here, a generated API key succeeded against `GetUserSites`, `GetSiteRoles`, and `SubmitUrl` for `https://lostnfound-app.com/`, so Bing phase 3 is now reusable from CLI/API with an API key even though ownership itself still began in UI
 

@@ -29,6 +29,8 @@ The strongest available proof wins, but weaker layers are still useful for debug
 3. Use server-side relay inspection when the architecture includes first-party collection or forwarding
 4. Treat absence of one weak signal as inconclusive if a stronger signal already proves success
 
+If browser verification reuses an already-open vendor tab, refresh that tab before reading its state unless it was opened by the current investigation just moments earlier.
+
 ## Google — verified runbook
 
 ### Browser/runtime proof
