@@ -36,7 +36,9 @@ Use this file when moving from recommendation to implementation.
 - In the current verified workflow, once `createCustomerClient` succeeded, the clean Google Ads structure was to rename the manager account to an umbrella/admin name (`ProStrike MCC (Manager Account)`) and rename the created child account to the business name (`Lost N Found`); treat that as the default pattern for future businesses instead of leaving the MCC named after a single project
 - In the current verified workflow, once the dedicated project client account `6528887954` / `Lost N Found` existed, the clean Google setup was to move the GA4 `googleAdsLinks` association off the MCC and onto that client account directly; the earlier GA4 → MCC link was only a bootstrap shortcut, not the final per-business architecture
 - In the current verified workflow, after the GA4 → Google Ads link was moved from MCC `9095768791` to client `6528887954`, the imported `purchase` conversion reappeared on the client account itself, was switched from `HIDDEN` to `ENABLED`, and was made `primary_for_goal=true`; the client account then reported `CONVERSION_TRACKING_MANAGED_BY_SELF`
+- In the current verified workflow, once the dedicated client-account import was canonical, the obsolete MCC-level hidden `purchase` conversion was removed successfully via `ConversionActionOperation.remove`; do not leave a stale MCC conversion behind if the business now has its own direct GA4 → client-account link
 - In the current verified workflow, a disabled legacy account such as `3174846691` may remain inaccessible by API and therefore not be immediately removable or renameable programmatically; if the platform does not allow clean removal, mark it clearly as legacy and hide or unlink it where the live UI actually permits
+- In the current verified workflow, the dedicated client account `6528887954` still showed `0` clicks / `0` impressions / `0` conversions while the paused verification campaign remained the only campaign; treat the first true Google Ads-side conversion proof as deferred until intentional paid traffic exists and has had time to appear in Ads reporting
 - OAuth authorization for Tag Manager, Analytics Admin, Search Console, and Site Verification APIs if API-first setup is expected
 - Google Auth Platform publication status should be checked before relying on durable external-user refresh tokens; prefer production over testing when appropriate
 - If Google Auth Platform is still in `Test` mode, add the explicitly approved Google email as a test user before retrying ADC bootstrap
@@ -138,6 +140,7 @@ Treat this as "verified maximum for the current tested flow", not as a promise t
 - CLI/API verification access for vendor-side ingestion when the vendor exposes it
 - A place to persist the verified runtime/debug state, such as `~/.config/tracking-skills/access-bootstrap.json`
 - For Google when GA4 is in scope, keep `analyticsdata.googleapis.com` available so `runRealtimeReport` can be used as a CLI-side ingestion check instead of relying only on browser DevTools
+- For Google Ads, decide explicitly whether paid traffic is intentionally live now; if not, treat Ads-reporting proof as a deferred post-launch check rather than a current blocker
 - For Meta browser-side verification, expect the loader and config requests to be easier to observe than the final beacon in some headless runs; if the final `facebook.com/tr` request is not visible in a specific headless probe, treat that result as inconclusive unless a stronger counter-proof exists
 
 ## Consent / legal

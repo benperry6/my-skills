@@ -59,6 +59,20 @@ Verified example from the current flow:
 
 - on `2026-03-31`, a Measurement Protocol event named `manual_realtime_api_server_probe` returned `rowCount=1` via `properties/530524280:runRealtimeReport`
 
+### Google Ads reporting proof is a separate layer
+
+Important verified distinction in the current flow:
+
+- GA4 ingestion proof does not automatically mean Google Ads reporting will already show a conversion on the dedicated client account
+- after the clean direct link to client account `6528887954` was established, the client account still showed `0` clicks / `0` impressions / `0` conversions while its verification campaign remained `PAUSED`
+- that state is not a broken foundation; it simply means no real paid Google Ads traffic has been launched yet
+
+Use this rule:
+
+1. if the business is not intentionally spending on Google Ads yet, mark Google Ads reporting proof as `deferred`
+2. only expect a first true Google Ads-side conversion proof after a real paid click can lead to a qualifying conversion and enough reporting delay has passed
+3. do not hold the foundation open forever just because a paused pre-launch account has not yet produced Ads-attributed conversions
+
 ### Current Google limitation that remains real
 
 - `Search Console ↔ GA4` association is still `UI-only` in the verified flow here because no public Analytics Admin API resource was found for that association

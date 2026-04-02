@@ -52,6 +52,8 @@ The canonical bias is:
 16. For Google, the clean default is `one business = one dedicated Google Ads client account created under the MCC`; when that dedicated client account exists, link the business GA4 property directly to that client account and import that business's conversions there, rather than leaving the GA4 → Google Ads link on the umbrella MCC by default; reserve MCC-level Google Ads linking for real multi-account / cross-account conversion use cases
 17. Browser-choice instructions are scoped to the exact task, account, or vendor flow they were given for; do not silently persist "use Chrome" or any similar browser override to unrelated later work, and when that scoped task ends revert to the global default browser rule unless the user explicitly broadens the scope
 18. When browser fallback is in use and an existing vendor tab is being reused, refresh that tab before drawing conclusions from its state; only skip the refresh when the page was opened by the current investigation moments ago and has not had time to go stale yet
+19. For Google, separate "GA4 ingestion is proven" from "Google Ads reporting now shows attributed conversions on the dedicated client account"; the latter depends on real paid clicks plus reporting delay, so if paid traffic is intentionally not live yet mark that proof as deferred rather than calling the Google foundation incomplete
+20. Treat launch-only paid media work as outside the baseline foundation unless the user explicitly wants to start spend now; this includes activating billing for delivery, building live audiences, creating ad sets / ads / creatives, and launching real campaigns
 
 ## Canonical Phase Architecture
 
