@@ -33,6 +33,8 @@ Use this file when moving from recommendation to implementation.
 - In the current verified workflow, account-repair work on an older Google Ads client can restart live spend if that client already contains `ENABLED` campaigns; before restoring billing or advertiser verification, query campaign statuses first, warn the user explicitly, and pause any unwanted `ENABLED` campaigns before continuing if the user does not want spend to resume automatically
 - In the current verified workflow, the local Google Ads YAML refresh token can become revoked even while `gcloud auth application-default` remains valid; when that happens, prefer the official ADC path with `use_application_default_credentials: true` for fresh CLI probes instead of treating the Google Ads API path as blocked
 - In the current verified workflow, after linking an active compliant spend-bearing client account to MCC `9095768791`, bringing that client back to an enabled/billable state, and then rerunning the probe with ADC, `createCustomerClient` succeeded and created child account `6528887954`
+- In the current verified workflow, once `createCustomerClient` succeeded, the clean Google Ads structure was to rename the manager account to an umbrella/admin name (`ProStrike MCC (Manager Account)`) and rename the created child account to the business name (`Lost N Found`); treat that as the default pattern for future businesses instead of leaving the MCC named after a single project
+- In the current verified workflow, a disabled legacy account such as `3174846691` may remain inaccessible by API and therefore not be immediately removable or renameable programmatically; if the platform does not allow clean removal, mark it clearly as legacy and hide or unlink it where the live UI actually permits
 - OAuth authorization for Tag Manager, Analytics Admin, Search Console, and Site Verification APIs if API-first setup is expected
 - Google Auth Platform publication status should be checked before relying on durable external-user refresh tokens; prefer production over testing when appropriate
 - If Google Auth Platform is still in `Test` mode, add the explicitly approved Google email as a test user before retrying ADC bootstrap
@@ -53,6 +55,7 @@ Use this file when moving from recommendation to implementation.
 - Search Console property identifier
 - Google Ads customer ID
 - Google Ads manager customer ID when applicable
+- Canonical Google Ads manager-account name vs dedicated project client-account name when multiple businesses will live under one umbrella MCC
 - GA4 API secret only if Measurement Protocol is used
 
 ## Bing Webmaster Tools

@@ -48,7 +48,8 @@ The canonical bias is:
 12. For owned-domain site projects, add Bing Webmaster Tools to the recommended search baseline, prefer verification at the authoritative DNS host when the goal is whole-domain ownership rather than a narrower page-level method, and record the actual live vendor method exposed in the real flow; the registrar and the DNS host may differ, and in the currently verified `lostnfound-app.com` flow here the registrar is `Hostinger` while the authoritative DNS host is `Cloudflare`; in the currently verified Bing flow here the method is `CNAME`, the site object itself is URL-based (`https://...`), and no Google Search Console-style `sc-domain:` equivalent has yet been verified in public Bing surfaces here
 13. If Google ever requires browser fallback, treat Google account identity as a blocking precondition: verify the active top-right Google account email before touching the page, treat `authuser=*`, `login_hint`, account indexes, or similar session hints as unstable non-authoritative metadata or routing hints rather than proof of identity, prefer opening Google support/vendor flows from an already verified Google service context for the approved account when possible, and stop immediately if the visible browser email is not the explicitly approved Google account
 14. Before unblocking, reactivating, or repairing billing / verification on an existing Google Ads client account, inspect current campaign states programmatically when possible; if any campaign is already `ENABLED`, warn the user explicitly that restoring account serving can cause immediate spend and threshold billing to resume, then either pause those campaigns first or get explicit approval to let them continue
-15. When browser fallback is in use and an existing vendor tab is being reused, refresh that tab before drawing conclusions from its state; only skip the refresh when the page was opened by the current investigation moments ago and has not had time to go stale yet
+15. For Google Ads and similar multi-account structures, use umbrella/admin naming for manager accounts and business-specific naming for the dedicated client accounts; do not name the MCC after a single project, rename temporary probe accounts immediately if they will be kept, and if a legacy or disabled account cannot be removed, mark it explicitly as legacy so it does not look like the active project account
+16. When browser fallback is in use and an existing vendor tab is being reused, refresh that tab before drawing conclusions from its state; only skip the refresh when the page was opened by the current investigation moments ago and has not had time to go stale yet
 
 ## Canonical Phase Architecture
 
@@ -203,6 +204,7 @@ Separate clearly:
 - what the agent can design, wire, and verify
 - what the user must provide as accounts, IDs, tokens, admin access, or OAuth/developer authorization
 - what canonical naming should be used for vendor access objects and where a shortened variant is required by platform limits
+- for Google Ads-like hierarchies, what the canonical manager-account name, project client-account name, and legacy-account labeling strategy should be before any assets are created
 
 ### Step 7 — Update the verified learning base
 
