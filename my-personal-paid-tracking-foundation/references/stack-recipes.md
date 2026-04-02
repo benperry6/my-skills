@@ -28,7 +28,7 @@ Use these recipes after classifying the archetype and maturity stage.
 
 - SaaS often converts after several touches, so identity and key lifecycle events matter more than brute-force event volume
 - The Google cluster should be wired early as one system: traffic measurement, search visibility, and future paid-search activation should not be treated as separate late-phase concerns
-- Search visibility should not rely on Google alone; Bing Webmaster Tools should start collecting domain-level signals early too, and its domain-level verification flow is now proven in real behavior here
+- Search visibility should not rely on Google alone; Bing Webmaster Tools should start collecting whole-site signals early too, and its verified ownership flow here is URL-based plus authoritative-DNS `CNAME`
 - This stack starts audience building and historical signal collection without paying for enterprise infrastructure too early
 
 ### Do not default to
@@ -61,7 +61,7 @@ Use these recipes after classifying the archetype and maturity stage.
 
 - E-commerce benefits quickly from browser-side commerce signals and retargeting
 - The Google cluster should be wired early as one system: analytics, search visibility, and paid-search readiness reinforce each other from the start
-- Search visibility should not rely on Google alone; Bing Webmaster Tools should start collecting domain-level signals early too, and its domain-level verification flow is now proven in real behavior here
+- Search visibility should not rely on Google alone; Bing Webmaster Tools should start collecting whole-site signals early too, and its verified ownership flow here is URL-based plus authoritative-DNS `CNAME`
 - Reliability matters most around checkout and purchase, not every single page interaction
 
 ## Recipe C — Pre-revenue Affiliate / Content Site
@@ -88,7 +88,7 @@ Use these recipes after classifying the archetype and maturity stage.
 
 - Affiliate/content businesses often do not own the final sale event
 - The Google cluster should be wired early as one system: analytics, search performance, and future search monetization should not start from zero later
-- Search visibility should not rely on Google alone; Bing Webmaster Tools should start collecting domain-level signals early too, and its domain-level verification flow is now proven in real behavior here
+- Search visibility should not rely on Google alone; Bing Webmaster Tools should start collecting whole-site signals early too, and its verified ownership flow here is URL-based plus authoritative-DNS `CNAME`
 - The real leverage is clean first-party click and audience data, not over-engineering fake downstream attribution
 
 ## Recipe D — Early traction
