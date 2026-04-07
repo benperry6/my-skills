@@ -59,7 +59,54 @@ Adapt the target-language community explicitly when relevant:
 6. If the source contains culture-bound references that would feel foreign or confusing in the target locale, adapt them.
 7. If the source contains business-specific entities that must remain unchanged, keep them unchanged.
 
-## 5. Verification pass is mandatory
+## 5. Orchestration at scale
+
+For one or two target locales, a single execution pass can be enough.
+
+For many target locales, do not run one giant sequential session and do not launch every locale in parallel at once.
+
+Reusable orchestration:
+
+1. One orchestrator agent defines:
+   - the source-of-truth catalog
+   - protected invariants
+   - glossary and naming rules
+   - verification rules
+2. Run a pilot batch on 3 to 4 representative locales.
+3. Review the pilot results.
+4. Adjust the translation brief if needed.
+5. Scale through small parallel batches of about 4 to 6 locales per wave.
+6. Run one final global verification pass across all produced catalogs and the codebase.
+
+Why this pattern:
+
+- long single-agent translation runs drift in tone and rigor as context grows
+- all-at-once parallelism makes inconsistencies harder to catch and fix
+- a pilot batch lets the system fail small before it fails wide
+
+## 6. Independent evaluation is mandatory
+
+Do not let the same agent or same session both generate and quality-check the translated catalogs.
+
+For qualitative review, use an independent evaluator agent.
+
+Preferred order:
+
+1. a different engine
+2. otherwise a different agent/session with a clean slate
+
+The evaluator should review:
+
+- naturalness and immediacy for the target language community
+- cultural adaptation quality
+- tone consistency with the product
+- obvious awkward literal translation artifacts
+- structural integrity when needed
+
+This separation exists because long-running generators tend to become lenient about their own output.
+Use generator/evaluator separation as a reusable harness rule, not as an ad hoc preference.
+
+## 7. Verification pass is mandatory
 
 After translation, run a verification pass.
 
@@ -82,7 +129,7 @@ The hardcoded-string audit should inspect likely leak zones such as:
 - support/chatbot/help surfaces
 - API error messages
 
-## 6. Expected outcome
+## 8. Expected outcome
 
 A successful run of this mode produces:
 
@@ -93,7 +140,7 @@ A successful run of this mode produces:
   - translation complete
   - locale declared but not fully production-ready
 
-## 7. Lost N Found-derived rule worth reusing
+## 9. Lost N Found-derived rule worth reusing
 
 When a project uses one core source catalog as the canonical reference, keep that pattern explicit.
 

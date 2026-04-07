@@ -32,8 +32,12 @@ Use this before shipping multilingual behavior.
 - [ ] one reference locale is structurally complete
 - [ ] other core locales stay iso-structured with the reference locale
 - [ ] target catalogs are translated natively for their target language communities, not literally
+- [ ] large multi-locale rollout uses an orchestrator, not isolated ad hoc runs
+- [ ] a pilot batch is validated before mass translation
+- [ ] large rollout is executed in small parallel batches, not one giant all-at-once wave
 - [ ] missing keys are auditable
 - [ ] placeholder and ICU parity are auditable
+- [ ] catalog review is done by an independent evaluator agent, not by the generator itself
 - [ ] hardcoded user-facing strings outside the message system are audited
 - [ ] declared locales and translation-ready locales are tracked separately
 

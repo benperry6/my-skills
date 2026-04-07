@@ -2,7 +2,7 @@
 name: my-personal-internationalization
 description: "[My Personal Skill] Use when a website or app needs its international architecture designed, audited, or fixed, whether the product already exists or is still being built. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, translated emails or API errors, market/currency by locale, hreflang, x-default, canonical alternates, localized sitemaps, or deciding which languages/markets to launch first. This skill is doctrine-first and stack-agnostic: it turns proven international product decisions into reusable rules before adapting them to the current stack."
 metadata:
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # My Personal Internationalization
@@ -115,7 +115,7 @@ Read only what the current task needs:
 - `references/market-selection.md`
   - The reusable strategy for selecting languages/markets, merging or splitting variants, and simplifying launch currencies.
 - `references/catalog-translation.md`
-  - The reusable workflow for native, culturally adapted locale-catalog translation plus post-translation verification.
+  - The reusable workflow for native, culturally adapted locale-catalog translation, scaling orchestration, and post-translation verification.
 - `references/implementation-checklist.md`
   - The practical build/audit checklist before shipping multilingual behavior.
 
@@ -274,6 +274,10 @@ That default should drive:
 When the task is to translate locale catalogs:
 
 - start from one structurally complete reference locale
+- use one orchestrator to define invariants and verification before parallelizing
+- validate the workflow on a small pilot batch before full rollout
+- scale through small parallel batches, not one giant all-at-once run
+- use an independent evaluator agent for quality review, never the same agent/session that produced the translations
 - translate toward the target locale as a native speaker, not literally
 - adapt formulations, references, and cultural codes so they feel natural to the target community
 - preserve keys, placeholders, ICU syntax, and structural parity
