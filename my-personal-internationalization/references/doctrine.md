@@ -118,7 +118,72 @@ Worse:
 
 The user-facing wording should be simple even if the underlying persistence differs by auth state.
 
-## 9. Language and market are separate layers
+## 9. Reuse one validated mismatch-banner UX pattern by default
+
+Unless a project already validated a better alternative, reuse the same core mismatch-banner pattern across projects instead of redesigning it from zero each time.
+
+### Copy structure
+
+Use:
+
+- a compact title
+- then a short two-sentence subtitle
+
+The subtitle should always do both:
+
+- say what language the current page is in
+- say why the product suggests another language
+
+Recommended reusable wording shape:
+
+- title: `Switch to {preferredLanguageName}?`
+- browser subtitle: `This page is in {currentLanguageName}. Your browser prefers {preferredLanguageName}.`
+- account subtitle: `This page is in {currentLanguageName}. Your account is set to {preferredLanguageName}.`
+- guest-preference subtitle: `This page is in {currentLanguageName}. You usually browse in {preferredLanguageName}.`
+- fallback subtitle: `This page is in {currentLanguageName}. Also available in {preferredLanguageName}.`
+- primary CTA: `Switch to {preferredLanguageName}`
+- secondary CTA: `Stay in {currentLanguageName}`
+
+Important:
+
+- localize `currentLanguageName` and `preferredLanguageName` into the banner's own display language
+- prefer short, direct wording over explanatory prose
+- do not expose storage jargon such as profile, cookie, localStorage, or device preference in the CTA labels unless the project explicitly wants that
+
+### Visual hierarchy
+
+Default reusable hierarchy:
+
+- primary filled CTA = switch to suggested language
+- secondary ghost/outline CTA = stay in current language
+- close/X = independent dismiss control
+
+Do not style the secondary action like a plain text link if it creates a durable preference.
+If both main actions are product-significant, both should read as buttons, even if only one is visually dominant.
+
+### Responsive layout
+
+Default reusable layout:
+
+- close button at top-right, independent from action row
+- text block first
+- action block second
+- mobile: stack actions vertically
+- desktop: horizontal layout is acceptable if space allows
+
+### Visual restraint
+
+Use language markers, such as flag emojis or locale chips, with restraint.
+
+Recommended default:
+
+- allowed inside CTA labels
+- optional in subtitle
+- avoid repeating them in title, subtitle, and buttons all at once
+
+The goal is immediate comprehension, not decorative multilingual noise.
+
+## 10. Language and market are separate layers
 
 Translation is one layer.
 Market behavior is another.
@@ -133,7 +198,7 @@ Locale-dependent market behavior may include:
 
 Keep these rules in central helpers/configuration, not buried inside translation strings.
 
-## 10. Translation catalogs are infrastructure
+## 11. Translation catalogs are infrastructure
 
 Reusable rules:
 
@@ -156,7 +221,7 @@ When the task is to translate catalogs, treat it as architecture work, not as st
 The translation pass should always be followed by a codebase audit for remaining hardcoded user-facing strings.
 For multi-locale translation campaigns, separate generator and evaluator responsibilities so the same agent does not grade its own output.
 
-## 11. Locale support and translation readiness are separate
+## 12. Locale support and translation readiness are separate
 
 A product may declare many locale codes for routing and future growth while only a subset is translation-ready today.
 
@@ -168,7 +233,7 @@ This enables:
 - safe prelaunch development
 - clean public SEO exposure decisions
 
-## 12. Fallback behavior must be deliberate
+## 13. Fallback behavior must be deliberate
 
 If a locale exists in routing but its content is not fully translated, the product must choose deliberately between:
 
@@ -177,7 +242,7 @@ If a locale exists in routing but its content is not fully translated, the produ
 
 Do not let this happen accidentally.
 
-## 13. Formatting must be centralized
+## 14. Formatting must be centralized
 
 Use shared helpers for:
 
@@ -189,7 +254,7 @@ Use shared helpers for:
 
 Do not let every surface improvise its own formatting logic.
 
-## 14. Billing invariants survive language changes
+## 15. Billing invariants survive language changes
 
 Critical rule for subscription products:
 
@@ -199,7 +264,7 @@ Critical rule for subscription products:
 
 Localized display and billing state are related, but they are not interchangeable.
 
-## 15. Price display must come from verified sources
+## 16. Price display must come from verified sources
 
 Do not infer localized pricing from:
 
@@ -213,7 +278,7 @@ Use:
 - central locale -> market -> formatting helpers
 - tests or verification scripts when billing complexity grows
 
-## 16. Composite locale parsing is not optional
+## 17. Composite locale parsing is not optional
 
 Locale negotiation must handle tags like:
 
@@ -223,7 +288,7 @@ Locale negotiation must handle tags like:
 
 Use progressive fallback from the most specific tag to less specific supported tags.
 
-## 17. Internationalization is not UI-only
+## 18. Internationalization is not UI-only
 
 Every user-facing surface should reuse effective-locale logic:
 
@@ -238,7 +303,7 @@ Every user-facing surface should reuse effective-locale logic:
 
 If one of these surfaces is still hardcoded, the architecture is incomplete.
 
-## 18. International SEO needs factories, not repetition
+## 19. International SEO needs factories, not repetition
 
 The scalable pattern is:
 
@@ -254,7 +319,7 @@ This guarantees:
 - a valid `x-default`
 - real localized sitemap entries
 
-## 19. Base URL must be centralized
+## 20. Base URL must be centralized
 
 Do not scatter the production domain across:
 

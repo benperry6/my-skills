@@ -61,10 +61,16 @@ Use this before shipping multilingual behavior.
 - [ ] mismatch logic works for authenticated users
 - [ ] mismatch logic works for anonymous users
 - [ ] banner copy is shown in the most understandable locale available
+- [ ] title is compact and user-simple
+- [ ] subtitle explicitly names both the current page language and the preferred-language signal
+- [ ] language names are localized into the banner's own display language
 - [ ] primary CTA creates a durable preference
 - [ ] secondary CTA creates a durable preference
+- [ ] secondary CTA is visually button-like, not just a plain text link, when it creates a durable preference
+- [ ] visual hierarchy is primary filled CTA + secondary ghost CTA + independent close button
 - [ ] close/X is session-only dismiss
 - [ ] dismiss is scoped by locale pair
+- [ ] mobile layout stacks actions vertically by default
 
 ## Cross-Surface Coverage
 

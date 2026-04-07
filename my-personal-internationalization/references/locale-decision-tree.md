@@ -62,6 +62,50 @@ Recommended locale-pair key:
 - `preferredLocale -> currentLocale`
 - example: `it -> fr`
 
+## C2. Default reusable banner pattern
+
+Unless the project already validated a different pattern, reuse this default:
+
+### Title
+
+- `Switch to {preferredLanguageName}?`
+
+### Subtitle
+
+Use two short sentences:
+
+- sentence 1 = current page language
+- sentence 2 = preferred-language signal
+
+Reusable defaults:
+
+- browser: `This page is in {currentLanguageName}. Your browser prefers {preferredLanguageName}.`
+- account: `This page is in {currentLanguageName}. Your account is set to {preferredLanguageName}.`
+- guest cookie: `This page is in {currentLanguageName}. You usually browse in {preferredLanguageName}.`
+- fallback: `This page is in {currentLanguageName}. Also available in {preferredLanguageName}.`
+
+Important:
+
+- localize both language names into the banner's own display language
+- keep the wording short and direct
+- do not put storage semantics inside the main CTA labels
+
+### CTA hierarchy
+
+- primary filled CTA: `Switch to {preferredLanguageName}`
+- secondary ghost CTA: `Stay in {currentLanguageName}`
+- independent close/X button
+
+If `Stay in {currentLanguageName}` creates a durable preference, it should still look like a real button, not a plain text link.
+
+### Layout defaults
+
+- close button at top-right
+- text above actions on mobile
+- actions stacked vertically on mobile
+- desktop may use a horizontal action row
+- use visual language markers such as flags sparingly; default to CTA-only if needed
+
 ## D. What each user action means
 
 ### `Switch to {preferredLanguage}`

@@ -2,7 +2,7 @@
 name: my-personal-internationalization
 description: "[My Personal Skill] Use when a website or app needs its international architecture designed, audited, or fixed, whether the product already exists or is still being built. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, translated emails or API errors, market/currency by locale, hreflang, x-default, canonical alternates, localized sitemaps, or deciding which languages/markets to launch first. This skill is doctrine-first and stack-agnostic: it turns proven international product decisions into reusable rules before adapting them to the current stack."
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 ---
 
 # My Personal Internationalization
@@ -227,6 +227,16 @@ Default interpretation:
 - `Switch to X` = durable preference for `X`
 - `Stay in Y` = durable preference for `Y`
 - `Close` = session-only, pair-scoped dismiss
+
+Unless the project already validated a different pattern, reuse the default mismatch-banner doctrine from `references/locale-decision-tree.md`:
+
+- compact title
+- short two-sentence subtitle
+- language names localized into the banner language
+- primary CTA for switching
+- secondary ghost CTA for staying
+- independent close button
+- stacked mobile actions by default
 
 ### 6. Audit or design locale-aware navigation
 
