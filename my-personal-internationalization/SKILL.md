@@ -16,6 +16,36 @@ Its job is to turn already-proven multilingual product decisions into reusable d
 This is not a translation-copy skill.
 It is an international architecture skill.
 
+## Why This Skill Exists
+
+For broad-addressable products, internationalization is not just a UX or content concern.
+It is also a growth lever.
+
+The operational thesis behind this skill is:
+
+- if a strong page already performs in one language
+- and its localized equivalents are implemented correctly
+- and those equivalents are tied together with the right international SEO signals
+
+then those translated pages often gain international search visibility faster than isolated pages launched from zero.
+
+This makes internationalization strategically useful because it can:
+
+- expand reachable search demand without reinventing each page from scratch
+- help search engines serve the right language version to the right users
+- reduce multilingual duplication confusion
+- create a reusable rollout system across multiple businesses
+
+Important:
+
+- treat this as a strong SEO operating doctrine and growth heuristic
+- do not present it as a guaranteed Google promise of literal signal transfer
+
+This is why this skill covers both:
+
+- international architecture
+- and international market/language rollout strategy
+
 Use it both:
 
 - when building a multilingual site or app from scratch

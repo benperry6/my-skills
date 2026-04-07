@@ -43,6 +43,14 @@ Operationally, this skill assumes the following:
 - correct localized equivalents plus correct `hreflang` help search engines understand that multiple pages are the right language versions of the same underlying topic
 - this often helps translated pages gain international visibility faster than if they were launched in total isolation
 
+Why this matters:
+
+- it gives multilingual rollout a business reason beyond "being translated"
+- it lets a business reuse strong pages across more markets
+- it can accelerate international discovery relative to launching unrelated pages from zero
+- it helps search engines show the correct language version rather than the wrong locale
+- it reduces duplicate-content ambiguity across translated equivalents
+
 Treat that as a practical SEO growth heuristic and rollout doctrine.
 Do not present it as a guaranteed "authority transfer" promise from Google.
 
