@@ -261,7 +261,58 @@ Do not scatter the production domain across:
 
 Resolve the base URL centrally from configuration or runtime context.
 
-## 20. Locale logic must be tested as business logic
+## 20. Default business bias: one market = one language = one currency
+
+Unless the project explicitly says otherwise, assume:
+
+- one market
+- one language
+- one currency
+
+This means language switching normally also changes:
+
+- display currency
+- symbol or acronym
+- decimal formatting
+- localized market wording
+
+This is an operational default, not a universal law.
+
+## 21. Broad-addressable products should choose locales strategically
+
+For products with broad international demand, language coverage should be chosen from:
+
+- real search-demand logic
+- acquisition logic
+- business fit
+
+Do not translate randomly.
+
+Use a prioritized launch shortlist and adapt it when the business is narrower or different.
+
+## 22. Merge variants by default, split only when justified
+
+Regional language variants should be merged by default unless a split materially improves:
+
+- search demand coverage
+- SERP relevance
+- CTR
+- conversion
+- legal or market fit
+
+If in doubt, merge.
+
+## 23. Launch-stage currency complexity should stay low by default
+
+If the project does not explicitly require many billing currencies at launch, prefer a simplified display-currency strategy first.
+
+The reusable default is:
+
+- keep launch display currencies to a minimal set
+- centralize locale -> market -> currency mapping
+- defer extra billing-currency complexity until there is a proven business reason
+
+## 24. Locale logic must be tested as business logic
 
 At minimum, test:
 

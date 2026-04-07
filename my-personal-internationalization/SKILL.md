@@ -1,6 +1,6 @@
 ---
 name: my-personal-internationalization
-description: "[My Personal Skill] Use when a website or app needs its international architecture designed, audited, or fixed, whether the product already exists or is still being built. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, translated emails or API errors, market/currency by locale, hreflang, x-default, canonical alternates, or localized sitemaps. This skill is doctrine-first and stack-agnostic: it turns proven international product decisions into reusable rules before adapting them to the current stack."
+description: "[My Personal Skill] Use when a website or app needs its international architecture designed, audited, or fixed, whether the product already exists or is still being built. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, translated emails or API errors, market/currency by locale, hreflang, x-default, canonical alternates, localized sitemaps, or deciding which languages/markets to launch first. This skill is doctrine-first and stack-agnostic: it turns proven international product decisions into reusable rules before adapting them to the current stack."
 metadata:
   version: 1.0.0
 ---
@@ -11,7 +11,7 @@ metadata:
 
 This skill exists to avoid rediscovering international architecture from zero on every project.
 
-Its job is to turn already-proven multilingual product decisions into reusable doctrine, then adapt that doctrine to the current project's stack, routes, auth model, market model, and SEO surface.
+Its job is to turn already-proven multilingual product decisions into reusable doctrine, then adapt that doctrine to the current project's stack, routes, auth model, market model, international SEO strategy, and rollout scope.
 
 This is not a translation-copy skill.
 It is an international architecture skill.
@@ -32,6 +32,8 @@ Use this skill when the user asks any variation of:
 - "Handle browser language vs explicit locale URLs"
 - "Implement or review a locale mismatch banner"
 - "Separate language from currency / market"
+- "Decide which languages or markets to translate first"
+- "Use hreflang strategy to scale SEO internationally"
 - "Make emails / API errors / shared pages respect the user's language"
 - "Review hreflang / x-default / localized sitemap"
 - "Turn our i18n doctrine into a reusable implementation"
@@ -59,9 +61,11 @@ These are the default rules unless the project has already made an explicit cont
 9. Language and market are separate concerns.
 10. Formatting, pricing, and billing rules must be centralized.
 11. Language changes must not silently mutate active billing currency or subscription price IDs.
-12. Internationalization must cover UI and non-UI surfaces.
-13. International SEO must be centralized and generated from shared rules.
-14. Locale logic must be tested like business logic.
+12. Unless the project explicitly says otherwise, assume `one market = one language = one currency`.
+13. Internationalization must cover UI and non-UI surfaces.
+14. International SEO must be centralized and generated from shared rules.
+15. Language and market rollout should be strategic, not arbitrary.
+16. Locale logic must be tested like business logic.
 
 ## Reference Map
 
@@ -73,6 +77,8 @@ Read only what the current task needs:
   - The decision tree for `current locale`, `preferred locale`, banner logic, and durable preference behavior.
 - `references/international-seo.md`
   - The reusable doctrine for canonical, `hreflang`, `x-default`, route registries, and localized sitemaps.
+- `references/market-selection.md`
+  - The reusable strategy for selecting languages/markets, merging or splitting variants, and simplifying launch currencies.
 - `references/implementation-checklist.md`
   - The practical build/audit checklist before shipping multilingual behavior.
 
@@ -95,10 +101,12 @@ Before producing a doctrine, audit, or implementation plan, establish these assu
 - which locale codes are supported
 - which locales are actually translated and production-ready
 - whether localized URLs already matter for acquisition
+- whether the project is broad-addressable or inherently local/narrow-market
 - whether the product has authenticated user state
 - whether guest traffic needs language persistence
 - whether locale and market are coupled or separate
 - whether pricing or billing changes by market
+- whether launch-stage currency simplification is desirable
 - which user-facing non-UI surfaces exist
 - which multilingual SEO surfaces exist or should exist
 
@@ -110,6 +118,7 @@ If some of these materially affect the recommendation and are still unknown, say
 
 Determine whether the task is primarily about:
 
+- market/language prioritization
 - locale routing
 - language persistence
 - mismatch and suggestion UX
@@ -121,7 +130,19 @@ Determine whether the task is primarily about:
 
 Many projects need several of these at once. Name them explicitly.
 
-### 2. Build the international state model
+### 2. Classify the international growth model
+
+Determine whether the product is:
+
+- single-market and intentionally local
+- regional/multi-market but selective
+- broad-addressable and a good candidate for international SEO scaling
+
+If the product is broad-addressable, treat language selection as a growth decision, not just a translation task.
+
+If the product is narrow by regulation, fulfillment, language community, or offer fit, say so explicitly and avoid defaulting to unnecessary multilingual expansion.
+
+### 3. Build the international state model
 
 Define at minimum:
 
@@ -135,7 +156,7 @@ Define at minimum:
 
 Never let a project operate on a single vague "locale" variable if those concepts are actually distinct.
 
-### 3. Audit the resolution hierarchy
+### 4. Audit the resolution hierarchy
 
 Check or define the full precedence order.
 
@@ -151,7 +172,7 @@ Default reusable order:
 Use this to drive defaults, redirects when no locale is explicit, and cross-surface delivery.
 Do not use it to forcibly override an explicit localized URL.
 
-### 4. Audit or design the suggestion layer
+### 5. Audit or design the suggestion layer
 
 If `preferred locale !== current locale`, the safe default is a non-blocking suggestion banner, not a forced redirect.
 
@@ -169,7 +190,7 @@ Default interpretation:
 - `Stay in Y` = durable preference for `Y`
 - `Close` = session-only, pair-scoped dismiss
 
-### 5. Audit or design locale-aware navigation
+### 6. Audit or design locale-aware navigation
 
 Check that the project preserves locale correctly across:
 
@@ -183,7 +204,7 @@ Check that the project preserves locale correctly across:
 
 The user should land on the localized equivalent of the same place, not the homepage, unless no equivalent exists.
 
-### 6. Audit or design translation and market layers
+### 7. Audit or design translation and market layers
 
 Check that the project has:
 
@@ -195,7 +216,31 @@ Check that the project has:
 
 Translation content must not become the place where pricing, currency, or subscription invariants are hidden.
 
-### 7. Audit cross-surface international consistency
+If the project does not say otherwise, assume the operational default is:
+
+- one market
+- one language
+- one display currency
+
+That default should drive:
+
+- language selector behavior
+- currency symbol/acronym
+- decimal and number formatting
+- legal/market wording
+
+### 8. Audit or design language and market prioritization
+
+If the product is broad-addressable, choose languages/markets strategically rather than translating randomly.
+
+When doing this:
+
+- use `references/market-selection.md`
+- start from search demand and acquisition logic
+- merge regional variants by default unless splitting materially improves SEO or conversion
+- simplify launch-stage currency complexity unless the business case justifies more
+
+### 9. Audit cross-surface international consistency
 
 Verify that locale logic is reused across:
 
@@ -211,7 +256,7 @@ Verify that locale logic is reused across:
 
 Any user-facing surface that ignores locale weakens the architecture.
 
-### 8. Audit or design international SEO
+### 10. Audit or design international SEO
 
 When SEO is in scope, ensure:
 
@@ -225,7 +270,7 @@ When SEO is in scope, ensure:
 
 Use `references/international-seo.md`.
 
-### 9. Define the rollout and testing strategy
+### 11. Define the rollout and testing strategy
 
 Treat locale behavior like business logic.
 
@@ -251,6 +296,7 @@ Depending on the user's request, produce one or more of:
 - a reusable implementation plan adapted to the project's stack
 - a list of gaps and risks
 - a multilingual SEO plan
+- a prioritized locale/market launch recommendation
 - a test plan for locale behavior
 
 ## Anti-Patterns
@@ -262,6 +308,8 @@ Flag these explicitly when found:
 - using a routing cookie as if it were an explicit language choice
 - coupling translation strings and billing logic
 - hardcoding currency symbols or prices in localized surfaces
+- translating into many locales without a clear acquisition or market rationale
+- splitting regional variants prematurely when a merged language would serve the same demand
 - implementing multilingual pages while leaving emails, APIs, or shared pages unlocalized
 - hand-writing `hreflang` clusters page by page
 - putting `#fragment` URLs in a sitemap

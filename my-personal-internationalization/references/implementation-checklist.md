@@ -7,6 +7,7 @@ Use this before shipping multilingual behavior.
 - [ ] `current locale` and `preferred locale` are modeled separately
 - [ ] explicit localized URL is never silently overridden
 - [ ] locale resolution hierarchy is documented
+- [ ] the business scope is classified as local-only, selective multi-market, or broad-addressable
 - [ ] fallback policy for missing translations is explicit
 - [ ] public SEO policy for incomplete locales is explicit
 
@@ -17,6 +18,14 @@ Use this before shipping multilingual behavior.
 - [ ] default locale is defined in one place
 - [ ] display labels and localized language names are centralized
 - [ ] market attributes tied to locales are centralized
+
+## Market and Locale Selection
+
+- [ ] the language/market scope is chosen intentionally, not arbitrarily
+- [ ] a broad-addressable product uses a prioritized locale shortlist or an explicit alternative
+- [ ] regional variants are merged by default unless a split is materially justified
+- [ ] any split variants are justified by SEO, conversion, legal, or market-fit reasons
+- [ ] the project states whether it follows the default bias `one market = one language = one currency`
 
 ## Translation Assets
 
@@ -69,6 +78,8 @@ Use this before shipping multilingual behavior.
 
 ## Pricing and Billing
 
+- [ ] launch-stage display-currency complexity is intentionally scoped
+- [ ] if launch simplification is desired, the project explicitly chooses a reduced display-currency set
 - [ ] locale changes do not silently mutate active subscription billing currency
 - [ ] locale changes do not silently mutate active subscription price IDs
 - [ ] localized prices come from verified mappings or source data
