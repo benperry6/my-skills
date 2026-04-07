@@ -139,7 +139,9 @@ Reusable rules:
 
 - maintain one structurally complete reference locale
 - keep other key locales iso-structured with that reference
+- translate target catalogs natively for the target language community, not literally
 - audit missing keys
+- audit placeholder and ICU parity
 - eliminate hardcoded user-facing strings outside the message system
 
 Hardcoded strings often survive in:
@@ -149,6 +151,9 @@ Hardcoded strings often survive in:
 - emails
 - shared pages
 - chatbot flows
+
+When the task is to translate catalogs, treat it as architecture work, not as standalone copywriting.
+The translation pass should always be followed by a codebase audit for remaining hardcoded user-facing strings.
 
 ## 11. Locale support and translation readiness are separate
 

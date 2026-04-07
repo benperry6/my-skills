@@ -31,7 +31,9 @@ Use this before shipping multilingual behavior.
 
 - [ ] one reference locale is structurally complete
 - [ ] other core locales stay iso-structured with the reference locale
+- [ ] target catalogs are translated natively for their target language communities, not literally
 - [ ] missing keys are auditable
+- [ ] placeholder and ICU parity are auditable
 - [ ] hardcoded user-facing strings outside the message system are audited
 - [ ] declared locales and translation-ready locales are tracked separately
 

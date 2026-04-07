@@ -2,7 +2,7 @@
 name: my-personal-internationalization
 description: "[My Personal Skill] Use when a website or app needs its international architecture designed, audited, or fixed, whether the product already exists or is still being built. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, translated emails or API errors, market/currency by locale, hreflang, x-default, canonical alternates, localized sitemaps, or deciding which languages/markets to launch first. This skill is doctrine-first and stack-agnostic: it turns proven international product decisions into reusable rules before adapting them to the current stack."
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # My Personal Internationalization
@@ -13,8 +13,9 @@ This skill exists to avoid rediscovering international architecture from zero on
 
 Its job is to turn already-proven multilingual product decisions into reusable doctrine, then adapt that doctrine to the current project's stack, routes, auth model, market model, international SEO strategy, and rollout scope.
 
-This is not a translation-copy skill.
-It is an international architecture skill.
+This is an international architecture skill first.
+
+It also includes a dedicated catalog-translation mode when translation work is part of that architecture.
 
 ## Why This Skill Exists
 
@@ -67,12 +68,16 @@ Use this skill when the user asks any variation of:
 - "Make emails / API errors / shared pages respect the user's language"
 - "Review hreflang / x-default / localized sitemap"
 - "Turn our i18n doctrine into a reusable implementation"
+- "Translate `fr.json` into `en.json` like a native speaker"
+- "Translate a locale catalog naturally, not literally"
+- "Audit missing locale keys or hardcoded strings after translation"
 
 Do not use this skill for:
 
-- pure translation work with no architecture question
 - copywriting in another language
 - generic SEO work that is not materially about multilingual behavior
+
+Pure catalog translation is still valid here when it is coupled to locale architecture, locale rollout, or translation-quality verification.
 
 ## Core Doctrine
 
@@ -109,6 +114,8 @@ Read only what the current task needs:
   - The reusable doctrine for canonical, `hreflang`, `x-default`, route registries, and localized sitemaps.
 - `references/market-selection.md`
   - The reusable strategy for selecting languages/markets, merging or splitting variants, and simplifying launch currencies.
+- `references/catalog-translation.md`
+  - The reusable workflow for native, culturally adapted locale-catalog translation plus post-translation verification.
 - `references/implementation-checklist.md`
   - The practical build/audit checklist before shipping multilingual behavior.
 
@@ -153,6 +160,7 @@ Determine whether the task is primarily about:
 - language persistence
 - mismatch and suggestion UX
 - translation asset structure
+- catalog translation execution
 - locale vs market separation
 - cross-surface language consistency
 - international SEO
@@ -244,6 +252,8 @@ Check that the project has:
 - explicit translation completeness rules
 - explicit fallback behavior for missing translations
 
+If the task is about translating locale catalogs, read `references/catalog-translation.md` and apply that workflow instead of inventing a one-off prompt.
+
 Translation content must not become the place where pricing, currency, or subscription invariants are hidden.
 
 If the project does not say otherwise, assume the operational default is:
@@ -258,6 +268,16 @@ That default should drive:
 - currency symbol/acronym
 - decimal and number formatting
 - legal/market wording
+
+### 8. Execute catalog translation when needed
+
+When the task is to translate locale catalogs:
+
+- start from one structurally complete reference locale
+- translate toward the target locale as a native speaker, not literally
+- adapt formulations, references, and cultural codes so they feel natural to the target community
+- preserve keys, placeholders, ICU syntax, and structural parity
+- finish with a verification pass for missing keys, extra keys, placeholder parity, and hardcoded user-facing strings outside the message system
 
 ### 8. Audit or design language and market prioritization
 
