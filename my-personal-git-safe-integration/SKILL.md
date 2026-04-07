@@ -1,6 +1,6 @@
 ---
-name: git-safe-integration
-description: Use when a repository deploys from a production branch such as main, and code changes must be integrated safely. Enforces branch-per-task, PR, minimum verification, squash merge, branch cleanup, and post-merge sync.
+name: my-personal-git-safe-integration
+description: "[My Personal Skill] Use when a repository deploys from a production branch such as main, and code changes must be integrated safely. Enforces branch-per-task, PR, minimum verification, squash merge, branch cleanup, and post-merge sync."
 ---
 
 # Git Safe Integration
