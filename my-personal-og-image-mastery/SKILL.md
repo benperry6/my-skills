@@ -1,9 +1,14 @@
 ---
 name: my-personal-og-image-mastery
 description: "[My Personal Skill] Complete guide for creating high-CTR Open Graph images combining technical specs AND marketing strategy. Covers both HOW to build og:images (dimensions, meta tags, safe zones, platforms) AND WHAT to put in them (copywriting, visual psychology, headline formulas, A/B testing). Use when: creating og:image, designing social sharing image, optimizing link preview, improving social CTR, writing og:image copy, reviewing og:image design, planning social card strategy. Triggers: og image, og:image, open graph, social sharing image, twitter card, link preview, social card, social preview, share image, meta image"
+metadata:
+  ownership: confirmed-personal
+  provenance: "Built in-house from ChatGPT Deep Research dated 2026-03-04."
 ---
 
 # OG Image Mastery
+
+Confirmed personal skill. Source pack: ChatGPT Deep Research — 2026-03-04.
 
 Create og:images that are technically correct AND psychologically optimized for clicks.
 

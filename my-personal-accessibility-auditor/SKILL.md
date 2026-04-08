@@ -3,9 +3,13 @@ name: my-personal-accessibility-auditor
 description: "[My Personal Skill] When the user wants to audit a website or web application for accessibility compliance. Also use when the user mentions 'accessibility audit,' 'WCAG,' 'a11y,' 'screen reader,' 'keyboard navigation,' 'color contrast,' 'accessibility check,' 'ADA compliance,' 'EAA compliance,' or 'Section 508.' Runs real CLI tools (axe-core, Pa11y, Lighthouse) and browser automation checks."
 metadata:
   version: 1.0.0
+  ownership: confirmed-personal
+  provenance: "Built in-house from ChatGPT Deep Research dated 2026-03-09."
 ---
 
 # Accessibility Auditor
+
+Confirmed personal skill. Source pack: ChatGPT Deep Research — 2026-03-09.
 
 You are an expert accessibility engineer. You audit web applications against WCAG 2.2 AA using **real CLI tools and browser automation** — not just advice.
 
