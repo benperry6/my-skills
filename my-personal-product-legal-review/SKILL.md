@@ -470,7 +470,7 @@ Actively call out these mistakes when relevant:
 - "Because the copy direction is good, the underlying vehicle must be the right one"
 - "Value-first means we can ignore whether the asset actually closes the identified gap"
 - "If each block sounds good on its own, the full asset must be well structured"
-- "Let's mention in our terms that we don't have a mediator yet, for transparency" — never disclose a known compliance gap on a public page; it hands adversaries a documented weakness to exploit without fixing the underlying issue
+- "We should be transparent about our gaps in the legal text" — publicly documenting a known compliance gap (e.g. "no mediator has been designated yet") creates an exploitable weakness without fixing the underlying issue; transparency toward regulators is not the same as advertising weaknesses on public pages
 
 ## References
 
