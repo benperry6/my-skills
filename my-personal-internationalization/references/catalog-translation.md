@@ -82,7 +82,13 @@ Reusable orchestration:
 6. After each translation wave, launch one independent evaluator subagent per locale in that wave.
    - do not assign multiple locales to the same evaluator subagent
    - do not let a locale be evaluated by the same agent/session that generated it
-7. Run one final global verification pass across all produced catalogs and the codebase.
+7. If an evaluator finds issues, route that locale into a separate correction loop.
+   - the evaluator reports findings
+   - the orchestrator decides whether the locale passes or needs correction
+   - a translator or dedicated fixer subagent corrects the locale
+   - the corrected locale is re-evaluated when the findings are material
+   - the evaluator does not fix the locale it reviewed
+8. Run one final global verification pass across all produced catalogs and the codebase.
 
 Why this pattern:
 
@@ -114,11 +120,29 @@ Execution rule:
 - one evaluator subagent reviews one locale at a time
 - evaluators may run in parallel across a wave
 - do not batch many locales into one evaluator if the goal is precise language-by-language judgment
+- evaluators report findings; they do not directly edit the locale they reviewed
 
 This separation exists because long-running generators tend to become lenient about their own output.
 Use generator/evaluator separation as a reusable harness rule, not as an ad hoc preference.
 
-## 7. Verification pass is mandatory
+## 7. Correction loop is separate
+
+If evaluation finds problems, do not let the evaluator become the fixer for that same locale.
+
+Reusable loop:
+
+1. evaluator produces findings
+2. orchestrator triages them
+3. translator/fixer agent applies corrections
+4. locale returns to evaluation if needed
+
+This preserves the harness separation:
+
+- translator/fixer generates
+- evaluator evaluates
+- orchestrator routes
+
+## 8. Verification pass is mandatory
 
 After translation, run a verification pass.
 
@@ -141,7 +165,7 @@ The hardcoded-string audit should inspect likely leak zones such as:
 - support/chatbot/help surfaces
 - API error messages
 
-## 8. Expected outcome
+## 9. Expected outcome
 
 A successful run of this mode produces:
 
@@ -152,7 +176,7 @@ A successful run of this mode produces:
   - translation complete
   - locale declared but not fully production-ready
 
-## 9. Lost N Found-derived rule worth reusing
+## 10. Lost N Found-derived rule worth reusing
 
 When a project uses one core source catalog as the canonical reference, keep that pattern explicit.
 

@@ -312,6 +312,7 @@ Hardcoded strings often survive in:
 When the task is to translate catalogs, treat it as architecture work, not as standalone copywriting.
 The translation pass should always be followed by a codebase audit for remaining hardcoded user-facing strings.
 For multi-locale translation campaigns, separate generator and evaluator responsibilities so the same agent does not grade its own output.
+If evaluation finds issues, route the locale through a separate correction loop rather than having the evaluator patch its own findings.
 
 ## 13. Locale support and translation readiness are separate
 
