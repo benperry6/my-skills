@@ -45,6 +45,7 @@ web-design-guidelines/
 # OS files
 .DS_Store
 my-personal-pdf-stealth-edit/scripts/__pycache__/
+my-personal-internationalization/scripts/__pycache__/
 =======
 # Dependencies
 node_modules/
