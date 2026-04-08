@@ -2,7 +2,7 @@
 name: my-personal-internationalization
 description: "[My Personal Skill] Use when a website or app needs its international architecture designed, audited, or fixed, whether the product already exists or is still being built. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, translated emails or API errors, market/currency by locale, hreflang, x-default, canonical alternates, localized sitemaps, or deciding which languages/markets to launch first. This skill is doctrine-first and stack-agnostic: it turns proven international product decisions into reusable rules before adapting them to the current stack."
 metadata:
-  version: 1.3.0
+  version: 1.4.0
 ---
 
 # My Personal Internationalization
@@ -93,14 +93,15 @@ These are the default rules unless the project has already made an explicit cont
 6. Guests need explicit preference handling too, not just authenticated users.
 7. Never confuse a technical navigation cookie with an explicit language preference.
 8. Locale switching must preserve path, query string, and hash whenever possible.
-9. Language and market are separate concerns.
-10. Formatting, pricing, and billing rules must be centralized.
-11. Language changes must not silently mutate active billing currency or subscription price IDs.
-12. Unless the project explicitly says otherwise, assume `one market = one language = one currency`.
-13. Internationalization must cover UI and non-UI surfaces.
-14. International SEO must be centralized and generated from shared rules.
-15. Language and market rollout should be strategic, not arbitrary.
-16. Locale logic must be tested like business logic.
+9. The explicit locale selector should be driven by one central ordered locale registry, not ad hoc page-level lists.
+10. Language and market are separate concerns.
+11. Formatting, pricing, and billing rules must be centralized.
+12. Language changes must not silently mutate active billing currency or subscription price IDs.
+13. Unless the project explicitly says otherwise, assume `one market = one language = one currency`.
+14. Internationalization must cover UI and non-UI surfaces.
+15. International SEO must be centralized and generated from shared rules.
+16. Language and market rollout should be strategic, not arbitrary.
+17. Locale logic must be tested like business logic.
 
 ## Reference Map
 
@@ -251,6 +252,16 @@ Check that the project preserves locale correctly across:
 - language switching
 
 The user should land on the localized equivalent of the same place, not the homepage, unless no equivalent exists.
+
+Also audit or define the explicit locale selector itself:
+
+- where it lives
+- how the current locale is displayed
+- how locale options are ordered
+- whether flags are shown
+- whether currency/market labels are shown when relevant
+- how the selector persists an explicit choice
+- how the selector indicates the currently active locale
 
 ### 7. Audit or design translation and market layers
 

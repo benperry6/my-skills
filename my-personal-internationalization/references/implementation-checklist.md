@@ -55,6 +55,14 @@ Use this before shipping multilingual behavior.
 - [ ] internal links preserve locale
 - [ ] programmatic navigation preserves locale
 - [ ] language switching preserves path, query string, and hash
+- [ ] one explicit locale selector exists if the product needs manual language control
+- [ ] the selector is driven by a central locale registry, not a page-level hardcoded list
+- [ ] selector option ordering is intentional (business/acquisition/rollout priority or an explicit alternative), not accidental
+- [ ] native language names are used in the selector unless the project explicitly chooses otherwise
+- [ ] flags/language markers are used only when they materially improve scanning
+- [ ] currency or market labels are shown next to locale labels when locale and market are materially linked and that context helps users
+- [ ] current locale is clearly identifiable in the selector trigger and menu/list
+- [ ] selector clicks persist a durable explicit preference
 
 ## Mismatch Banner
 

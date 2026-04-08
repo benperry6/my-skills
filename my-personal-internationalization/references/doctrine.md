@@ -183,7 +183,99 @@ Recommended default:
 
 The goal is immediate comprehension, not decorative multilingual noise.
 
-## 10. Language and market are separate layers
+## 10. Reuse one validated explicit locale-selector pattern by default
+
+Unless a project already validated a better alternative, the explicit locale selector should follow one reusable doctrine rather than being rebuilt ad hoc on each project.
+
+### Purpose
+
+The locale selector is not the mismatch banner.
+
+- the mismatch banner is a proactive suggestion layer
+- the locale selector is the explicit control layer
+
+Its job is to let the user intentionally choose a language without losing context.
+
+### Data source
+
+Drive the selector from one central ordered locale registry.
+
+That registry should define at minimum:
+
+- locale code
+- user-facing language name
+- optional reference name in another admin language if the project needs it internally
+- optional flag or language marker
+- optional market/currency metadata when locale and market are materially linked
+
+Do not hand-maintain selector lists in page components.
+
+### Ordering
+
+Do not default blindly to alphabetical ordering if the product has real acquisition or market priorities.
+
+Preferred default:
+
+- order locales by business priority, acquisition priority, or rollout priority
+
+For search-led international products, this can legitimately mean:
+
+- ordering locales by the project's prioritized search-market opportunity list rather than by alphabet
+
+The selector is a business surface, not just a dictionary.
+
+### Labels
+
+Recommended default:
+
+- show native language names in the selector itself
+- optionally show a flag or language marker next to each option when it materially improves scanning
+- if locale and market are linked in the product, show the associated currency or market label next to the language when that helps set user expectations
+
+Default pattern:
+
+- trigger/current selection: `flag + native language name + currency when relevant`
+- dropdown/list row: `flag + native language name`, with `currency or market label` aligned as secondary information when relevant
+
+Important:
+
+- flags are helpful defaults, not universal obligations
+- do not force flags if they would create political ambiguity or poor fit for the product
+- if currencies are shown, they should come from central locale/market config, not from duplicated UI strings
+
+### Interaction semantics
+
+The explicit locale selector is a manual preference action.
+
+Therefore:
+
+- authenticated user selects locale -> persist durable manual preference on profile
+- anonymous user selects locale -> persist durable explicit preference in guest preference storage
+
+Do not treat explicit selector usage as a temporary or session-only hint.
+
+### Navigation behavior
+
+On explicit language switch:
+
+- preserve equivalent path
+- preserve query string
+- preserve hash
+- preserve any deliberate tracking/state parameters the product has decided to keep
+
+Never send the user back to the homepage by default if an equivalent localized route exists.
+
+### Active-state clarity
+
+The selector should make the current locale clearly visible.
+
+Recommended defaults:
+
+- current locale shown in the closed trigger
+- current locale highlighted in the open menu/list
+- secondary market metadata visually de-emphasized relative to the active language label
+
+## 11. Language and market are separate layers
 
 Translation is one layer.
 Market behavior is another.
@@ -198,7 +290,7 @@ Locale-dependent market behavior may include:
 
 Keep these rules in central helpers/configuration, not buried inside translation strings.
 
-## 11. Translation catalogs are infrastructure
+## 12. Translation catalogs are infrastructure
 
 Reusable rules:
 
@@ -221,7 +313,7 @@ When the task is to translate catalogs, treat it as architecture work, not as st
 The translation pass should always be followed by a codebase audit for remaining hardcoded user-facing strings.
 For multi-locale translation campaigns, separate generator and evaluator responsibilities so the same agent does not grade its own output.
 
-## 12. Locale support and translation readiness are separate
+## 13. Locale support and translation readiness are separate
 
 A product may declare many locale codes for routing and future growth while only a subset is translation-ready today.
 
@@ -233,7 +325,7 @@ This enables:
 - safe prelaunch development
 - clean public SEO exposure decisions
 
-## 13. Fallback behavior must be deliberate
+## 14. Fallback behavior must be deliberate
 
 If a locale exists in routing but its content is not fully translated, the product must choose deliberately between:
 
@@ -242,7 +334,7 @@ If a locale exists in routing but its content is not fully translated, the produ
 
 Do not let this happen accidentally.
 
-## 14. Formatting must be centralized
+## 15. Formatting must be centralized
 
 Use shared helpers for:
 
@@ -254,7 +346,7 @@ Use shared helpers for:
 
 Do not let every surface improvise its own formatting logic.
 
-## 15. Billing invariants survive language changes
+## 16. Billing invariants survive language changes
 
 Critical rule for subscription products:
 
@@ -264,7 +356,7 @@ Critical rule for subscription products:
 
 Localized display and billing state are related, but they are not interchangeable.
 
-## 16. Price display must come from verified sources
+## 17. Price display must come from verified sources
 
 Do not infer localized pricing from:
 
@@ -278,7 +370,7 @@ Use:
 - central locale -> market -> formatting helpers
 - tests or verification scripts when billing complexity grows
 
-## 17. Composite locale parsing is not optional
+## 18. Composite locale parsing is not optional
 
 Locale negotiation must handle tags like:
 
@@ -288,7 +380,7 @@ Locale negotiation must handle tags like:
 
 Use progressive fallback from the most specific tag to less specific supported tags.
 
-## 18. Internationalization is not UI-only
+## 19. Internationalization is not UI-only
 
 Every user-facing surface should reuse effective-locale logic:
 
@@ -303,7 +395,7 @@ Every user-facing surface should reuse effective-locale logic:
 
 If one of these surfaces is still hardcoded, the architecture is incomplete.
 
-## 19. International SEO needs factories, not repetition
+## 20. International SEO needs factories, not repetition
 
 The scalable pattern is:
 
@@ -319,7 +411,7 @@ This guarantees:
 - a valid `x-default`
 - real localized sitemap entries
 
-## 20. Base URL must be centralized
+## 21. Base URL must be centralized
 
 Do not scatter the production domain across:
 

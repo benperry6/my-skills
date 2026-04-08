@@ -141,3 +141,55 @@ When switching locale, preserve:
 - any deliberate tracking or state parameters the product wants to retain
 
 Do not send the user back to the homepage unless there is no valid localized equivalent.
+
+## F. Explicit locale selector doctrine
+
+Use the selector as the durable, intentional language-control surface.
+
+### F1. What the selector should show
+
+Recommended default:
+
+- current locale in the closed trigger
+- native language names in the selector list
+- optional flag or language marker when it materially improves scanning
+- optional currency or market label when locale and market are materially linked in the product
+
+Reusable default pattern:
+
+- trigger: `flag + native language name + currency/market label when relevant`
+- menu row: `flag + native language name`, with secondary `currency/market label` when relevant
+
+### F2. How the selector should order options
+
+Default rule:
+
+- order options from one central locale registry
+- prefer business-priority or acquisition-priority ordering over blind alphabetical ordering when the product has a real rollout strategy
+
+For search-led products, ordering by the prioritized search-market opportunity list is a valid default.
+
+### F3. What a selector click means
+
+An explicit selector click means:
+
+- "set my language preference to this locale"
+
+Persist it durably:
+
+- authenticated: profile/manual preference
+- anonymous: explicit guest preference storage
+
+Do not treat explicit selector usage as session-only behavior.
+
+### F4. What navigation should do after a selector click
+
+After a selector click:
+
+- navigate to the equivalent localized route
+- preserve path
+- preserve query string
+- preserve hash
+- preserve any deliberate tracking/state parameters the product wants to keep
+
+Only fall back to the homepage if there is no valid localized equivalent.
