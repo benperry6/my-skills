@@ -2,7 +2,7 @@
 name: my-personal-internationalization
 description: "[My Personal Skill] Use when a website or app needs its international architecture designed, audited, or fixed, whether the product already exists or is still being built. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, translated emails or API errors, market/currency by locale, hreflang, x-default, canonical alternates, localized sitemaps, or deciding which languages/markets to launch first. This skill is doctrine-first and stack-agnostic: it turns proven international product decisions into reusable rules before adapting them to the current stack."
 metadata:
-  version: 1.4.0
+  version: 1.5.0
 ---
 
 # My Personal Internationalization
@@ -16,6 +16,11 @@ Its job is to turn already-proven multilingual product decisions into reusable d
 This is an international architecture skill first.
 
 It also includes a dedicated catalog-translation mode when translation work is part of that architecture.
+
+This skill serves two primary use cases:
+
+- design or audit multilingual architecture
+- run a multilingual catalog-translation campaign correctly
 
 ## Why This Skill Exists
 
@@ -117,6 +122,8 @@ Read only what the current task needs:
   - The reusable strategy for selecting languages/markets, merging or splitting variants, and simplifying launch currencies.
 - `references/catalog-translation.md`
   - The reusable workflow for native, culturally adapted locale-catalog translation, scaling orchestration, and post-translation verification.
+- `references/evaluator-rubric.md`
+  - The acceptance rule for independent locale evaluators, including what stops or continues the correction loop.
 - `references/implementation-checklist.md`
   - The practical build/audit checklist before shipping multilingual behavior.
 
@@ -305,8 +312,10 @@ When the task is to translate locale catalogs:
 - adapt formulations, references, and cultural codes so they feel natural to the target community
 - preserve keys, placeholders, ICU syntax, and structural parity
 - finish with a verification pass for missing keys, extra keys, placeholder parity, and hardcoded user-facing strings outside the message system
+- use the reusable audit scripts from this skill instead of inventing one-off checks
+- use `references/evaluator-rubric.md` so locale acceptance is explicit rather than subjective
 
-### 8. Audit or design language and market prioritization
+### 9. Audit or design language and market prioritization
 
 If the product is broad-addressable, choose languages/markets strategically rather than translating randomly.
 
@@ -317,7 +326,7 @@ When doing this:
 - merge regional variants by default unless splitting materially improves SEO or conversion
 - simplify launch-stage currency complexity unless the business case justifies more
 
-### 9. Audit cross-surface international consistency
+### 10. Audit cross-surface international consistency
 
 Verify that locale logic is reused across:
 
@@ -333,7 +342,7 @@ Verify that locale logic is reused across:
 
 Any user-facing surface that ignores locale weakens the architecture.
 
-### 10. Audit or design international SEO
+### 11. Audit or design international SEO
 
 When SEO is in scope, ensure:
 
@@ -347,7 +356,7 @@ When SEO is in scope, ensure:
 
 Use `references/international-seo.md`.
 
-### 11. Define the rollout and testing strategy
+### 12. Define the rollout and testing strategy
 
 Treat locale behavior like business logic.
 

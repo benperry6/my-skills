@@ -38,11 +38,13 @@ Use this before shipping multilingual behavior.
 - [ ] each translator subagent handles exactly one locale
 - [ ] missing keys are auditable
 - [ ] placeholder and ICU parity are auditable
+- [ ] reusable structural audit scripts are available to compare source and target catalogs
 - [ ] catalog review is done by an independent evaluator agent, not by the generator itself
 - [ ] each evaluator subagent reviews exactly one locale
 - [ ] evaluators report findings but do not directly fix the locale they reviewed
 - [ ] failed locales go through a separate correction loop before acceptance
 - [ ] every corrected locale is re-evaluated before acceptance
+- [ ] locale acceptance uses an explicit pass/fail rubric rather than ad hoc judgment
 - [ ] hardcoded user-facing strings outside the message system are audited
 - [ ] declared locales and translation-ready locales are tracked separately
 
@@ -136,3 +138,9 @@ Use this before shipping multilingual behavior.
 - [ ] banner dismiss behavior is tested
 - [ ] localized redirects are tested
 - [ ] fallback behavior is tested
+
+## Suggested commands
+
+- `python3 ~/.agents/skills/my-personal-internationalization/scripts/verify_catalog.py --source path/to/fr.json --target path/to/en.json`
+- `python3 ~/.agents/skills/my-personal-internationalization/scripts/scan_hardcoded_strings.py --root path/to/app/src`
+- `python3 ~/.agents/skills/my-personal-internationalization/scripts/run_catalog_audit.py --source path/to/fr.json --target path/to/en.json --code-root path/to/app/src`

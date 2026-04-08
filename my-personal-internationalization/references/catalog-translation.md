@@ -4,6 +4,13 @@ Use this mode when the user wants to translate locale message catalogs such as `
 
 This mode exists to make translation execution reusable, native-sounding, and verifiable.
 
+Treat this as one end-to-end workflow:
+
+- translation
+- independent evaluation
+- correction
+- re-evaluation until acceptance
+
 ## 1. Goal
 
 The goal is not literal translation.
@@ -156,6 +163,12 @@ Minimum checks:
 - obvious broken escaping or markup
 - hardcoded user-facing strings outside the message system
 
+Reusable scripts bundled with this skill:
+
+- `python3 ~/.agents/skills/my-personal-internationalization/scripts/verify_catalog.py --source path/to/fr.json --target path/to/en.json`
+- `python3 ~/.agents/skills/my-personal-internationalization/scripts/scan_hardcoded_strings.py --root path/to/app/src`
+- `python3 ~/.agents/skills/my-personal-internationalization/scripts/run_catalog_audit.py --source path/to/fr.json --target path/to/en.json --code-root path/to/app/src`
+
 The hardcoded-string audit should inspect likely leak zones such as:
 
 - components and pages
@@ -165,6 +178,12 @@ The hardcoded-string audit should inspect likely leak zones such as:
 - shared/public pages
 - support/chatbot/help surfaces
 - API error messages
+
+Important:
+
+- `verify_catalog.py` is a structural gate
+- `scan_hardcoded_strings.py` is heuristic and meant to produce review candidates
+- `run_catalog_audit.py` gives a reusable one-command audit for real translation waves
 
 ## 9. Expected outcome
 
@@ -176,6 +195,9 @@ A successful run of this mode produces:
 - a clear distinction between:
   - translation complete
   - locale declared but not fully production-ready
+
+Locale acceptance is not subjective.
+Use `references/evaluator-rubric.md` and keep the locale in the correction loop until it receives an explicit `PASS`.
 
 ## 10. Lost N Found-derived rule worth reusing
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Internationalization"
-  short_description: "Design or audit multilingual product architecture"
-  default_prompt: "Use $my-personal-internationalization to design or audit the international architecture of this site/app, extract the right locale doctrine, and define the correct routing, preference, market, cross-surface, and international SEO rules."
+  short_description: "Design, audit, or run multilingual architecture and translation rollout"
+  default_prompt: "Use $my-personal-internationalization to either design/audit the international architecture of this site/app or run a multilingual catalog-translation campaign correctly. Extract the right locale doctrine, define the routing/preference/market/cross-surface/international SEO rules, and when translation is in scope, apply the bundled orchestration, independent evaluation, and reusable verification workflow."
