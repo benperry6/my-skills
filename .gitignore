@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Ignore skills installed from external packages
 # Only track personal/custom skills in this repo
 
@@ -42,11 +41,6 @@ techdebt/
 vercel-react-best-practices/
 web-design-guidelines/
 
-# OS files
-.DS_Store
-my-personal-pdf-stealth-edit/scripts/__pycache__/
-my-personal-internationalization/scripts/__pycache__/
-=======
 # Dependencies
 node_modules/
 
@@ -72,4 +66,7 @@ video/
 *~
 .idea/
 .vscode/
->>>>>>> upstream/main
+
+# Generated Python bytecode in local skill scripts
+my-personal-pdf-stealth-edit/scripts/__pycache__/
+my-personal-internationalization/scripts/__pycache__/
