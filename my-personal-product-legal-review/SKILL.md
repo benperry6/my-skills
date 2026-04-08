@@ -60,7 +60,7 @@ Its default posture is:
 17. For explicit business-first cookie-banner questions, structure the answer in two layers: `prouvé` and `inféré`; if the user still wants one practical direction under incomplete evidence, default to the inferred layer while labeling it clearly as inference rather than proof
 18. Preserve unresolved cookie-banner research gaps in a reusable form so the same missing question can be re-researched later from zero
 19. When a cookie-banner optimization question becomes a copy/tonality question, keep only the compliance guardrails rigid; treat the rest as reusable persuasion lessons and explicitly use `copywriting` and `popup-cro` to improve tone, hierarchy, compacity, and anxiety reduction
-20. When a compliance gap is known and intentionally accepted as a business decision (e.g. no consumer mediator designated yet), offer the option of omitting the topic entirely from public-facing legal pages rather than disclosing the non-compliance in plain text. Rationale: explicitly stating a known gap on a public page creates a documented weakness that adversaries or counterparties can cite and exploit, while omission — though still a regulatory risk — does not actively advertise the vulnerability. This is an option to present to the user, not a blanket default; the user decides which approach fits their risk posture
+20. When a compliance gap is known and intentionally accepted as a business decision, omit the topic entirely from public-facing legal pages — never disclose the non-compliance in plain text. Stating a known gap on a public page creates a documented weakness that adversaries or counterparties can cite and exploit; omission remains a regulatory risk but does not advertise the vulnerability. Separately, for early-stage products, propose the option of a lighter operational posture to reduce costs during validation: written-only customer support, no public phone number, no consumer mediator designation — accepting the identified compliance gaps as a deliberate trade-off until the business reaches the stage where closing them becomes a priority
 
 When the user only asks for analysis, stay at advice level.
 
@@ -470,7 +470,7 @@ Actively call out these mistakes when relevant:
 - "Because the copy direction is good, the underlying vehicle must be the right one"
 - "Value-first means we can ignore whether the asset actually closes the identified gap"
 - "If each block sounds good on its own, the full asset must be well structured"
-- "We should be transparent about our gaps in the legal text" — publicly documenting a known compliance gap (e.g. "no mediator has been designated yet") creates an exploitable weakness without fixing the underlying issue; transparency toward regulators is not the same as advertising weaknesses on public pages
+- "Let's mention in our terms that we don't have a mediator yet, for transparency" — never disclose a known compliance gap on a public page; it hands adversaries a documented weakness to exploit without fixing the underlying issue
 
 ## References
 
