@@ -42,6 +42,7 @@ Use this before shipping multilingual behavior.
 - [ ] each evaluator subagent reviews exactly one locale
 - [ ] evaluators report findings but do not directly fix the locale they reviewed
 - [ ] failed locales go through a separate correction loop before acceptance
+- [ ] every corrected locale is re-evaluated before acceptance
 - [ ] hardcoded user-facing strings outside the message system are audited
 - [ ] declared locales and translation-ready locales are tracked separately
 

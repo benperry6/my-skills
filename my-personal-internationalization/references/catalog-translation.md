@@ -86,7 +86,7 @@ Reusable orchestration:
    - the evaluator reports findings
    - the orchestrator decides whether the locale passes or needs correction
    - a translator or dedicated fixer subagent corrects the locale
-   - the corrected locale is re-evaluated when the findings are material
+   - every corrected locale is re-evaluated
    - the evaluator does not fix the locale it reviewed
 8. Run one final global verification pass across all produced catalogs and the codebase.
 
@@ -134,7 +134,8 @@ Reusable loop:
 1. evaluator produces findings
 2. orchestrator triages them
 3. translator/fixer agent applies corrections
-4. locale returns to evaluation if needed
+4. locale returns to evaluation after every correction
+5. the loop repeats until the locale is explicitly accepted
 
 This preserves the harness separation:
 
