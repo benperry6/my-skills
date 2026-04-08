@@ -73,10 +73,16 @@ Reusable orchestration:
    - glossary and naming rules
    - verification rules
 2. Run a pilot batch on 3 to 4 representative locales.
+   - use one translator subagent per locale
 3. Review the pilot results.
 4. Adjust the translation brief if needed.
 5. Scale through small parallel batches of about 4 to 6 locales per wave.
-6. Run one final global verification pass across all produced catalogs and the codebase.
+   - in each wave, launch one translator subagent per locale
+   - do not assign multiple locales to the same translator subagent
+6. After each translation wave, launch one independent evaluator subagent per locale in that wave.
+   - do not assign multiple locales to the same evaluator subagent
+   - do not let a locale be evaluated by the same agent/session that generated it
+7. Run one final global verification pass across all produced catalogs and the codebase.
 
 Why this pattern:
 
@@ -102,6 +108,12 @@ The evaluator should review:
 - tone consistency with the product
 - obvious awkward literal translation artifacts
 - structural integrity when needed
+
+Execution rule:
+
+- one evaluator subagent reviews one locale at a time
+- evaluators may run in parallel across a wave
+- do not batch many locales into one evaluator if the goal is precise language-by-language judgment
 
 This separation exists because long-running generators tend to become lenient about their own output.
 Use generator/evaluator separation as a reusable harness rule, not as an ad hoc preference.

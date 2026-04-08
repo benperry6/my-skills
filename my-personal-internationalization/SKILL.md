@@ -298,7 +298,9 @@ When the task is to translate locale catalogs:
 - use one orchestrator to define invariants and verification before parallelizing
 - validate the workflow on a small pilot batch before full rollout
 - scale through small parallel batches, not one giant all-at-once run
-- use an independent evaluator agent for quality review, never the same agent/session that produced the translations
+- in each wave, use one translator subagent per locale
+- after each translation wave, use one independent evaluator subagent per locale
+- never let the same agent/session generate and evaluate the same locale
 - translate toward the target locale as a native speaker, not literally
 - adapt formulations, references, and cultural codes so they feel natural to the target community
 - preserve keys, placeholders, ICU syntax, and structural parity
