@@ -313,6 +313,7 @@ When the task is to translate locale catalogs:
 - preserve keys, placeholders, ICU syntax, and structural parity
 - finish with a verification pass for missing keys, extra keys, placeholder parity, and hardcoded user-facing strings outside the message system
 - use the reusable audit scripts from this skill instead of inventing one-off checks
+- treat the hardcoded-string scanner as a heuristic review aid, not as a magical blocker-free truth source
 - use `references/evaluator-rubric.md` so locale acceptance is explicit rather than subjective
 
 ### 9. Audit or design language and market prioritization
