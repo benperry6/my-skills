@@ -113,6 +113,7 @@ Use this before shipping multilingual behavior.
 - [ ] if launch simplification is desired, the project explicitly chooses a reduced display-currency set
 - [ ] locale changes do not silently mutate active subscription billing currency
 - [ ] locale changes do not silently mutate active subscription price IDs
+- [ ] new checkout currency selection and existing-subscription currency persistence are both explicit
 - [ ] localized prices come from verified mappings or source data
 - [ ] display formatting is separate from billing state
 

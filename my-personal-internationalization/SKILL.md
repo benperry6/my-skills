@@ -296,6 +296,10 @@ If the product does not expose prices, skip display-currency logic entirely.
 
 If the product exposes prices, keep display formatting separate from billing state.
 
+For new purchases, the current locale may determine the checkout currency when the project explicitly maps locale to currency.
+
+For existing subscriptions, keep the original billing currency stable; add-ons or additional items attached to that subscription should inherit the subscription's existing billing currency rather than switching with the current locale.
+
 Translation content must not become the place where pricing, currency, or subscription invariants are hidden.
 
 This skill may recommend a lightweight locale -> display currency mapping, but it must not expand by default into multi-country, multi-entity, or heavy multi-billing architecture.

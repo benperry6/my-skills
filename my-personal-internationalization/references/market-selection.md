@@ -144,6 +144,8 @@ Implications:
 - changing language may change display currency too
 - price symbols, acronyms, decimals, and formatting should follow locale
 - active billing state must stay separate from visible price display
+- a new checkout may use the current locale's mapped currency, but an existing subscription keeps its original billing currency
+- add-ons attached to an existing subscription should inherit that subscription's billing currency rather than switching with the current locale
 
 ## 6. Launch-stage currency simplification
 
