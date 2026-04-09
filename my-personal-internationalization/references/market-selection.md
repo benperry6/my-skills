@@ -1,12 +1,25 @@
-# Language and Market Selection
+# Language and Locale Selection
 
 Use this reference when the user asks:
 
 - which languages to translate first
-- which markets to prioritize
 - whether regional variants should be merged or split
-- how to simplify currencies at launch
+- whether locale-aware display currency should be simplified at launch
 - how to reuse a multilingual SEO expansion strategy across projects
+
+Default to language-only locale targeting.
+
+Do not create country-specific hreflang variants just because multiple countries share the same language.
+
+Split into region variants only when the regional language variant is materially different in a way that changes SEO relevance, CTR, conversion, legal wording, or product fit.
+
+Example that is often justified:
+
+- `pt-BR` vs `pt-PT`
+
+Examples that are often not justified by default:
+
+- `fr` split into `fr-FR`, `fr-BE`, `fr-CA`, `fr-LU`
 
 ## 1. Start from business scope, not from translation enthusiasm
 
@@ -56,7 +69,9 @@ Do not present it as a guaranteed "authority transfer" promise from Google.
 
 ## 3. Default shortlist for broad-addressable products
 
-When a product is broad-addressable and no project-specific research says otherwise, use this as the default launch shortlist of hreflang languages, in priority order:
+When a product is broad-addressable and no better business-specific data exists yet, treat this as a heuristic launch shortlist rather than as product doctrine.
+
+Use this heuristic launch shortlist of hreflang languages, in priority order:
 
 1. `en`
 2. `de`
@@ -116,23 +131,23 @@ Use simple language codes unless a regional split is justified.
 
 If you are unsure, merge.
 
-## 5. Default business bias for market coupling
+## 5. Optional lightweight display-currency mapping
 
-Unless the project explicitly says otherwise, assume:
+If the product visibly shows prices and the project explicitly wants locale-aware price display, a lightweight locale -> display currency mapping is acceptable.
 
-- one market = one language = one currency
+This is a display-layer convenience, not a multi-country architecture.
 
-This is an operational simplification, not a universal law.
+Unless the project explicitly says otherwise:
 
 Implications:
 
-- changing language normally changes display currency too
-- price symbols, acronyms, decimals, and formatting must follow locale
-- market copy and legal phrasing should stay aligned with the selected locale
+- changing language may change display currency too
+- price symbols, acronyms, decimals, and formatting should follow locale
+- active billing state must stay separate from visible price display
 
 ## 6. Launch-stage currency simplification
 
-If the product does not want multi-currency complexity at launch, the default simplification is:
+If the product shows prices but does not want extra display-currency complexity at launch, the default simplification is:
 
 - support only `USD` and `EUR`
 
@@ -162,12 +177,12 @@ Use this default mapping for the shortlist above unless the project explicitly s
 Why this exists:
 
 - it keeps launch complexity low
-- it avoids prematurely supporting many billing currencies
+- it avoids prematurely supporting many visible currencies
 - it still gives a coherent multilingual product experience
 
 Important:
 
-- launch-stage simplification affects display and market defaults
+- launch-stage simplification affects display defaults only
 - it must not silently mutate active billing state for already subscribed users
 
 ## 7. When not to use the default shortlist
@@ -180,12 +195,12 @@ Override the default shortlist when:
 - the product has logistics/compliance barriers in most markets
 - the economics do not justify translating broadly yet
 
-## 8. Default output for market-selection tasks
+## 8. Default output for language-selection tasks
 
-When the user asks which languages/markets to prioritize, produce:
+When the user asks which languages or language variants to prioritize, produce:
 
 - the business-scope classification
 - the recommended languages in priority order
 - which variants are merged vs split, and why
-- the default currency plan
+- the optional display-currency plan when the product visibly shows prices
 - the reasons to keep or override the defaults

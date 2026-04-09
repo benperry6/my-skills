@@ -32,6 +32,14 @@ This supports:
 - ad and affiliate landing-page consistency
 - shareable locale-specific URLs
 
+For SEO-oriented websites and web apps, the default routing doctrine is:
+
+- explicit locale-prefixed public URLs
+- the default locale is also prefixed unless the project explicitly chooses otherwise
+- `/` may negotiate and redirect, but if it does, `x-default` must point to a real 200 page rather than to `/`
+- public indexable pages use centralized metadata generation and centralized sitemap generation
+- private or non-indexable app surfaces are not sitemap targets, even if they reuse the same locale-prefixed routing pattern
+
 ## 3. Canonical URLs must be absolute and self-referential
 
 For each localized page:
@@ -123,3 +131,15 @@ If `/` negotiates locale and redirects:
 - but it is not the cleanest SEO surface
 
 Prefer real 200 content pages for canonicalized, `x-default`, and sitemap targets.
+
+## 12. Localized HTML attributes should be explicit
+
+Set `<html lang>` from the effective locale on every localized page.
+
+If any supported locale is RTL, derive `dir` from the locale registry and apply `rtl` only for those locales.
+
+## 13. Cache behavior must not leak locales
+
+Do not let a cache or CDN serve one locale's HTML to another locale.
+
+If locale negotiation depends on request signals, ensure the cache strategy preserves locale correctness instead of collapsing multiple locales into one cached HTML response.

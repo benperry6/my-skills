@@ -17,15 +17,15 @@ Use this before shipping multilingual behavior.
 - [ ] supported locale codes are defined in one place
 - [ ] default locale is defined in one place
 - [ ] display labels and localized language names are centralized
-- [ ] market attributes tied to locales are centralized
+- [ ] any optional display-currency attributes tied to locales are centralized when used
 
-## Market and Locale Selection
+## Language and Locale Selection
 
-- [ ] the language/market scope is chosen intentionally, not arbitrarily
+- [ ] the language scope is chosen intentionally, not arbitrarily
 - [ ] a broad-addressable product uses a prioritized locale shortlist or an explicit alternative
-- [ ] regional variants are merged by default unless a split is materially justified
+- [ ] locale strategy defaults to language-only unless a split is materially justified
 - [ ] any split variants are justified by SEO, conversion, legal, or market-fit reasons
-- [ ] the project states whether it follows the default bias `one market = one language = one currency`
+- [ ] if the product shows prices, the project states whether it uses a lightweight locale -> display currency mapping
 
 ## Translation Assets
 
@@ -57,6 +57,9 @@ Use this before shipping multilingual behavior.
 
 ## Routing and Navigation
 
+- [ ] public indexable URLs follow one explicit locale-routing doctrine
+- [ ] the project states whether the default locale is prefixed or intentionally left unprefixed
+- [ ] the root URL policy is explicit (`200` page, selector page, or redirect)
 - [ ] localized routes are consistent
 - [ ] redirects preserve locale correctly
 - [ ] internal links preserve locale
@@ -70,6 +73,7 @@ Use this before shipping multilingual behavior.
 - [ ] currency or market labels are shown next to locale labels when locale and market are materially linked and that context helps users
 - [ ] current locale is clearly identifiable in the selector trigger and menu/list
 - [ ] selector clicks persist a durable explicit preference
+- [ ] private or non-indexable app surfaces are excluded from sitemap targets even if they reuse localized routing
 
 ## Mismatch Banner
 
@@ -100,12 +104,12 @@ Use this before shipping multilingual behavior.
 
 - [ ] date formatting is centralized
 - [ ] number formatting is centralized
-- [ ] currency formatting is centralized
+- [ ] currency formatting is centralized when prices are visibly shown
 - [ ] localized language-name formatting is centralized
 
-## Pricing and Billing
+## Optional Pricing Display and Billing Safeguards
 
-- [ ] launch-stage display-currency complexity is intentionally scoped
+- [ ] if the product shows prices, launch-stage display-currency complexity is intentionally scoped
 - [ ] if launch simplification is desired, the project explicitly chooses a reduced display-currency set
 - [ ] locale changes do not silently mutate active subscription billing currency
 - [ ] locale changes do not silently mutate active subscription price IDs
@@ -117,6 +121,12 @@ Use this before shipping multilingual behavior.
 - [ ] browser locale parsing supports composed tags
 - [ ] progressively less specific tags are matched safely
 - [ ] unsupported locale values degrade to the default locale
+
+## Web Guardrails
+
+- [ ] `<html lang>` reflects the effective locale on every localized page
+- [ ] if any supported locale is RTL, `dir` is derived from the locale registry and applied correctly
+- [ ] cache or CDN behavior cannot serve one locale's HTML to another locale
 
 ## SEO
 

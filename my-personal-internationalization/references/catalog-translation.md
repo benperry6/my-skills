@@ -129,6 +129,10 @@ Execution rule:
 - do not batch many locales into one evaluator if the goal is precise language-by-language judgment
 - evaluators report findings; they do not directly edit the locale they reviewed
 
+Independent delegation is required.
+
+If the environment cannot provide one translator subagent and one separate evaluator subagent, or an equivalent separation across engines or clean sessions, stop and notify the user instead of pretending the same agent can independently validate its own translation.
+
 This separation exists because long-running generators tend to become lenient about their own output.
 Use generator/evaluator separation as a reusable harness rule, not as an ad hoc preference.
 

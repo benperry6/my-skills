@@ -1,4 +1,4 @@
 interface:
   display_name: "Internationalization"
-  short_description: "Design, audit, or run multilingual architecture and translation rollout"
-  default_prompt: "Use $my-personal-internationalization to either design/audit the international architecture of this site/app or run a multilingual catalog-translation campaign correctly. Extract the right locale doctrine, define the routing/preference/market/cross-surface/international SEO rules, and when translation is in scope, apply the bundled orchestration, independent evaluation, and reusable verification workflow."
+  short_description: "Design, audit, or execute language-first multilingual SEO architecture and locale-catalog translation"
+  default_prompt: "Use $my-personal-internationalization to design, audit, or implement language-first multilingual behavior for a website or web app. Focus on locale routing, preference handling, translation-catalog quality, and hreflang/canonical/sitemap SEO. When translation is in scope, include catalog translation, missing-key audit, hardcoded-string scan, independent evaluation, and reusable verification workflow. Keep pricing-display logic optional and lightweight, and do not drift into heavy multi-country, multi-entity, or multi-billing architecture unless explicitly requested."

@@ -1,6 +1,6 @@
 ---
 name: my-personal-internationalization
-description: "[My Personal Skill] Use when a website or app needs its international architecture designed, audited, or fixed, whether the product already exists or is still being built. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, translated emails or API errors, market/currency by locale, hreflang, x-default, canonical alternates, localized sitemaps, or deciding which languages/markets to launch first. This skill is doctrine-first and stack-agnostic: it turns proven international product decisions into reusable rules before adapting them to the current stack."
+description: "[My Personal Skill] Use when a website or web app needs its international architecture designed, audited, fixed, or translated for multilingual SEO. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, hreflang, x-default, canonical alternates, localized sitemaps, translating locale catalogs (for example `fr.json` -> `en.json`), auditing missing locale keys, scanning hardcoded user-facing strings, post-translation verification, or deciding which languages or language variants to launch first. This skill is doctrine-first, web-focused, and language-first: it turns proven hreflang-driven product decisions into reusable rules for websites and web apps."
 metadata:
   version: 1.5.0
 ---
@@ -9,13 +9,19 @@ metadata:
 
 ## Overview
 
-This skill exists to avoid rediscovering international architecture from zero on every project.
+This skill exists to avoid rediscovering web international architecture from zero on every project.
 
-Its job is to turn already-proven multilingual product decisions into reusable doctrine, then adapt that doctrine to the current project's stack, routes, auth model, market model, international SEO strategy, and rollout scope.
+It is a language-first, hreflang-driven internationalization skill for websites and web apps.
+
+Its job is to turn already-proven multilingual product decisions into reusable doctrine, then adapt that doctrine to the current project's stack, routes, auth model, optional price-display model, international SEO strategy, and rollout scope.
 
 This is an international architecture skill first.
 
 It also includes a dedicated catalog-translation mode when translation work is part of that architecture.
+
+Optional display-currency logic may be layered on top when the product visibly shows prices.
+
+This skill is not a multi-country commerce architecture skill and must not drift into multi-entity, multi-country, or heavy multi-billing design unless the user explicitly asks for that.
 
 This skill serves two primary use cases:
 
@@ -50,25 +56,25 @@ Important:
 This is why this skill covers both:
 
 - international architecture
-- and international market/language rollout strategy
+- and language / language-variant rollout strategy
 
 Use it both:
 
-- when building a multilingual site or app from scratch
+- when building a multilingual website or web app from scratch
 - when auditing or fixing the international behavior of an existing product
 
 ## Trigger Conditions
 
 Use this skill when the user asks any variation of:
 
-- "Set up the international architecture of this site/app"
+- "Set up the international architecture of this website or web app"
 - "Audit our i18n / locale behavior"
 - "Fix locale routing / language persistence / language switching"
 - "Design the language selector"
 - "Handle browser language vs explicit locale URLs"
 - "Implement or review a locale mismatch banner"
-- "Separate language from currency / market"
-- "Decide which languages or markets to translate first"
+- "Separate language from optional price display rules"
+- "Decide which languages or language variants to translate first"
 - "Use hreflang strategy to scale SEO internationally"
 - "Make emails / API errors / shared pages respect the user's language"
 - "Review hreflang / x-default / localized sitemap"
@@ -81,6 +87,7 @@ Do not use this skill for:
 
 - copywriting in another language
 - generic SEO work that is not materially about multilingual behavior
+- native mobile app internationalization that is not about web routing, web UX, or multilingual SEO
 
 Pure catalog translation is still valid here when it is coupled to locale architecture, locale rollout, or translation-quality verification.
 
@@ -99,14 +106,16 @@ These are the default rules unless the project has already made an explicit cont
 7. Never confuse a technical navigation cookie with an explicit language preference.
 8. Locale switching must preserve path, query string, and hash whenever possible.
 9. The explicit locale selector should be driven by one central ordered locale registry, not ad hoc page-level lists.
-10. Language and market are separate concerns.
-11. Formatting, pricing, and billing rules must be centralized.
-12. Language changes must not silently mutate active billing currency or subscription price IDs.
-13. Unless the project explicitly says otherwise, assume `one market = one language = one currency`.
-14. Internationalization must cover UI and non-UI surfaces.
-15. International SEO must be centralized and generated from shared rules.
-16. Language and market rollout should be strategic, not arbitrary.
-17. Locale logic must be tested like business logic.
+10. Language is the primary axis in this skill. Country or market variants are secondary.
+11. Treat `language`, `display currency`, `billing state`, and any optional market metadata as separate layers, even when a launch policy maps some of them 1:1.
+12. Default to a `language-only` locale strategy. Split into region variants only when materially justified by SEO relevance, conversion, legal wording, or product fit.
+13. Optional locale -> display currency mapping is allowed when the product visibly shows prices.
+14. Language changes must not by themselves change active billing currency, subscription price IDs, legal entity, or country-specific business state.
+15. Do not expand into multi-country, multi-entity, or heavy multi-billing architecture unless the user explicitly asks for it.
+16. Internationalization must cover UI and non-UI surfaces.
+17. International SEO must be centralized and generated from shared rules.
+18. Language rollout should be strategic, not arbitrary.
+19. Locale logic must be tested like business logic.
 
 ## Reference Map
 
@@ -119,7 +128,7 @@ Read only what the current task needs:
 - `references/international-seo.md`
   - The reusable doctrine for canonical, `hreflang`, `x-default`, route registries, and localized sitemaps.
 - `references/market-selection.md`
-  - The reusable strategy for selecting languages/markets, merging or splitting variants, and simplifying launch currencies.
+  - The reusable strategy for selecting languages or language variants, deciding when a regional split is justified, and optionally simplifying display-currency rollout.
 - `references/catalog-translation.md`
   - The reusable workflow for native, culturally adapted locale-catalog translation, scaling orchestration, and post-translation verification.
 - `references/evaluator-rubric.md`
@@ -149,9 +158,10 @@ Before producing a doctrine, audit, or implementation plan, establish these assu
 - whether the project is broad-addressable or inherently local/narrow-market
 - whether the product has authenticated user state
 - whether guest traffic needs language persistence
-- whether locale and market are coupled or separate
-- whether pricing or billing changes by market
-- whether launch-stage currency simplification is desirable
+- whether the product visibly shows prices
+- whether locale-aware display currency is needed
+- whether launch-stage display-currency simplification is desirable
+- whether any region split is materially justified
 - which user-facing non-UI surfaces exist
 - which multilingual SEO surfaces exist or should exist
 
@@ -163,13 +173,13 @@ If some of these materially affect the recommendation and are still unknown, say
 
 Determine whether the task is primarily about:
 
-- market/language prioritization
+- language/language-variant prioritization
 - locale routing
 - language persistence
 - mismatch and suggestion UX
 - translation asset structure
 - catalog translation execution
-- locale vs market separation
+- locale vs optional price-display separation
 - cross-surface language consistency
 - international SEO
 - testing and rollout safety
@@ -270,32 +280,25 @@ Also audit or define the explicit locale selector itself:
 - how the selector persists an explicit choice
 - how the selector indicates the currently active locale
 
-### 7. Audit or design translation and market layers
+### 7. Audit or design translation and optional display-currency layers
 
 Check that the project has:
 
 - one central locale registry
-- one central market/config layer
 - one central formatting layer
+- when prices are visibly exposed, one central locale -> display currency mapping
 - explicit translation completeness rules
 - explicit fallback behavior for missing translations
 
 If the task is about translating locale catalogs, read `references/catalog-translation.md` and apply that workflow instead of inventing a one-off prompt.
 
+If the product does not expose prices, skip display-currency logic entirely.
+
+If the product exposes prices, keep display formatting separate from billing state.
+
 Translation content must not become the place where pricing, currency, or subscription invariants are hidden.
 
-If the project does not say otherwise, assume the operational default is:
-
-- one market
-- one language
-- one display currency
-
-That default should drive:
-
-- language selector behavior
-- currency symbol/acronym
-- decimal and number formatting
-- legal/market wording
+This skill may recommend a lightweight locale -> display currency mapping, but it must not expand by default into multi-country, multi-entity, or heavy multi-billing architecture.
 
 ### 8. Execute catalog translation when needed
 
@@ -316,16 +319,16 @@ When the task is to translate locale catalogs:
 - treat the hardcoded-string scanner as a heuristic review aid, not as a magical blocker-free truth source
 - use `references/evaluator-rubric.md` so locale acceptance is explicit rather than subjective
 
-### 9. Audit or design language and market prioritization
+### 9. Audit or design language and language-variant prioritization
 
-If the product is broad-addressable, choose languages/markets strategically rather than translating randomly.
+If the product is broad-addressable, choose languages or language variants strategically rather than translating randomly.
 
 When doing this:
 
 - use `references/market-selection.md`
 - start from search demand and acquisition logic
 - merge regional variants by default unless splitting materially improves SEO or conversion
-- simplify launch-stage currency complexity unless the business case justifies more
+- simplify optional display-currency complexity unless the business case justifies more
 
 ### 10. Audit cross-surface international consistency
 
@@ -383,7 +386,7 @@ Depending on the user's request, produce one or more of:
 - a reusable implementation plan adapted to the project's stack
 - a list of gaps and risks
 - a multilingual SEO plan
-- a prioritized locale/market launch recommendation
+- a prioritized language / language-variant launch recommendation
 - a test plan for locale behavior
 
 ## Anti-Patterns

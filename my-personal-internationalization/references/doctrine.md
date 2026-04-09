@@ -275,20 +275,19 @@ Recommended defaults:
 - current locale highlighted in the open menu/list
 - secondary market metadata visually de-emphasized relative to the active language label
 
-## 11. Language and market are separate layers
+## 11. Language is primary; pricing display is optional
 
-Translation is one layer.
-Market behavior is another.
+Translation is the primary layer in this skill.
 
-Locale-dependent market behavior may include:
+Optional locale-dependent display behavior may include:
 
-- currency
+- visible currency
 - number/date formatting
-- legal wording
-- price IDs
-- subscription or catalog availability
+- legal wording when it materially changes with the displayed locale
 
-Keep these rules in central helpers/configuration, not buried inside translation strings.
+If a product shows prices, keep those rules in central helpers/configuration, not buried inside translation strings.
+
+Do not let this skill drift by default into multi-country, multi-entity, or heavy multi-billing architecture.
 
 ## 12. Translation catalogs are infrastructure
 
@@ -369,7 +368,7 @@ Do not infer localized pricing from:
 Use:
 
 - verified source mappings
-- central locale -> market -> formatting helpers
+- central locale -> display-currency -> formatting helpers
 - tests or verification scripts when billing complexity grows
 
 ## 18. Composite locale parsing is not optional
@@ -426,22 +425,20 @@ Do not scatter the production domain across:
 
 Resolve the base URL centrally from configuration or runtime context.
 
-## 20. Default business bias: one market = one language = one currency
+## 20. Default business bias: language-first, with optional lightweight display-currency mapping
 
-Unless the project explicitly says otherwise, assume:
+Unless the project explicitly says otherwise:
 
-- one market
-- one language
-- one currency
+- one language is the primary locale axis
+- display currency may be mapped from locale when prices are visibly shown
 
-This means language switching normally also changes:
+This can mean language switching also changes:
 
 - display currency
 - symbol or acronym
 - decimal formatting
-- localized market wording
 
-This is an operational default, not a universal law.
+This is an optional display-layer default, not a universal law and not a multi-country commerce architecture.
 
 ## 21. Broad-addressable products should choose locales strategically
 
@@ -469,12 +466,12 @@ If in doubt, merge.
 
 ## 23. Launch-stage currency complexity should stay low by default
 
-If the project does not explicitly require many billing currencies at launch, prefer a simplified display-currency strategy first.
+If the project visibly shows prices but does not explicitly require many currencies at launch, prefer a simplified display-currency strategy first.
 
 The reusable default is:
 
 - keep launch display currencies to a minimal set
-- centralize locale -> market -> currency mapping
+- centralize locale -> display-currency mapping
 - defer extra billing-currency complexity until there is a proven business reason
 
 ## 24. Locale logic must be tested as business logic
