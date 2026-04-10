@@ -21,6 +21,12 @@ The goal is:
 - that reads as if it were written natively for the target language community
 - while preserving product meaning, variables, and runtime behavior
 
+Important production lesson:
+
+- deterministic scripts are allowed for scaffolding, parsing, verification, and audit only
+- translation services, translation APIs, browser translation, or scripts that translate text are not allowed as the source of the translated copy unless the user explicitly authorizes that lower-quality trade-off
+- the model/agent doing the target locale must produce the language itself and adapt references, formulations, examples, and cultural codes for that target community
+
 ## 2. Default doctrine
 
 Treat one locale catalog as the structural reference.
@@ -36,6 +42,7 @@ Reusable default:
 Do not:
 
 - translate literally when the result sounds unnatural
+- outsource translation quality to a programmatic translator when the user requested AI-native/culturally adapted copy
 - change business logic embedded in the intended meaning
 - break placeholders, HTML/Markdown fragments, or ICU message syntax
 - bury market or billing rules inside translation copy
@@ -45,6 +52,10 @@ Do not:
 When the user asks for catalog translation, use a reusable instruction equivalent to:
 
 `Translate the source locale catalog into the target locale like a native speaker. Adapt references, formulations, and cultural codes so the result is natural and immediately understandable for the target language community. Do not translate literally. Preserve keys, placeholders, ICU syntax, and structural parity with the source catalog.`
+
+Also include, unless the user has explicitly authorized machine translation:
+
+`Do not call translation APIs, browser translation, or programmatic translation scripts to produce the copy. You may use scripts only to scaffold JSON, compare keys, validate placeholders/ICU/markup, and audit the finished file.`
 
 Adapt the target-language community explicitly when relevant:
 
@@ -72,6 +83,13 @@ For one or two target locales, a single execution pass can be enough.
 
 For many target locales, do not run one giant sequential session and do not launch every locale in parallel at once.
 
+Do not assume the theoretically ideal wave size is safe in the current tool environment. Calibrate it from the previous wave's observed behavior:
+
+- if a pilot wave of 3 to 4 locales completed with files on disk and local verification, reuse 4 as the next wave size
+- if a wave times out twice, returns no files, or hits agent/thread limits, stop and reduce the wave size or change the handoff strategy before launching more agents
+- if an agent is closed or cannot be messaged, do not keep routing work to it; start a fresh, narrowly scoped correction agent or re-plan
+- do not count a subagent as complete until the orchestrator verifies the target file exists locally and passes the structural checks
+
 Reusable orchestration:
 
 1. One orchestrator agent defines:
@@ -79,6 +97,7 @@ Reusable orchestration:
    - protected invariants
    - glossary and naming rules
    - verification rules
+   - the exact wave size and timeout/stop rule for the current environment
 2. Run a pilot batch on 3 to 4 representative locales.
    - use one translator subagent per locale
 3. Review the pilot results.
@@ -86,6 +105,7 @@ Reusable orchestration:
 5. Scale through small parallel batches of about 4 to 6 locales per wave.
    - in each wave, launch one translator subagent per locale
    - do not assign multiple locales to the same translator subagent
+   - keep model/reasoning settings inherited from the parent conversation unless the user explicitly authorizes overrides
 6. After each translation wave, launch one independent evaluator subagent per locale in that wave.
    - do not assign multiple locales to the same evaluator subagent
    - do not let a locale be evaluated by the same agent/session that generated it
@@ -96,6 +116,13 @@ Reusable orchestration:
    - every corrected locale is re-evaluated
    - the evaluator does not fix the locale it reviewed
 8. Run one final global verification pass across all produced catalogs and the codebase.
+
+Operational acceptance rule for each wave:
+
+- subagent final messages are useful evidence, not acceptance
+- acceptance requires local file presence plus local verification output recorded by the orchestrator
+- if a verifier reports many mismatches, inspect representative keys directly before concluding the catalog is bad; the verifier may be wrong around hybrid ICU/plural-suffix patterns
+- if direct inspection proves a verifier false positive, improve the verifier or document the adjudication before scaling the next wave
 
 Why this pattern:
 
@@ -167,6 +194,13 @@ Minimum checks:
 - obvious broken escaping or markup
 - hardcoded user-facing strings outside the message system
 
+Adjudication rule:
+
+- structure scripts are deterministic aids, not judges of copy quality
+- if a script flags a placeholder/ICU mismatch on a source string that mixes a simple placeholder with a plural suffix helper, verify whether the target uses a runtime-valid ICU form with the same variable before failing the locale
+- if the target deliberately uses locale-specific ICU plural categories, verify the message compiles and preserves meaning before rejecting it purely for option-key differences
+- never hide unresolved script findings; report whether each finding is a real blocker, an accepted locale-specific adaptation, or a tool false positive
+
 Reusable scripts bundled with this skill:
 
 - `python3 ~/.agents/skills/my-personal-internationalization/scripts/verify_catalog.py --source path/to/fr.json --target path/to/en.json`
@@ -212,3 +246,12 @@ Example reusable pattern:
 - `fr.json` is the structurally complete reference catalog
 - `en.json` is translated as natural anglophone copy, not as a literal mirror
 - the codebase is audited afterward so untranslated hardcoded strings do not survive outside `messages/`
+
+Additional production lessons from the first real Lost N Found translation run:
+
+- do not spawn a single broad agent to create every missing catalog; it drifted toward programmatic translation and became hard to verify
+- do not use a translation API or script as a shortcut when the user expects native AI-written, culturally adapted copy
+- do not rely on the bundled verifier alone when it conflicts with direct ICU/runtime reasoning; the original verifier over-reported issues on strings like `Voir les {count} résultat{count, plural, one {} other {s}}`
+- do not continue a stalled wave after repeated empty `wait_agent` results; stop, summarize, and re-plan
+- do not forget that closed subagents cannot receive follow-up correction requests; start fresh correction agents with a narrow file scope instead
+- do not let model or reasoning-effort overrides leak into spawned translators unless explicitly authorized by the user

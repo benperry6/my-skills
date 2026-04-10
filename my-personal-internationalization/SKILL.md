@@ -311,13 +311,19 @@ When the task is to translate locale catalogs:
 - start from one structurally complete reference locale
 - use one orchestrator to define invariants and verification before parallelizing
 - validate the workflow on a small pilot batch before full rollout
+- do not use programmatic translation services, translation APIs, browser translation, or translation scripts as the source of the translated copy unless the user explicitly authorizes that trade-off
 - scale through small parallel batches, not one giant all-at-once run
 - in each wave, use one translator subagent per locale
+- keep translation subagents on the conversation's inherited/default model settings unless the user explicitly authorizes model or reasoning overrides
 - after each translation wave, use one independent evaluator subagent per locale
 - never let the same agent/session generate and evaluate the same locale
 - translate toward the target locale as a native speaker, not literally
 - adapt formulations, references, and cultural codes so they feel natural to the target community
 - preserve keys, placeholders, ICU syntax, and structural parity
+- distinguish deterministic structure tooling from translation: scripts may scaffold, compare, parse, or verify catalogs, but they must not be the translator unless explicitly authorized
+- accept a locale only after direct local verification confirms the file exists and passes structural checks; never accept a locale from a subagent's final message alone
+- treat audit scripts as evidence, not authority: investigate any script finding that conflicts with direct runtime-safe ICU/placeholder usage before declaring the locale failed
+- if a translation wave times out twice or produces no files, stop the wave, close stale subagents where possible, summarize the partial state, and re-plan before launching another wave
 - finish with a verification pass for missing keys, extra keys, placeholder parity, and hardcoded user-facing strings outside the message system
 - use the reusable audit scripts from this skill instead of inventing one-off checks
 - treat the hardcoded-string scanner as a heuristic review aid, not as a magical blocker-free truth source

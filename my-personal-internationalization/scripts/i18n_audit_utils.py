@@ -91,7 +91,7 @@ def split_top_level(text: str, delimiter: str = ",") -> list[str]:
                 in_quote = None
             continue
 
-        if char in {'"', "'"}:
+        if char == '"':
             in_quote = char
             current.append(char)
             continue
@@ -142,7 +142,7 @@ def extract_top_level_brace_tokens(text: str) -> list[str]:
                 in_quote = None
             continue
 
-        if char in {'"', "'"}:
+        if char == '"':
             in_quote = char
             continue
 
@@ -238,6 +238,34 @@ def extract_string_signature(text: str) -> dict[str, Counter[Any]]:
     return signature
 
 
+def normalize_placeholders_for_hybrid_icu(signature: dict[str, Counter[Any]]) -> Counter[str]:
+    """Ignore duplicate simple placeholders when the same variable also drives ICU.
+
+    Source catalogs sometimes render a variable and then use a plural helper only
+    for the suffix, for example:
+
+    `Voir les {count} résultat{count, plural, one {} other {s}}`
+
+    A native target translation may correctly collapse that into one ICU message:
+
+    `View {count, plural, one {# result} other {# results}}`
+
+    Both messages use the same runtime variable. Treating the source's extra
+    simple `{count}` token as a hard mismatch creates false positives.
+    """
+    normalized = Counter(signature["placeholders"])
+    icu_variables = {
+        str(head).split(":", 2)[1]
+        for head, _payload in signature["icu_heads"]
+        if str(head).startswith("icu:")
+    }
+    for variable in icu_variables:
+        if normalized[variable] > 0:
+            normalized[variable] = 0
+            del normalized[variable]
+    return normalized
+
+
 def compare_catalogs(source_path: Path, target_path: Path) -> dict[str, Any]:
     source_data = load_json(source_path)
     target_data = load_json(target_path)
@@ -274,13 +302,15 @@ def compare_catalogs(source_path: Path, target_path: Path) -> dict[str, Any]:
     for path in sorted(source_leaf_paths & target_leaf_paths):
         source_signature = extract_string_signature(source_leaves[path])
         target_signature = extract_string_signature(target_leaves[path])
+        source_placeholders = normalize_placeholders_for_hybrid_icu(source_signature)
+        target_placeholders = normalize_placeholders_for_hybrid_icu(target_signature)
 
-        if source_signature["placeholders"] != target_signature["placeholders"]:
+        if source_placeholders != target_placeholders:
             findings["placeholder_mismatches"].append(
                 {
                     "path": path,
-                    "source": dict(source_signature["placeholders"]),
-                    "target": dict(target_signature["placeholders"]),
+                    "source": dict(source_placeholders),
+                    "target": dict(target_placeholders),
                 }
             )
 
@@ -320,4 +350,3 @@ def compare_catalogs(source_path: Path, target_path: Path) -> dict[str, Any]:
         )
     )
     return findings
-

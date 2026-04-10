@@ -44,6 +44,13 @@ Gating failures include:
 
 These checks should be run with the reusable scripts before or alongside qualitative review.
 
+However, the evaluator must adjudicate script findings before failing the locale:
+
+- a script finding is a candidate blocker, not automatically the final truth
+- hybrid source patterns that combine a rendered variable with a plural suffix helper may be legitimately translated into a single ICU plural message in the target locale
+- locale-specific plural categories may be legitimate if the compiled target message preserves the same user-facing meaning and runtime variables
+- when a finding is accepted as a false positive or locale-specific adaptation, the evaluator must say so explicitly and include the direct key-level evidence
+
 ## 4. Meaning checks are gating
 
 If product meaning drift is found on any important key, the locale fails.
