@@ -1,0 +1,65 @@
+{
+  "_doc": "Master MCP server definitions. Run: python3 ~/.agents/skills/setup/sync-mcp.py",
+  "_targets": "claude-code | claude-desktop | codex | gemini — default = all four",
+  "servers": {
+    "cloudflare-browser-rendering": {
+      "command": "${HOME}/.codex/mcp/cloudflare-browser-rendering.sh"
+    },
+    "context7": {
+      "command": "${HOME}/.codex/mcp/context7-wrapper.sh"
+    },
+    "dataforseo": {
+      "command": "${HOME}/.codex/mcp/dataforseo-wrapper.sh"
+    },
+    "excalidraw": {
+      "command": "node",
+      "args": ["${HOME}/.local/share/excalidraw-mcp/dist/index.js", "--stdio"]
+    },
+    "firecrawl": {
+      "command": "${HOME}/.codex/mcp/firecrawl-wrapper.sh"
+    },
+    "gemini-design-mcp": {
+      "command": "${HOME}/.codex/mcp/gemini-design-wrapper.sh"
+    },
+    "google-ads": {
+      "command": "${HOME}/.codex/mcp/google-ads-mcp.sh"
+    },
+    "google-sheets": {
+      "command": "${HOME}/.codex/mcp/google-sheets-wrapper.sh"
+    },
+    "haloscan": {
+      "command": "${HOME}/.codex/mcp/haloscan-wrapper.sh"
+    },
+    "pagespeed-insights": {
+      "command": "${HOME}/.codex/mcp/pagespeed-wrapper.sh"
+    },
+
+    "brave-devtools": {
+      "command": "${HOME}/.codex/mcp/brave-devtools-wrapper.sh",
+      "_note": "Needs local Brave browser — excluded from Desktop/Cowork (VM)",
+      "targets": ["codex"]
+    },
+    "chrome-devtools": {
+      "command": "${HOME}/.codex/mcp/chrome-devtools-wrapper.sh",
+      "_note": "Needs local Chrome browser — excluded from Desktop/Cowork (VM)",
+      "targets": ["claude-code", "codex"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp", "--browser", "chromium", "--executable-path", "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"],
+      "_note": "Needs local browser binary — excluded from Desktop/Cowork (VM)",
+      "targets": ["claude-code", "codex", "gemini"]
+    },
+
+    "n8n-mcp": {
+      "command": "${HOME}/.codex/mcp/n8n-wrapper-hardcoded.sh",
+      "_note": "Codex-specific workflow integration",
+      "targets": ["codex"]
+    },
+    "n8n-official": {
+      "command": "${HOME}/.codex/mcp/n8n-official-wrapper-hardcoded.sh",
+      "_note": "Codex-specific workflow integration",
+      "targets": ["codex"]
+    }
+  }
+}

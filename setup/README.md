@@ -154,10 +154,62 @@ Then `chmod +x ~/.codex/mcp/*.sh`.
 | Tool | Config file | Format |
 |------|-------------|--------|
 | Claude Code | `~/.claude.json` → `mcpServers` | JSON: `"command": "/path/to/wrapper.sh"` |
-| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` | JSON |
+| Claude Desktop / Cowork | `~/Library/Application Support/Claude/claude_desktop_config.json` | JSON |
 | Codex | `~/.codex/config.toml` → `[mcp_servers.xxx]` | TOML: `command = "/path/to/wrapper.sh"` |
+| Gemini | `~/.gemini/settings.json` → `mcpServers` | JSON |
 
-**Why wrapper scripts?** API keys stay in the Keychain (not in config files that could leak). The same wrapper is referenced by all three tools — change the wrapper once, all tools pick it up.
+**Why wrapper scripts?** API keys stay in the Keychain (not in config files that could leak). The same wrapper is referenced by all tools — change the wrapper once, all tools pick it up.
+
+**Don't register servers manually.** Use the sync script instead (Step 4c below).
+
+### Step 4c — Sync MCP server definitions across tools
+
+Each tool has its own config file and format for MCP servers. Instead of maintaining these separately, a master file + sync script propagates definitions to all four tools automatically.
+
+**Master file:** `~/.agents/mcp-servers.json`
+
+Defines all MCP servers in one place. Each server has a `command`, optional `args`, and optional `targets` (defaults to all tools). Use `${HOME}` in paths for portability.
+
+```json
+{
+  "servers": {
+    "haloscan": {
+      "command": "${HOME}/.codex/mcp/haloscan-wrapper.sh"
+    },
+    "chrome-devtools": {
+      "command": "${HOME}/.codex/mcp/chrome-devtools-wrapper.sh",
+      "targets": ["claude-code", "codex"]
+    }
+  }
+}
+```
+
+Servers without a `targets` field are deployed to all four tools: `claude-code`, `claude-desktop`, `codex`, `gemini`. Restrict targets for servers that need local resources (browsers, specific runtimes) unavailable in certain environments (e.g. Desktop/Cowork runs in a VM).
+
+**Sync:**
+
+```bash
+# Preview changes
+python3 ~/.agents/skills/setup/sync-mcp.py --dry-run
+
+# Apply
+python3 ~/.agents/skills/setup/sync-mcp.py
+
+# Check if in sync (exit 1 if not — useful in CI or verify.sh)
+python3 ~/.agents/skills/setup/sync-mcp.py --check
+```
+
+The script:
+- Reads `~/.agents/mcp-servers.json`, resolves `${HOME}`
+- Writes the `mcpServers` / `mcp_servers` section of each tool's native config
+- Preserves all non-MCP sections (preferences, hooks, projects, features, etc.)
+- Is idempotent — running twice produces no diff
+- Verifies wrapper scripts exist before syncing (warns if missing)
+
+**Adding a new MCP server:**
+1. Add the entry to `~/.agents/mcp-servers.json`
+2. Run `python3 ~/.agents/skills/setup/sync-mcp.py`
+3. Done — all tools get the new server
 
 ### Step 4b — Set up native browser automation
 
@@ -352,9 +404,7 @@ Connected boutiques:
 |------|-------|-----|
 | This repo (skills + setup) | `~/.agents/skills/` | `git clone` |
 | Global Claude rules | `~/.claude/CLAUDE.md` | Copy file |
-| Claude Code settings | `~/.claude.json` | Copy file |
-| Codex config | `~/.codex/config.toml` | Copy file |
-| Gemini config | `~/.gemini/settings.json` | Copy file |
+| MCP master definitions | `~/.agents/mcp-servers.json` | Included in this repo |
 | MCP wrappers | `~/.codex/mcp/*.sh` | Copy directory |
 | Browser CDP clients | `~/.codex/brave-cdp-client/`, `~/.codex/chrome-cdp-client/` | Copy directories |
 | API keys | macOS Keychain | Re-enter or export/import |
@@ -363,8 +413,9 @@ Connected boutiques:
 | Project repos | Google Drive | Automatic sync |
 | Symlinks (global) | `~/.codex/AGENTS.md`, `~/.gemini/GEMINI.md`, skills | Run Step 2-3 |
 | Symlinks (per-project) | `AGENTS.md`, memory | Auto-enforced by Claude Code on first session |
+| Tool-specific MCP configs | `~/.claude.json`, Desktop config, `config.toml`, `settings.json` | `python3 ~/.agents/skills/setup/sync-mcp.py` |
 
-**Key insight:** The real data (rules, memory, code) lives either in Google Drive (project repos) or in `~/.claude/` + `~/.codex/` + `~/.gemini/` (global config). Symlinks are the glue — they're lightweight and auto-recreated by the enforcement rules.
+**Key insight:** The real data (rules, memory, code) lives either in Google Drive (project repos) or in `~/.claude/` + `~/.codex/` + `~/.gemini/` (global config). Symlinks are the glue — they're lightweight and auto-recreated by the enforcement rules. Tool-specific MCP configs are generated from the master file — don't edit them manually.
 
 ## Full verification script
 
@@ -402,6 +453,18 @@ Basic Memory provides semantic search across a shared knowledge base. We evaluat
 ### Why not use the `sync-configs` or `agents-project-memory` skills
 
 These skills are opinionated (specific frameworks, personas, conventions) and solve problems we've already solved with simpler filesystem primitives. Our approach uses only symlinks and naming conventions — no dependencies, no runtime, no configuration drift.
+
+### Why not use `@agents-dev/cli`, `vsync`, or `mcpx-cli` for MCP sync
+
+We evaluated these community tools (April 2026). None fits our setup:
+
+- **`@agents-dev/cli`**: project-scoped (not global), no Claude Desktop/Cowork support, full-overwrites Codex config, solo maintainer at v0.8.
+- **`vsync`**: picks one tool as source of truth and syncs to others — doesn't support a separate master file or Keychain-based wrapper scripts.
+- **`mcpx-cli`**: similar limitations, and authored by the same person driving the (still-open) RFC for a standard config format.
+
+All three add an npm dependency that could break or be abandoned. Our sync script is ~150 lines of stdlib Python, reads a JSON master file, and writes each tool's native format. If a tool changes its config format, one function in the script is updated — no upstream dependency to wait on.
+
+The MCP specification (Linux Foundation / AAIF) does not define a config format. An RFC (#2219) exists but is not adopted. If a standard emerges, we can replace the script with a single config file.
 
 ### Why the memory file is called CLAUDE_MEMORY.md
 
