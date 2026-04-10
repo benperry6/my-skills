@@ -129,23 +129,8 @@ def extract_top_level_brace_tokens(text: str) -> list[str]:
     tokens: list[str] = []
     start: int | None = None
     depth = 0
-    in_quote: str | None = None
-    escape = False
 
     for index, char in enumerate(text):
-        if in_quote:
-            if escape:
-                escape = False
-            elif char == "\\":
-                escape = True
-            elif char == in_quote:
-                in_quote = None
-            continue
-
-        if char == '"':
-            in_quote = char
-            continue
-
         if char == "{":
             if depth == 0:
                 start = index
