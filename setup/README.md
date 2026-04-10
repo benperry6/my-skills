@@ -52,7 +52,16 @@ Global config:
 ├── ~/.gemini/antigravity/global_skills → ~/.agents/skills
 ├── ~/.codex/mcp/                # Shared MCP wrapper scripts
 ├── ~/.codex/brave-cdp-client/   # Brave native browser-control layer
-└── ~/.codex/chrome-cdp-client/  # Chrome native browser-control layer
+├── ~/.codex/chrome-cdp-client/  # Chrome native browser-control layer
+│
+MCP server sync:
+├── ~/.agents/skills/setup/mcp-servers.json   # Master MCP definitions (source of truth)
+├── ~/.agents/skills/setup/sync-mcp.py        # Generates tool-native configs from master
+│   writes to:
+├── ~/.claude.json               → mcpServers   (JSON, Claude Code CLI)
+├── ~/Library/.../claude_desktop_config.json   → mcpServers   (JSON, Desktop/Cowork)
+├── ~/.codex/config.toml         → mcp_servers  (TOML, Codex CLI)
+└── ~/.gemini/settings.json      → mcpServers   (JSON, Gemini CLI)
 ```
 
 The shared skills repo is itself a versioned repo and should also follow the local `CLAUDE.md` + `AGENTS.md` convention.
@@ -62,6 +71,7 @@ The shared skills repo is itself a versioned repo and should also follow the loc
 ### Prerequisites
 
 - macOS (uses Keychain for secrets, AppleScript for browser automation)
+- Python 3.11+ (for MCP sync script — ships with Xcode Command Line Tools)
 - Node.js 18+
 - Claude Code CLI installed (`npm install -g @anthropic-ai/claude-code`)
 - Codex CLI installed (`npm install -g @openai/codex`)
@@ -160,13 +170,13 @@ Then `chmod +x ~/.codex/mcp/*.sh`.
 
 **Why wrapper scripts?** API keys stay in the Keychain (not in config files that could leak). The same wrapper is referenced by all tools — change the wrapper once, all tools pick it up.
 
-**Don't register servers manually.** Use the sync script instead (Step 4c below).
+**Don't register servers manually.** Use the sync script instead (Step 4b below).
 
-### Step 4c — Sync MCP server definitions across tools
+### Step 4b — Sync MCP server definitions across tools
 
 Each tool has its own config file and format for MCP servers. Instead of maintaining these separately, a master file + sync script propagates definitions to all four tools automatically.
 
-**Master file:** `~/.agents/mcp-servers.json`
+**Master file:** `~/.agents/skills/setup/mcp-servers.json` (versioned in this repo)
 
 Defines all MCP servers in one place. Each server has a `command`, optional `args`, and optional `targets` (defaults to all tools). Use `${HOME}` in paths for portability.
 
@@ -199,19 +209,23 @@ python3 ~/.agents/skills/setup/sync-mcp.py
 python3 ~/.agents/skills/setup/sync-mcp.py --check
 ```
 
+The sync script finds the master file relative to itself (`setup/mcp-servers.json`). No symlink or environment variable needed — as long as the repo is cloned at `~/.agents/skills/`, the script works.
+
 The script:
-- Reads `~/.agents/mcp-servers.json`, resolves `${HOME}`
+- Reads `setup/mcp-servers.json`, resolves `${HOME}`
 - Writes the `mcpServers` / `mcp_servers` section of each tool's native config
 - Preserves all non-MCP sections (preferences, hooks, projects, features, etc.)
 - Is idempotent — running twice produces no diff
 - Verifies wrapper scripts exist before syncing (warns if missing)
 
 **Adding a new MCP server:**
-1. Add the entry to `~/.agents/mcp-servers.json`
+1. Add the entry to `~/.agents/skills/setup/mcp-servers.json`
 2. Run `python3 ~/.agents/skills/setup/sync-mcp.py`
 3. Done — all tools get the new server
 
-### Step 4b — Set up native browser automation
+**On a new machine:** after Step 1 (clone) and Step 4 (wrapper scripts), just run the sync script. It generates all four tool configs from the master file — no need to copy `~/.claude.json`, `config.toml`, or `settings.json` from the old machine.
+
+### Step 4c — Set up native browser automation
 
 This stack uses a browser policy that is intentionally stricter than the defaults of the tools:
 
@@ -402,9 +416,10 @@ Connected boutiques:
 
 | What | Where | How |
 |------|-------|-----|
-| This repo (skills + setup) | `~/.agents/skills/` | `git clone` |
+| This repo (skills + setup) | `~/.agents/skills/` | `git clone` (includes MCP master file) |
 | Global Claude rules | `~/.claude/CLAUDE.md` | Copy file |
-| MCP master definitions | `~/.agents/mcp-servers.json` | Included in this repo |
+| Codex settings (non-MCP) | `~/.codex/config.toml` | Copy file (model, approval_policy, projects, features) |
+| Gemini settings (non-MCP) | `~/.gemini/settings.json` | Copy file (hooks, security) |
 | MCP wrappers | `~/.codex/mcp/*.sh` | Copy directory |
 | Browser CDP clients | `~/.codex/brave-cdp-client/`, `~/.codex/chrome-cdp-client/` | Copy directories |
 | API keys | macOS Keychain | Re-enter or export/import |
@@ -413,9 +428,11 @@ Connected boutiques:
 | Project repos | Google Drive | Automatic sync |
 | Symlinks (global) | `~/.codex/AGENTS.md`, `~/.gemini/GEMINI.md`, skills | Run Step 2-3 |
 | Symlinks (per-project) | `AGENTS.md`, memory | Auto-enforced by Claude Code on first session |
-| Tool-specific MCP configs | `~/.claude.json`, Desktop config, `config.toml`, `settings.json` | `python3 ~/.agents/skills/setup/sync-mcp.py` |
+| MCP servers (all tools) | `~/.claude.json`, Desktop config, `config.toml`, `settings.json` | `python3 ~/.agents/skills/setup/sync-mcp.py` |
 
-**Key insight:** The real data (rules, memory, code) lives either in Google Drive (project repos) or in `~/.claude/` + `~/.codex/` + `~/.gemini/` (global config). Symlinks are the glue — they're lightweight and auto-recreated by the enforcement rules. Tool-specific MCP configs are generated from the master file — don't edit them manually.
+**Key insight:** The real data (rules, memory, code) lives either in Google Drive (project repos) or in `~/.claude/` + `~/.codex/` + `~/.gemini/` (global config). Symlinks are the glue — they're lightweight and auto-recreated by the enforcement rules.
+
+Tool-specific config files serve two purposes: non-MCP settings (model, hooks, features) that you copy manually, and MCP server definitions that the sync script generates from the master file. The sync script only touches the MCP section — it preserves everything else. Don't edit MCP servers directly in tool configs; edit `setup/mcp-servers.json` and re-sync.
 
 ## Full verification script
 
