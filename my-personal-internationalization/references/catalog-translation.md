@@ -93,6 +93,7 @@ Do not assume the theoretically ideal wave size is safe in the current tool envi
 - if an agent is closed or cannot be messaged, do not keep routing work to it; start a fresh, narrowly scoped correction agent or re-plan
 - if a whole-file translator stalls for about 10 minutes with no completion and no observable local progress, treat it as blocked instead of "probably still finishing"
 - when re-launching a blocked locale, replace the contaminated or half-trusted target file with a fresh scaffold from the canonical source before resuming section-level translation work
+- if translator subagents start erroring with a usage-limit or credit-limit message, stop spawning new translation agents immediately; treat that as an environment limit, not as a translation-quality issue
 - do not count a subagent as complete until the orchestrator verifies the target file exists locally and passes the structural checks
 
 Reusable orchestration:
@@ -129,6 +130,14 @@ For very large catalogs or unstable agent environments, use a section-first patt
 3. ask that agent to translate only an explicit list of top-level sections
 4. verify the file locally after each section batch
 5. continue with a fresh agent or the same agent only if the current run is clearly healthy
+
+If the environment hits a subagent usage limit mid-wave:
+
+1. stop launching additional translators immediately
+2. preserve or verify any already-finished locale work that landed locally
+3. close or discard the errored agents instead of retrying blindly
+4. report the quota/time-reset blocker explicitly
+5. resume the next section batch only after capacity is available again
 
 Good section boundaries are usually top-level keys such as:
 
