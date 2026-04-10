@@ -2,7 +2,7 @@
 name: my-personal-internationalization
 description: "[My Personal Skill] Use when a website or web app needs its international architecture designed, audited, fixed, or translated for multilingual SEO. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, hreflang, x-default, canonical alternates, localized sitemaps, translating locale catalogs (for example `fr.json` -> `en.json`), auditing missing locale keys, scanning hardcoded user-facing strings, post-translation verification, or deciding which languages or language variants to launch first. This skill is doctrine-first, web-focused, and language-first: it turns proven hreflang-driven product decisions into reusable rules for websites and web apps."
 metadata:
-  version: 1.5.0
+  version: 1.6.0
 ---
 
 # My Personal Internationalization

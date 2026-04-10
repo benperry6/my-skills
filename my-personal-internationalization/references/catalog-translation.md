@@ -83,11 +83,16 @@ For one or two target locales, a single execution pass can be enough.
 
 For many target locales, do not run one giant sequential session and do not launch every locale in parallel at once.
 
+For very large catalogs, do not default to one whole-file translation agent per locale.
+If a locale file is long enough to force heavy context loading or long silent execution windows, prefer stable section-level handoffs instead.
+
 Do not assume the theoretically ideal wave size is safe in the current tool environment. Calibrate it from the previous wave's observed behavior:
 
 - if a pilot wave of 3 to 4 locales completed with files on disk and local verification, reuse 4 as the next wave size
 - if a wave times out twice, returns no files, or hits agent/thread limits, stop and reduce the wave size or change the handoff strategy before launching more agents
 - if an agent is closed or cannot be messaged, do not keep routing work to it; start a fresh, narrowly scoped correction agent or re-plan
+- if a whole-file translator stalls for about 10 minutes with no completion and no observable local progress, treat it as blocked instead of "probably still finishing"
+- when re-launching a blocked locale, replace the contaminated or half-trusted target file with a fresh scaffold from the canonical source before resuming section-level translation work
 - do not count a subagent as complete until the orchestrator verifies the target file exists locally and passes the structural checks
 
 Reusable orchestration:
@@ -116,6 +121,22 @@ Reusable orchestration:
    - every corrected locale is re-evaluated
    - the evaluator does not fix the locale it reviewed
 8. Run one final global verification pass across all produced catalogs and the codebase.
+
+For very large catalogs or unstable agent environments, use a section-first pattern:
+
+1. scaffold the target file from the canonical source catalog
+2. assign one locale file to one translator agent at a time
+3. ask that agent to translate only an explicit list of top-level sections
+4. verify the file locally after each section batch
+5. continue with a fresh agent or the same agent only if the current run is clearly healthy
+
+Good section boundaries are usually top-level keys such as:
+
+- `common`, `nav`, `hero`, `pricing`
+- `auth`, `upload`, `onboarding`
+- `dashboard`, `settings`, `addCard`
+- `api`, `email`, `metadata`, `legal`
+- `admin`, `promotion`, `chatbot`
 
 Operational acceptance rule for each wave:
 
@@ -253,5 +274,6 @@ Additional production lessons from the first real Lost N Found translation run:
 - do not use a translation API or script as a shortcut when the user expects native AI-written, culturally adapted copy
 - do not rely on the bundled verifier alone when it conflicts with direct ICU/runtime reasoning; the original verifier over-reported issues on strings like `Voir les {count} résultat{count, plural, one {} other {s}}`
 - do not continue a stalled wave after repeated empty `wait_agent` results; stop, summarize, and re-plan
+- do not keep two "stuck but maybe finishing" whole-file translators alive while opening the next wave; close them and relaunch on smaller section scopes
 - do not forget that closed subagents cannot receive follow-up correction requests; start fresh correction agents with a narrow file scope instead
 - do not let model or reasoning-effort overrides leak into spawned translators unless explicitly authorized by the user
