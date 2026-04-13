@@ -1,8 +1,8 @@
 ---
 name: my-personal-internationalization
-description: "[My Personal Skill] Use when a website or web app needs its international architecture designed, audited, fixed, or translated for multilingual SEO. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, hreflang, x-default, canonical alternates, localized sitemaps, translating locale catalogs (for example `fr.json` -> `en.json`), auditing missing locale keys, scanning hardcoded user-facing strings, post-translation verification, or deciding which languages or language variants to launch first. This skill is doctrine-first, web-focused, and language-first: it turns proven hreflang-driven product decisions into reusable rules for websites and web apps."
+description: "[My Personal Skill] Use when a website or web app needs its international architecture designed, audited, fixed, or translated for multilingual SEO. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, hreflang, x-default, canonical alternates, localized sitemaps, translating locale catalogs (for example `fr.json` to `en.json`), auditing missing locale keys, scanning hardcoded user-facing strings, post-translation verification, or deciding which languages or language variants to launch first. This skill is doctrine-first, web-focused, and language-first: it turns proven hreflang-driven product decisions into reusable rules for websites and web apps."
 metadata:
-  version: 1.6.1
+  version: 1.7.0
 ---
 
 # My Personal Internationalization
@@ -116,6 +116,9 @@ These are the default rules unless the project has already made an explicit cont
 17. International SEO must be centralized and generated from shared rules.
 18. Language rollout should be strategic, not arbitrary.
 19. Locale logic must be tested like business logic.
+20. Distinguish `planned locales` from `published locales`. Only published locales should drive runtime routing, selectors, metadata, sitemap output, and other public SEO surfaces.
+21. Removing or pausing a locale is an architectural change. Previously published locale-prefixed URLs must be normalized deliberately instead of being left to malformed redirects or accidental fallback paths.
+22. Treat `app/Vercel production readiness` and `public-domain cutover readiness` as separate verification states.
 
 ## Reference Map
 
@@ -153,7 +156,9 @@ If the project already contains explicit international decisions, reuse them ins
 Before producing a doctrine, audit, or implementation plan, establish these assumptions:
 
 - which locale codes are supported
+- which locale codes are only planned vs actually published
 - which locales are actually translated and production-ready
+- whether stale locale-prefixed URLs may already exist in the wild from earlier rollout states
 - whether localized URLs already matter for acquisition
 - whether the project is broad-addressable or inherently local/narrow-market
 - whether the product has authenticated user state
@@ -164,6 +169,7 @@ Before producing a doctrine, audit, or implementation plan, establish these assu
 - whether any region split is materially justified
 - which user-facing non-UI surfaces exist
 - which multilingual SEO surfaces exist or should exist
+- whether app-production verification and public-domain verification must be checked separately
 
 If some of these materially affect the recommendation and are still unknown, say so explicitly.
 
@@ -267,8 +273,11 @@ Check that the project preserves locale correctly across:
 - deep links
 - programmatic navigation
 - language switching
+- stale locale-prefixed URLs from known but currently unpublished locales
 
 The user should land on the localized equivalent of the same place, not the homepage, unless no equivalent exists.
+
+If the product has reduced its public locale surface, ensure stale locale-prefixed URLs are normalized server-side to a valid published locale path before the i18n router builds further redirects. The failure mode to avoid is a malformed path such as `/{published-locale}/{old-locale}/...`.
 
 Also audit or define the explicit locale selector itself:
 
@@ -279,16 +288,19 @@ Also audit or define the explicit locale selector itself:
 - whether currency/market labels are shown when relevant
 - how the selector persists an explicit choice
 - how the selector indicates the currently active locale
+- whether the selector options are driven by published locales rather than the full planned locale set
 
 ### 7. Audit or design translation and optional display-currency layers
 
 Check that the project has:
 
 - one central locale registry
+- one explicit distinction between planned locales and published locales
 - one central formatting layer
 - when prices are visibly exposed, one central locale -> display currency mapping
 - explicit translation completeness rules
 - explicit fallback behavior for missing translations
+- one explicit rule saying which locale set drives routing, selectors, metadata, sitemap, and tests
 
 If the task is about translating locale catalogs, read `references/catalog-translation.md` and apply that workflow instead of inventing a one-off prompt.
 
@@ -361,12 +373,15 @@ Any user-facing surface that ignores locale weakens the architecture.
 When SEO is in scope, ensure:
 
 - canonical URLs are self-referential and absolute
-- `hreflang` clusters include the current page and all valid alternates
+- `hreflang` clusters include the current page and all valid published alternates
 - `x-default` points to a real 200 page
 - metadata generation is centralized
 - sitemap generation is centralized
 - the sitemap contains real localized pages, not fragments
+- sitemap and alternates are generated from published locales only, not from planned-but-unpublished locales
 - base URL resolution is centralized
+- base-URL changes are re-verified after env writes instead of trusting the write command alone
+- app-production checks and public-domain checks are run separately when a cutover is part of the task
 
 Use `references/international-seo.md`.
 
@@ -414,6 +429,8 @@ Flag these explicitly when found:
 - hand-writing `hreflang` clusters page by page
 - putting `#fragment` URLs in a sitemap
 - exposing incomplete locales publicly without an explicit fallback policy
+- driving runtime and SEO from a superset of planned locales instead of the actually published locale set
+- leaving stale locale-prefixed URLs to produce doubled or malformed redirects
 - assuming browser language is the same thing as user preference
 
 ## Execution Boundary

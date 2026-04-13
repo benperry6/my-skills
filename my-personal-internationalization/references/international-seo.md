@@ -16,6 +16,13 @@ It must coordinate:
 - route inventories
 - base URL resolution
 
+Treat `planned locales` and `published locales` as separate concepts:
+
+- planned locales = known or intended locale codes for future rollout
+- published locales = locales that are truly translated and ready to be exposed in runtime and SEO
+
+Only published locales should feed public SEO surfaces.
+
 ## 2. Explicit locale URLs are the stable default
 
 When localized acquisition matters, use stable locale-specific URLs for indexable pages.
@@ -83,12 +90,18 @@ This reduces:
 - inconsistent canonicals
 - stale or partial locale coverage
 
+It also prevents a real-world failure mode:
+
+- routing or SEO code reading from the full planned locale list while the product is only ready to expose a smaller published subset
+
 ## 7. Sitemaps should be generated from real route data
 
 Preferred pattern:
 
 - `public routes × supported locales`
 - optionally extended by dynamic content sources
+
+In partial rollouts, read `supported locales` here as the published locale set, not the full planned locale set.
 
 Do not hardcode multilingual sitemaps page by page unless the site is tiny and stable.
 
@@ -123,6 +136,13 @@ If a locale exists in routing but is not fully translated, choose explicitly:
 
 Do not accidentally index incomplete locales.
 
+For partial launches, make this operationally concrete:
+
+- selectors expose published locales only
+- `hreflang` enumerates published locales only
+- sitemap enumerates published locales only
+- metadata factories derive alternates from published locales only
+
 ## 11. Root redirect behavior is a tradeoff, not a free win
 
 If `/` negotiates locale and redirects:
@@ -132,14 +152,48 @@ If `/` negotiates locale and redirects:
 
 Prefer real 200 content pages for canonicalized, `x-default`, and sitemap targets.
 
-## 12. Localized HTML attributes should be explicit
+## 12. Stale locale URLs from earlier rollout states need deliberate handling
+
+If a locale was previously exposed, linked, tested publicly, or simply existed in a broader planned-locale registry, stale URLs such as `/de/...` may survive in bookmarks, crawlers, logs, emails, or internal links.
+
+Do not leave these to accidental router behavior.
+
+Handle them deliberately:
+
+- detect known-but-unpublished locale prefixes
+- strip the stale locale prefix first
+- rebuild the path under the best published locale
+- do this server-side before the i18n router creates further redirects
+
+The failure mode to avoid is a malformed redirect like `/{published-locale}/{old-locale}/...`.
+
+## 13. Localized HTML attributes should be explicit
 
 Set `<html lang>` from the effective locale on every localized page.
 
 If any supported locale is RTL, derive `dir` from the locale registry and apply `rtl` only for those locales.
 
-## 13. Cache behavior must not leak locales
+## 14. Cache behavior must not leak locales
 
 Do not let a cache or CDN serve one locale's HTML to another locale.
 
 If locale negotiation depends on request signals, ensure the cache strategy preserves locale correctness instead of collapsing multiple locales into one cached HTML response.
+
+## 15. App-production verification and public-domain verification are separate
+
+When a project uses both a deployment host and a public custom domain, verify both independently.
+
+Do not assume that:
+
+- a successful production deployment
+- or a successful alias operation
+
+means the public domain already serves the same origin.
+
+Check separately:
+
+- the app/deployment host behavior
+- the public custom-domain behavior
+- the real DNS/origin path when a cutover is involved
+
+Likewise, after changing a base-URL environment variable, re-read the effective value instead of trusting the write command alone.

@@ -15,9 +15,11 @@ Use this before shipping multilingual behavior.
 
 - [ ] one central locale registry exists
 - [ ] supported locale codes are defined in one place
+- [ ] planned locale codes and published locale codes are distinguished explicitly
 - [ ] default locale is defined in one place
 - [ ] display labels and localized language names are centralized
 - [ ] any optional display-currency attributes tied to locales are centralized when used
+- [ ] one source of truth defines which locale set drives routing, selectors, metadata, sitemap, mismatch UX, auth helpers, and tests
 
 ## Language and Locale Selection
 
@@ -65,8 +67,11 @@ Use this before shipping multilingual behavior.
 - [ ] internal links preserve locale
 - [ ] programmatic navigation preserves locale
 - [ ] language switching preserves path, query string, and hash
+- [ ] stale locale-prefixed URLs from unpublished or paused locales are normalized server-side to a valid published locale path
+- [ ] stale locale-prefixed URLs do not produce doubled paths like `/{published-locale}/{old-locale}/...`
 - [ ] one explicit locale selector exists if the product needs manual language control
 - [ ] the selector is driven by a central locale registry, not a page-level hardcoded list
+- [ ] the selector exposes published locales only unless the project explicitly wants to surface prelaunch locales
 - [ ] selector option ordering is intentional (business/acquisition/rollout priority or an explicit alternative), not accidental
 - [ ] native language names are used in the selector unless the project explicitly chooses otherwise
 - [ ] flags/language markers are used only when they materially improve scanning
@@ -132,12 +137,15 @@ Use this before shipping multilingual behavior.
 ## SEO
 
 - [ ] canonical URLs are self-referential and absolute
-- [ ] `hreflang` includes the current page and all valid alternates
+- [ ] `hreflang` includes the current page and all valid published alternates
 - [ ] `x-default` points to a real 200 page
 - [ ] metadata generation is centralized
 - [ ] sitemap generation is centralized
 - [ ] sitemap only contains real indexable localized URLs
+- [ ] sitemap and alternates are generated from published locales only, not planned-but-unpublished locales
 - [ ] base URL resolution is centralized
+- [ ] base URL/env writes are re-read and verified after mutation
+- [ ] app-production host validation and public-domain validation are run separately when a domain cutover is in scope
 
 ## Testing
 
@@ -149,6 +157,7 @@ Use this before shipping multilingual behavior.
 - [ ] banner dismiss behavior is tested
 - [ ] localized redirects are tested
 - [ ] fallback behavior is tested
+- [ ] negative tests cover stale locale-prefixed URLs such as `/de/...` when `de` is no longer published
 
 ## Suggested commands
 
