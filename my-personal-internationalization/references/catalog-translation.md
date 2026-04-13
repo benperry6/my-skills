@@ -1,6 +1,6 @@
 # Catalog Translation Mode
 
-Use this mode when the user wants to translate locale message catalogs such as `fr.json` -> `en.json` without keeping a recurring prompt in notes.
+Use this mode when the user wants to translate locale message catalogs such as `fr.json` to `en.json` without keeping a recurring prompt in notes.
 
 This mode exists to make translation execution reusable, native-sounding, and verifiable.
 
@@ -49,20 +49,29 @@ Do not:
 
 ## 3. Reusable translation instruction
 
-When the user asks for catalog translation, use a reusable instruction equivalent to:
+Default rule: keep the translator prompt as small and task-focused as possible.
 
-`Translate the source locale catalog into the target locale like a native speaker. Adapt references, formulations, and cultural codes so the result is natural and immediately understandable for the target language community. Do not translate literally. Preserve keys, placeholders, ICU syntax, and structural parity with the source catalog.`
+Do not turn the translator prompt into a mini-orchestration document.
+Do not stuff it with evaluation, polling, or recovery rules.
 
-Also include, unless the user has explicitly authorized machine translation:
+Use the proven direct instruction pattern:
 
-`Do not call translation APIs, browser translation, or programmatic translation scripts to produce the copy. You may use scripts only to scaffold JSON, compare keys, validate placeholders/ICU/markup, and audit the finished file.`
+`Traduis fr.json en anglais comme un natif pour en.json, en adaptant aussi toutes les references, formulations et codes culturels pour qu'ils soient naturels et immediatement comprehensibles pour la communaute anglophone.`
 
-Adapt the target-language community explicitly when relevant:
+Only two prompt adaptations are allowed by default:
 
-- anglophone
-- german-speaking
-- brazilian portuguese
-- traditional chinese
+1. adapt the target language, target file, and target community name
+2. add one short sentence making it explicit that the model/agent addressed must do the translation itself and must not rely on translation APIs, browser translation, programmatic translation scripts, or second-opinion delegation to generate the copy
+
+Everything else belongs to the orchestrator, not to the translator prompt.
+
+Examples of the community-name substitution:
+
+- communaute anglophone
+- communaute germanophone
+- communaute lusophone bresilienne
+- communaute thaiophone
+- communaute sinophone traditionnelle
 
 ## 4. Execution workflow
 
@@ -79,86 +88,53 @@ Adapt the target-language community explicitly when relevant:
 
 ## 5. Orchestration at scale
 
-For one or two target locales, a single execution pass can be enough.
+Default orchestration rule:
 
-For many target locales, do not run one giant sequential session and do not launch every locale in parallel at once.
+- spawn one translator subagent per target locale
+- launch all remaining target locales in parallel by default
+- keep every translator on inherited conversation settings with no model or reasoning override
 
-For very large catalogs, do not default to one whole-file translation agent per locale.
-If a locale file is long enough to force heavy context loading or long silent execution windows, prefer stable section-level handoffs instead.
+Do not shrink this into waves by default just because earlier runs looked quiet.
+Quiet is not the same thing as dead.
 
-Do not assume the theoretically ideal wave size is safe in the current tool environment. Calibrate it from the previous wave's observed behavior:
+Warm-up rule:
 
-- if a pilot wave of 3 to 4 locales completed with files on disk and local verification, reuse 4 as the next wave size
-- if a wave times out twice, returns no files, or hits agent/thread limits, stop and reduce the wave size or change the handoff strategy before launching more agents
-- if an agent is closed or cannot be messaged, do not keep routing work to it; start a fresh, narrowly scoped correction agent or re-plan
-- if a whole-file translator stalls for about 10 minutes with no completion and no observable local progress, treat it as blocked instead of "probably still finishing"
-- when re-launching a blocked locale, replace the contaminated or half-trusted target file with a fresh scaffold from the canonical source before resuming section-level translation work
-- if translator subagents start erroring with a usage-limit or credit-limit message, stop spawning new translation agents immediately; treat that as an environment limit, not as a translation-quality issue
-- do not count a subagent as complete until the orchestrator verifies the target file exists locally and passes the structural checks
+- 2 to 5 minutes of visible inactivity is normal
+- less than 10 minutes of inactivity is not, by itself, a failure signal
+- do not recadre, interrupt, or restart a translator merely because it looks frozen for a few minutes
 
-Reusable orchestration:
+Failure rule:
 
-1. One orchestrator agent defines:
-   - the source-of-truth catalog
-   - protected invariants
-   - glossary and naming rules
-   - verification rules
-   - the exact wave size and timeout/stop rule for the current environment
-2. Run a pilot batch on 3 to 4 representative locales.
-   - use one translator subagent per locale
-3. Review the pilot results.
-4. Adjust the translation brief if needed.
-5. Scale through small parallel batches of about 4 to 6 locales per wave.
-   - in each wave, launch one translator subagent per locale
-   - do not assign multiple locales to the same translator subagent
-   - keep model/reasoning settings inherited from the parent conversation unless the user explicitly authorizes overrides
-6. After each translation wave, launch one independent evaluator subagent per locale in that wave.
-   - do not assign multiple locales to the same evaluator subagent
-   - do not let a locale be evaluated by the same agent/session that generated it
-7. If an evaluator finds issues, route that locale into a separate correction loop.
-   - the evaluator reports findings
-   - the orchestrator decides whether the locale passes or needs correction
-   - a translator or dedicated fixer subagent corrects the locale
-   - every corrected locale is re-evaluated
-   - the evaluator does not fix the locale it reviewed
-8. Run one final global verification pass across all produced catalogs and the codebase.
+- only treat a translator as potentially dead after more than 10 minutes with no observable activity, no new step, and no local progress
+- once that threshold is crossed, replace the translator rather than nudging it with extra instructions
 
-For very large catalogs or unstable agent environments, use a section-first pattern:
+Default orchestrator behavior:
 
-1. scaffold the target file from the canonical source catalog
-2. assign one locale file to one translator agent at a time
-3. ask that agent to translate only an explicit list of top-level sections
-4. verify the file locally after each section batch
-5. continue with a fresh agent or the same agent only if the current run is clearly healthy
+1. define the source-of-truth catalog and structural invariants
+2. spawn one translator subagent per target locale immediately
+3. keep the translator prompt minimal; do not add orchestration boilerplate to it
+4. let the translators run without recadrage unless the failure rule is met
+5. as each locale lands locally, verify it on disk before accepting it
+6. run the evaluator/correction loop for that locale
+7. keep the orchestrator alive until every locale has completed translation, verification, evaluation, and any required corrections
 
-If the environment hits a subagent usage limit mid-wave:
+Operational acceptance rule:
 
-1. stop launching additional translators immediately
-2. preserve or verify any already-finished locale work that landed locally
-3. close or discard the errored agents instead of retrying blindly
-4. report the quota/time-reset blocker explicitly
-5. resume the next section batch only after capacity is available again
-
-Good section boundaries are usually top-level keys such as:
-
-- `common`, `nav`, `hero`, `pricing`
-- `auth`, `upload`, `onboarding`
-- `dashboard`, `settings`, `addCard`
-- `api`, `email`, `metadata`, `legal`
-- `admin`, `promotion`, `chatbot`
-
-Operational acceptance rule for each wave:
-
-- subagent final messages are useful evidence, not acceptance
+- a subagent final message is evidence, not acceptance
 - acceptance requires local file presence plus local verification output recorded by the orchestrator
-- if a verifier reports many mismatches, inspect representative keys directly before concluding the catalog is bad; the verifier may be wrong around hybrid ICU/plural-suffix patterns
-- if direct inspection proves a verifier false positive, improve the verifier or document the adjudication before scaling the next wave
+- if a verifier reports many mismatches, inspect representative keys directly before concluding the catalog is bad
 
-Why this pattern:
+Environment-limit rule:
 
-- long single-agent translation runs drift in tone and rigor as context grows
-- all-at-once parallelism makes inconsistencies harder to catch and fix
-- a pilot batch lets the system fail small before it fails wide
+- if spawning all target locales hard-fails because of a usage limit, quota limit, or agent-creation failure, report that environment limit explicitly
+- do not silently redesign the translation brief or switch to another translation method because of that limit
+
+Resumption and traceability rule:
+
+- Codex threads are designed to persist and be resumed, but do not rely on UI attachment alone after closing the app or terminal
+- the orchestrator must keep a run registry with at least locale, agent id, and status
+- if the environment exposes a session or transcript path, record it too
+- this registry is what lets a later session recover the translation run even if the visual parent/child attachment is gone
 
 ## 6. Independent evaluation is mandatory
 
@@ -252,6 +228,8 @@ Important:
 - `verify_catalog.py` is a structural gate
 - `scan_hardcoded_strings.py` is heuristic and meant to produce review candidates
 - `run_catalog_audit.py` gives a reusable one-command audit for real translation waves
+- the verifier should not fail valid English contractions such as `We've` or `You're`
+- the verifier should not raise a false blocker when a target locale replaces a placeholder-plus-suffix source pattern with a valid ICU message that preserves the same runtime variable and meaning
 
 ## 9. Expected outcome
 
@@ -279,10 +257,11 @@ Example reusable pattern:
 
 Additional production lessons from the first real Lost N Found translation run:
 
-- do not spawn a single broad agent to create every missing catalog; it drifted toward programmatic translation and became hard to verify
+- do not overload translator prompts with orchestration instructions; the extra instructions diluted the main task
 - do not use a translation API or script as a shortcut when the user expects native AI-written, culturally adapted copy
 - do not rely on the bundled verifier alone when it conflicts with direct ICU/runtime reasoning; the original verifier over-reported issues on strings like `Voir les {count} résultat{count, plural, one {} other {s}}`
-- do not continue a stalled wave after repeated empty `wait_agent` results; stop, summarize, and re-plan
-- do not keep two "stuck but maybe finishing" whole-file translators alive while opening the next wave; close them and relaunch on smaller section scopes
-- do not forget that closed subagents cannot receive follow-up correction requests; start fresh correction agents with a narrow file scope instead
+- do not treat a translator as dead just because it stayed quiet for a few minutes; short freezes are often warm-up periods rather than real failure
+- do not accept a locale from the subagent's final text alone; verify the file on disk locally first
+- do not let the orchestrator stop after spawning translators; it must stay alive until the entire translation/evaluation/correction run is finished
+- do not lose track of spawned subagents; keep locale-to-agent traceability so a later session can recover the run
 - do not let model or reasoning-effort overrides leak into spawned translators unless explicitly authorized by the user

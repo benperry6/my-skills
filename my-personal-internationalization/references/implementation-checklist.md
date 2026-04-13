@@ -34,10 +34,14 @@ Use this before shipping multilingual behavior.
 - [ ] one reference locale is structurally complete
 - [ ] other core locales stay iso-structured with the reference locale
 - [ ] target catalogs are translated natively for their target language communities, not literally
-- [ ] large multi-locale rollout uses an orchestrator, not isolated ad hoc runs
-- [ ] a pilot batch is validated before mass translation
-- [ ] large rollout is executed in small parallel batches, not one giant all-at-once wave
+- [ ] translator prompts stay minimal and task-only rather than carrying orchestration or verification boilerplate
+- [ ] the default translator prompt follows the proven direct pattern, with only the target language/community and self-translation warning adapted
+- [ ] large multi-locale rollout uses one orchestrator, not isolated ad hoc runs
+- [ ] all requested locales are spawned in parallel by default, with one translator subagent per locale
 - [ ] each translator subagent handles exactly one locale
+- [ ] translator subagents inherit the parent conversation settings with no model or reasoning override unless explicitly authorized
+- [ ] inactivity under 10 minutes is not treated as translator death by default
+- [ ] a translator is only treated as potentially dead after more than 10 minutes with no observable activity or task progression
 - [ ] missing keys are auditable
 - [ ] placeholder and ICU parity are auditable
 - [ ] reusable structural audit scripts are available to compare source and target catalogs
@@ -47,6 +51,9 @@ Use this before shipping multilingual behavior.
 - [ ] failed locales go through a separate correction loop before acceptance
 - [ ] every corrected locale is re-evaluated before acceptance
 - [ ] locale acceptance uses an explicit pass/fail rubric rather than ad hoc judgment
+- [ ] locale acceptance is based on local file verification, not on a subagent final message
+- [ ] the translation run records locale, agent id, and any discoverable session/transcript path for each spawned subagent
+- [ ] the orchestrator stays active until all translation, evaluation, and correction loops are complete
 - [ ] hardcoded user-facing strings outside the message system are audited
 - [ ] declared locales and translation-ready locales are tracked separately
 
