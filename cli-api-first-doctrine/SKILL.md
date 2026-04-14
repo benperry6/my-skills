@@ -1,6 +1,6 @@
 ---
 name: cli-api-first-doctrine
-description: "Use when a task targets an external service or remote system that could be handled through CLI, API, browser UI, scraping, or local wrappers. Enforces a CLI/API-first doctrine: prefer the simplest stable programmatic route, revalidate direct routes before fallback, stop and ask if the best route is blocked only by missing user-provided access, never fallback silently, and treat persistence of proven routes as a completion gate. For service-specific workflows, see the relevant service skill."
+description: "Use when a task targets an external service or remote system that could be handled through CLI, API, browser UI, scraping, or local wrappers. Enforces an official CLI/API-first doctrine: prefer the simplest stable official route, revalidate official routes before fallback, stop and ask if the best official route is blocked only by missing user-provided access, never fallback silently, never treat private browser-backed endpoints as API-first, and treat persistence of proven routes as a completion gate. For service-specific workflows, see the relevant service skill."
 ---
 
 # CLI/API-First Doctrine
@@ -34,17 +34,20 @@ Typical prompts:
 
 ## Core Rules
 
-1. Prefer the simplest, most stable, fastest, most robust programmatic route available now.
-2. Prefer direct CLI or API over browser/UI whenever realistically possible.
-3. Do not treat an old ambiguous failure as proof that a direct route is unavailable.
-4. Revalidate the best direct route in the current environment before fallback.
-5. If the best route exists but is blocked only by access or input the user can provide, stop and ask before fallback.
-6. Never fallback silently.
-7. Treat a proven reusable route as incomplete until its persistence status is resolved.
-8. Document only routes proven in real conditions.
-9. If a repo-local route-memory file exists, update it. If none exists, create the smallest acceptable local route-memory surface unless repo-local rules clearly forbid it.
-10. If no acceptable persistence surface can be written now, say so explicitly and do not act as if the route is durably handled.
-11. Repo-local rules override this skill when they explicitly require a different route.
+1. Prefer the simplest, most stable, fastest, most robust official route available now.
+2. Treat a route as CLI/API-first only if it uses an official CLI, a public or officially documented API, an official SDK, or an endpoint explicitly documented by the provider for that use case.
+3. Do not classify private webapp endpoints, browser-session-backed `fetch/XHR` calls, or undocumented internal endpoints as CLI/API-first.
+4. If a route depends on an already authenticated browser session or browser cookies, classify it as a browser-backed workaround, not as a direct API route.
+5. Do not treat an old ambiguous failure as proof that an official route is unavailable.
+6. Revalidate the best official route in the current environment before fallback.
+7. If the best official route exists but is blocked only by access or input the user can provide, stop and ask before fallback.
+8. Never fallback silently.
+9. If the official route is unavailable, explicitly state that you are switching to browser/UI or another fallback route.
+10. Treat a proven reusable route as incomplete until its persistence status is resolved.
+11. Document only routes proven in real conditions.
+12. If a repo-local route-memory file exists, update it. If none exists, create the smallest acceptable local route-memory surface unless repo-local rules clearly forbid it.
+13. If no acceptable persistence surface can be written now, say so explicitly and do not act as if the route is durably handled.
+14. Repo-local rules override this skill when they explicitly require a different route.
 
 ## Decision Procedure
 
@@ -60,17 +63,16 @@ Determine:
 
 Default order:
 
-1. direct CLI or direct API already available
-2. local script or stable programmatic wrapper
-3. other stable replayable programmatic route
-4. browser-assisted route
-5. manual UI or scraping-only fallback
+1. official CLI, public API, official SDK, or other provider-documented route already available
+2. local script or stable wrapper built on official interfaces
+3. browser-assisted route
+4. manual UI or scraping-only fallback
 
 This is a default order, not a blind rule.
 
-### 3. Revalidate the best direct route
+### 3. Revalidate the best official route
 
-Before declaring the best direct route unavailable, retest it in the current environment.
+Before declaring the best official route unavailable, retest it in the current environment.
 
 Do not rely only on:
 
@@ -80,6 +82,7 @@ Do not rely only on:
 - a previous session failure
 - a browser-first habit
 - an assumption that the endpoint is not exposed
+- the mere existence of browser network calls
 
 Use the smallest safe verification possible first:
 
@@ -88,6 +91,20 @@ Use the smallest safe verification possible first:
 - list or read call
 - dry-run
 - lightweight metadata call
+
+### 3.5. Reject browser-backed pseudo-APIs
+
+If a route would require any of the following, it is not CLI/API-first:
+
+- replaying internal undocumented endpoints from a browser session
+- relying on browser cookies, local storage, or captured request headers from a webapp
+- calling provider-internal admin endpoints discovered only through DevTools
+
+In that case:
+
+- describe it as a browser-backed workaround
+- do not present it as an official or preferred programmatic route
+- do not use it unless the user has explicitly accepted that fallback
 
 ### 4. Classify the blocker
 
@@ -122,6 +139,7 @@ Examples:
 - the provider does not expose the operation programmatically
 - the route is broken upstream in a way the user cannot unblock here
 - the action requires a browser surface no programmatic interface can reach
+- the only remaining path would rely on private browser-backed endpoints
 - the CLI/API path was disproven now after revalidation
 
 In this case:
@@ -165,6 +183,8 @@ If no local route-memory file exists, create the smallest acceptable one for tha
 
 Do not treat "I will remember it later" or "it is in chat history" as acceptable persistence.
 
+Do not persist private undocumented browser-backed endpoints as approved CLI/API routes.
+
 Document only:
 
 - subject
@@ -185,6 +205,7 @@ This skill must not:
 - invent credentials
 - assume a token is valid without checking
 - fallback silently to browser or scraping
+- present private undocumented endpoints as an official API route
 - treat transient chat memory as a substitute for durable route memory
 - write broad repo-local documentation when a narrow route-memory update would do
 - override explicit repo-local rules
@@ -195,6 +216,7 @@ This skill must not:
 Avoid:
 
 - using the browser too early because it feels convenient
+- calling private webapp endpoints and labeling them `API-first`
 - treating an old ambiguous signal as decisive proof
 - falling back without telling the user
 - proving a reusable route and then closing the task without persisting it
