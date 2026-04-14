@@ -34,6 +34,7 @@ Use this before shipping multilingual behavior.
 - [ ] one reference locale is structurally complete
 - [ ] other core locales stay iso-structured with the reference locale
 - [ ] target catalogs are translated natively for their target language communities, not literally
+- [ ] if the run uses spawned workers, `my-personal-subagent-orchestration` is applied as the shared lifecycle doctrine
 - [ ] translator prompts stay minimal and task-only rather than carrying orchestration or verification boilerplate
 - [ ] the default translator prompt follows the proven direct pattern, with only the target language/community and self-translation warning adapted
 - [ ] large multi-locale rollout uses one orchestrator, not isolated ad hoc runs

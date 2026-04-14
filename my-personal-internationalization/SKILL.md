@@ -2,7 +2,7 @@
 name: my-personal-internationalization
 description: "[My Personal Skill] Use when a website or web app needs its international architecture designed, audited, fixed, or translated for multilingual SEO. Trigger on requests about i18n, l10n, locale routing, language selectors, language cookies, Accept-Language, mismatch banners, hreflang, x-default, canonical alternates, localized sitemaps, translating locale catalogs (for example `fr.json` to `en.json`), auditing missing locale keys, scanning hardcoded user-facing strings, post-translation verification, or deciding which languages or language variants to launch first. This skill is doctrine-first, web-focused, and language-first: it turns proven hreflang-driven product decisions into reusable rules for websites and web apps."
 metadata:
-  version: 1.8.1
+  version: 1.9.0
 ---
 
 # My Personal Internationalization
@@ -27,6 +27,10 @@ This skill serves two primary use cases:
 
 - design or audit multilingual architecture
 - run a multilingual catalog-translation campaign correctly
+
+When that catalog-translation campaign uses spawned translators, evaluators, or fixers, pair this skill with `my-personal-subagent-orchestration`.
+That shared skill owns the provider-agnostic delegation lifecycle.
+This skill owns the i18n-specific rules layered on top of it.
 
 ## Why This Skill Exists
 
@@ -322,6 +326,7 @@ When the task is to translate locale catalogs:
 
 - start from one structurally complete reference locale
 - use one orchestrator to define invariants and verification before parallelizing
+- use `my-personal-subagent-orchestration` for the shared spawn/recovery/run-registry doctrine; keep only locale-specific rules in this skill
 - keep translator prompts minimal and task-only; do not pack orchestration rules into the translator prompt
 - do not use programmatic translation services, translation APIs, browser translation, or translation scripts as the source of the translated copy unless the user explicitly authorizes that trade-off
 - by default, spawn one translator subagent per locale and launch all target locales in parallel

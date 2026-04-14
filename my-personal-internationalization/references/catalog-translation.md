@@ -11,6 +11,10 @@ Treat this as one end-to-end workflow:
 - correction
 - re-evaluation until acceptance
 
+When this mode uses spawned translators, evaluators, or fixers, apply `my-personal-subagent-orchestration` alongside this reference.
+That shared skill owns the provider-agnostic lifecycle rules for spawn, supervision, detached-session recovery, and durable run registries.
+This document only adds translation-specific constraints on top of that shared orchestration layer.
+
 ## 1. Goal
 
 The goal is not literal translation.
