@@ -1,6 +1,6 @@
 ---
 name: cli-api-first-doctrine
-description: "Use when a task targets an external service or remote system that could be handled through CLI, API, browser UI, scraping, or local wrappers. Enforces a CLI/API-first doctrine: prefer the simplest stable programmatic route, revalidate direct routes before fallback, stop and ask if the best route is blocked only by missing user-provided access, never fallback silently, and document only routes proven in real conditions in repo-local route memory when it exists. For service-specific workflows, see the relevant service skill."
+description: "Use when a task targets an external service or remote system that could be handled through CLI, API, browser UI, scraping, or local wrappers. Enforces a CLI/API-first doctrine: prefer the simplest stable programmatic route, revalidate direct routes before fallback, stop and ask if the best route is blocked only by missing user-provided access, never fallback silently, and treat persistence of proven routes as a completion gate. For service-specific workflows, see the relevant service skill."
 ---
 
 # CLI/API-First Doctrine
@@ -40,8 +40,11 @@ Typical prompts:
 4. Revalidate the best direct route in the current environment before fallback.
 5. If the best route exists but is blocked only by access or input the user can provide, stop and ask before fallback.
 6. Never fallback silently.
-7. Only document routes proven in real conditions.
-8. Repo-local rules override this skill when they explicitly require a different route.
+7. Treat a proven reusable route as incomplete until its persistence status is resolved.
+8. Document only routes proven in real conditions.
+9. If a repo-local route-memory file exists, update it. If none exists, create the smallest acceptable local route-memory surface unless repo-local rules clearly forbid it.
+10. If no acceptable persistence surface can be written now, say so explicitly and do not act as if the route is durably handled.
+11. Repo-local rules override this skill when they explicitly require a different route.
 
 ## Decision Procedure
 
@@ -133,13 +136,34 @@ Use this structure:
 - blocked because: `<reason>`
 - using instead: `<fallback route>`
 
+### 5. After a route succeeds, resolve persistence before closure
+
+Once a route is proven in real conditions and is likely to be reusable:
+
+1. Decide whether the route is specific to this one run or operationally reusable.
+2. If it is reusable and a repo-local route-memory file already exists, update it in the same task.
+3. If it is reusable and no such file exists, create the smallest acceptable local route-memory file unless repo-local rules clearly forbid that.
+4. If repo-local rules forbid write-back, or the correct persistence surface is still unclear, stop and say that explicitly instead of treating the task as fully closed.
+5. Never rely on chat memory alone for a proven reusable route.
+
+Use this structure when persistence is blocked:
+
+- route proven: `<route>`
+- persistence blocked by: `<reason>`
+- task status: `route proven but not durably persisted`
+- next step needed: `<exact write surface or access needed>`
+
 ## Route Memory
 
 If the repo has a local route-memory file such as `reference_effective_routes.md`, consult it first as a starting point.
 
 Treat it as operational memory, not blind truth.
 
-If a better route is proven in real conditions, update or propose updating that local file.
+If a better route is proven in real conditions, update that local file in the same task whenever repo-local rules allow it.
+
+If no local route-memory file exists, create the smallest acceptable one for that repo unless repo-local rules clearly forbid it.
+
+Do not treat "I will remember it later" or "it is in chat history" as acceptable persistence.
 
 Document only:
 
@@ -161,7 +185,8 @@ This skill must not:
 - invent credentials
 - assume a token is valid without checking
 - fallback silently to browser or scraping
-- write repo-local docs automatically when the repo has not opted into that pattern
+- treat transient chat memory as a substitute for durable route memory
+- write broad repo-local documentation when a narrow route-memory update would do
 - override explicit repo-local rules
 - store repo-specific commands, endpoints, accounts, or credentials in global memory
 
@@ -172,6 +197,7 @@ Avoid:
 - using the browser too early because it feels convenient
 - treating an old ambiguous signal as decisive proof
 - falling back without telling the user
+- proving a reusable route and then closing the task without persisting it
 - asking for access when the better route is impossible anyway
-- forcing a repo to adopt local route memory
+- creating an oversized documentation system when a minimal route-memory file is enough
 - confusing a doctrine skill with a service integration skill
