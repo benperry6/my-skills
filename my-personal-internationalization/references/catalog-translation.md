@@ -102,6 +102,7 @@ Warm-up rule:
 - 2 to 5 minutes of visible inactivity is normal
 - less than 10 minutes of inactivity is not, by itself, a failure signal
 - do not recadre, interrupt, or restart a translator merely because it looks frozen for a few minutes
+- supervise these runs on a measured cadence such as every 2 to 5 minutes; do not busy-poll every 30 seconds when the actual death threshold is 10 minutes
 
 Failure rule:
 
@@ -112,11 +113,12 @@ Default orchestrator behavior:
 
 1. define the source-of-truth catalog and structural invariants
 2. spawn one translator subagent per target locale immediately
-3. keep the translator prompt minimal; do not add orchestration boilerplate to it
-4. let the translators run without recadrage unless the failure rule is met
-5. as each locale lands locally, verify it on disk before accepting it
-6. run the evaluator/correction loop for that locale
-7. keep the orchestrator alive until every locale has completed translation, verification, evaluation, and any required corrections
+3. record each spawned translator immediately in the run registry
+4. keep the translator prompt minimal; do not add orchestration boilerplate to it
+5. let the translators run without recadrage unless the failure rule is met
+6. as each locale lands locally, verify it on disk before accepting it
+7. run the evaluator/correction loop for that locale and record every spawned evaluator/fixer the same way
+8. keep the orchestrator alive until every locale has completed translation, verification, evaluation, and any required corrections
 
 Operational acceptance rule:
 
@@ -131,9 +133,16 @@ Environment-limit rule:
 
 Resumption and traceability rule:
 
-- Codex threads are designed to persist and be resumed, but do not rely on UI attachment alone after closing the app or terminal
-- the orchestrator must keep a run registry with at least locale, agent id, and status
-- if the environment exposes a session or transcript path, record it too
+- OpenAI's Codex app documentation describes agents as separate threads and says the app picks up session history/configuration, while Codex help documentation says delegated work can run in the background; treat that as evidence that UI attachment and task persistence are not the same thing
+- do not rely on UI attachment alone after closing the app or terminal
+- do not equate detached-from-the-current-UI with dead
+- the orchestrator must keep one durable run registry outside ephemeral UI state
+- that registry must cover every translator, evaluator, and fixer attempt, not only the initial translators
+- minimum per-attempt fields: locale, phase, attempt number, agent id, status, started_at, last_observed_at
+- if available, also record nickname, transcript/session path, last_progress_at, and replacement_of when a respawn happens
+- update the registry on spawn, observation, recovery attempt, verification result, evaluator decision, respawn, and final acceptance
+- on resume, reload the registry first and attempt recovery or reattachment plus local file inspection before killing or respawning any agent
+- on resume, apply the same more-than-10-minutes-without-observable-activity rule against `last_observed_at` or `last_progress_at` before deciding that a detached agent should be replaced
 - this registry is what lets a later session recover the translation run even if the visual parent/child attachment is gone
 
 ## 6. Independent evaluation is mandatory
@@ -186,6 +195,7 @@ This preserves the harness separation:
 - translator/fixer generates
 - evaluator evaluates
 - orchestrator routes
+- every evaluator/fixer attempt stays in the same run registry so detached sessions can still be recovered later
 
 ## 8. Verification pass is mandatory
 
@@ -263,5 +273,6 @@ Additional production lessons from the first real Lost N Found translation run:
 - do not treat a translator as dead just because it stayed quiet for a few minutes; short freezes are often warm-up periods rather than real failure
 - do not accept a locale from the subagent's final text alone; verify the file on disk locally first
 - do not let the orchestrator stop after spawning translators; it must stay alive until the entire translation/evaluation/correction run is finished
-- do not lose track of spawned subagents; keep locale-to-agent traceability so a later session can recover the run
+- do not lose track of spawned subagents; keep phase-by-phase traceability so a later session can recover the run even after the app or terminal has been closed
+- do not leave the run registry stale; a registry that still says `running` after the real state changed is only half a recovery tool
 - do not let model or reasoning-effort overrides leak into spawned translators unless explicitly authorized by the user

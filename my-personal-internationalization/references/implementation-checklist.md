@@ -40,6 +40,7 @@ Use this before shipping multilingual behavior.
 - [ ] all requested locales are spawned in parallel by default, with one translator subagent per locale
 - [ ] each translator subagent handles exactly one locale
 - [ ] translator subagents inherit the parent conversation settings with no model or reasoning override unless explicitly authorized
+- [ ] long-running translation waves are supervised on a measured cadence (for example every 2 to 5 minutes), not busy-polled every 30 seconds
 - [ ] inactivity under 10 minutes is not treated as translator death by default
 - [ ] a translator is only treated as potentially dead after more than 10 minutes with no observable activity or task progression
 - [ ] missing keys are auditable
@@ -52,7 +53,11 @@ Use this before shipping multilingual behavior.
 - [ ] every corrected locale is re-evaluated before acceptance
 - [ ] locale acceptance uses an explicit pass/fail rubric rather than ad hoc judgment
 - [ ] locale acceptance is based on local file verification, not on a subagent final message
-- [ ] the translation run records locale, agent id, and any discoverable session/transcript path for each spawned subagent
+- [ ] the translation run records every translator/evaluator/fixer attempt with locale, phase, attempt number, agent id, status, started_at, last_observed_at, and any discoverable session/transcript path
+- [ ] the run registry is updated after every spawn, recovery attempt, respawn, verification result, evaluator decision, and final acceptance
+- [ ] a resumed session reloads the run registry and checks local file state before any detached subagent is treated as dead or respawned
+- [ ] a resumed session applies the same 10-minute inactivity threshold to recorded observation/progress timestamps before replacing a detached agent
+- [ ] the run registry reaches explicit terminal states instead of being left with stale `running` markers after the real outcome changed
 - [ ] the orchestrator stays active until all translation, evaluation, and correction loops are complete
 - [ ] hardcoded user-facing strings outside the message system are audited
 - [ ] declared locales and translation-ready locales are tracked separately

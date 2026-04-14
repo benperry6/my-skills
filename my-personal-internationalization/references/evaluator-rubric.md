@@ -108,7 +108,7 @@ If the locale still needs edits before release confidence, it fails and goes bac
 
 If the evaluator returns `FAIL`:
 
-1. the orchestrator records the findings
+1. the orchestrator records the findings in the run registry
 2. a translator/fixer subagent applies the corrections
 3. the locale returns to evaluation
 4. the loop continues until the evaluator returns `PASS`
