@@ -2,6 +2,181 @@
 
 Auto-managed by `scripts/second_opinion_runner.py`.
 
+## 2026-04-14T11:16:44+00:00 — gemini
+
+- Current engine: `claude`
+- Working directory: `/Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/ShopifyMCP_Codex`
+- Failed path: `gemini -m pro -p 'Context: ShopifyMCP_Codex (TypeScript, Node, Shopify Admin REST + GraphQL wrappers). Multi-store setup with 4 production Shopify shops (Berceau des Rêves, Ma Petite Licorne, Maison Gaya, My Little Land). Access via shopifyFetch(shop, path, token, options) and shopifyGraphQL(shop, token, query, variables).
+
+Working directory: /Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/ShopifyMCP_Codex
+
+This is a REVISED plan. An earlier second-opinion round got only a partial Gemini answer. I need a full critique.
+
+== TASK 1 — Footer cleanup (4 stores) ==
+Goal: remove "ProStrike – " brand prefix and the line "SIRET : 994 846 715 00013<br/>" from the rendered footer.
+
+Evidence: search confirmed these two strings appear ONLY inside sections/footer-group.json of each store'"'"'s active theme. Scanning themes sections/footer-group.json on the 4 stores returned SIRET=true and ProStrike=true, len ~98k–143k chars each. Context fetched:
+  "description_subtext": "<p>ProStrike – Pa en Ma (STORE NAME), 37 chemin de Puissanton, Entrée A, 06220 Vallauris<br/>SIRET : 994 846 715 00013<br/><a href=\"mailto:...\">...</a>..."
+
+Proposed procedure per store:
+1. GET themes/{themeId}/assets.json?asset[key]=sections/footer-group.json
+2. let raw = asset.value (string containing JSON)
+3. const obj = JSON.parse(raw)
+4. Recursively walk obj. For every string value whose key is "description_subtext", apply:
+     s = s.replace("ProStrike – ", "").replace("SIRET : 994 846 715 00013<br/>", "")
+5. If any replacement occurred:
+   a. Save raw to _backups/footer-group.{shop}.{ISOts}.json
+   b. newRaw = JSON.stringify(obj)  // may differ from raw in whitespace/escaping
+   c. PUT themes/{themeId}/assets.json with { asset: { key: "sections/footer-group.json", value: newRaw } }
+   d. Re-fetch and assert value.includes("SIRET")===false && value.includes("ProStrike")===false
+6. Idempotent: if nothing to replace, skip that store.
+
+== TASK 2 — Shipping policy sentence (4 stores, 8 writes) ==
+Goal: remove exact sentence "Vos droits légaux restent préservés, notamment votre droit de rétractation de 14 jours après réception." from both a CMS page AND the native Shopify shipping policy on each store.
+
+Evidence already gathered:
+- Sentence confirmed present in REST page politique-expedition body_html (page IDs known for each shop).
+- Sentence confirmed present in GraphQL shop.shopPolicies where type = SHIPPING_POLICY (ids known). LEGAL_NOTICE and TERMS_OF_SALE also exist but don'"'"'t contain this sentence.
+
+Proposed per store:
+A. Page:
+   1. GET pages.json?handle=politique-expedition, grab the one with matching handle
+   2. Save body_html to _backups/page-shipping.{shop}.{ts}.html
+   3. newBody = body_html.replace(" Vos droits légaux restent préservés, notamment votre droit de rétractation de 14 jours après réception.", "")
+   4. PUT pages/{id}.json with { page: { id, body_html: newBody } }
+   5. Re-GET and assert sentence absent
+
+B. Shopify shipping policy (GraphQL):
+   1. Query: { shop { shopPolicies { id type body } } }, pick type == SHIPPING_POLICY
+   2. Save body to _backups/policy-shipping.{shop}.{ts}.html
+   3. newBody = body.replace(" Vos droits...", "")
+   4. Mutation: shopPolicyUpdate(shopPolicy: { type: "SHIPPING_POLICY", body: newBody })
+   5. Check userErrors == []
+   6. Re-query and assert sentence absent
+
+Scopes: project rule says "scope manquant = l'"'"'installer soi-même" — I will detect missing write_legal_policies via 403 and auto-install via the repo'"'"'s standard OAuth localhost flow.
+
+Safety posture:
+- Backups stored under _backups/ on disk before each write.
+- Any userErrors or failed assertion → STOP, restore from disk backup manually, report.
+- No simultaneous parallel writes across stores. Serial, store by store, verify-after-each.
+- Idempotent: second run on an already-cleaned store is a no-op.
+
+== Open questions for the second opinion ==
+(a) For Task 1, is recursive-walk for "description_subtext" fields correct for Shopify section group JSON? Shopify section groups have a nested structure like { sections: { footer-x: { type, settings: { description_subtext: "..." }, blocks: {...} } }, order: [...] }. Is the field always under sections.*.settings.description_subtext, or can it also appear inside block settings? Should the walk touch block settings too, or only section settings?
+
+(b) Will JSON.stringify preserve the format Shopify accepts? Shopify'"'"'s JSON theme files are sometimes indented with 2 spaces; does Shopify re-accept minified JSON in PUT without issues? Any known gotcha with key ordering or numeric precision?
+
+(c) For Task 2, is the mutation signature correct on Admin API 2025-01?
+    shopPolicyUpdate(shopPolicy: { type: SHIPPING_POLICY, body: "..." })
+    → or does it need the ShopPolicy gid (id: "gid://shopify/ShopPolicy/XXX") instead of type?
+    Give exact ShopPolicyInput field list for 2025-01 and whether "type" or "id" is the right selector.
+
+(d) Does Shopify sanitize/re-escape policy body HTML on shopPolicyUpdate? Specifically, I'"'"'m writing HTML that contains French accented chars (é, à), <p>, <strong>, <a href=...>. Can that mutation mangle &nbsp; or non-breaking spaces or non-ASCII?
+
+(e) Backup strategy: is _backups/ to disk enough for 4 production stores, OR should I first POST a theme duplicate (themes.json with src or via theme API) to create a live rollback checkpoint per store before touching footer-group.json? Concrete cost/complexity tradeoff, not theory.
+
+(f) Replacement safety: my string replace uses an exact sentence with leading space " Vos droits...". If the body was slightly re-encoded by Shopify (e.g. NBSP \u00a0 instead of space, or &nbsp;), my string.replace() will silently not match and the plan will claim "no changes" on re-run. How do you recommend detecting "I expected to match but didn'"'"'t"? Should I fail loudly if the pre-change body contains the sentence but post-change still contains it?
+
+(g) Any hidden landmine in re-PUTting a 140kB footer-group.json — e.g., Shopify rejects assets > N bytes, async theme compilation, settings_data.json revalidation, preset drift? I only care about real-behavior gotchas you'"'"'ve actually seen, not hypothetical ones.
+
+Please return (structured):
+1) Decisive verdict: GO / PARTIAL-GO / NO-GO
+2) Direct answers to (a) through (g)
+3) Concrete fix recommendations before execution
+4) Any killer bug or risk I haven'"'"'t mentioned
+5) Open questions that can only be resolved by running it locally
+' --output-format json`
+- Failure classification: `unknown`
+- Failure signature: `Error executing tool read_file: Path not in workspace: Attempted path "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/SKILL.md" resolves outside the allowed workspace directories: /Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/ShopifyMCP_Codex or the project temp directo`
+- Repaired path: `gemini -m auto -p 'Context: ShopifyMCP_Codex (TypeScript, Node, Shopify Admin REST + GraphQL wrappers). Multi-store setup with 4 production Shopify shops (Berceau des Rêves, Ma Petite Licorne, Maison Gaya, My Little Land). Access via shopifyFetch(shop, path, token, options) and shopifyGraphQL(shop, token, query, variables).
+
+Working directory: /Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/ShopifyMCP_Codex
+
+This is a REVISED plan. An earlier second-opinion round got only a partial Gemini answer. I need a full critique.
+
+== TASK 1 — Footer cleanup (4 stores) ==
+Goal: remove "ProStrike – " brand prefix and the line "SIRET : 994 846 715 00013<br/>" from the rendered footer.
+
+Evidence: search confirmed these two strings appear ONLY inside sections/footer-group.json of each store'"'"'s active theme. Scanning themes sections/footer-group.json on the 4 stores returned SIRET=true and ProStrike=true, len ~98k–143k chars each. Context fetched:
+  "description_subtext": "<p>ProStrike – Pa en Ma (STORE NAME), 37 chemin de Puissanton, Entrée A, 06220 Vallauris<br/>SIRET : 994 846 715 00013<br/><a href=\"mailto:...\">...</a>..."
+
+Proposed procedure per store:
+1. GET themes/{themeId}/assets.json?asset[key]=sections/footer-group.json
+2. let raw = asset.value (string containing JSON)
+3. const obj = JSON.parse(raw)
+4. Recursively walk obj. For every string value whose key is "description_subtext", apply:
+     s = s.replace("ProStrike – ", "").replace("SIRET : 994 846 715 00013<br/>", "")
+5. If any replacement occurred:
+   a. Save raw to _backups/footer-group.{shop}.{ISOts}.json
+   b. newRaw = JSON.stringify(obj)  // may differ from raw in whitespace/escaping
+   c. PUT themes/{themeId}/assets.json with { asset: { key: "sections/footer-group.json", value: newRaw } }
+   d. Re-fetch and assert value.includes("SIRET")===false && value.includes("ProStrike")===false
+6. Idempotent: if nothing to replace, skip that store.
+
+== TASK 2 — Shipping policy sentence (4 stores, 8 writes) ==
+Goal: remove exact sentence "Vos droits légaux restent préservés, notamment votre droit de rétractation de 14 jours après réception." from both a CMS page AND the native Shopify shipping policy on each store.
+
+Evidence already gathered:
+- Sentence confirmed present in REST page politique-expedition body_html (page IDs known for each shop).
+- Sentence confirmed present in GraphQL shop.shopPolicies where type = SHIPPING_POLICY (ids known). LEGAL_NOTICE and TERMS_OF_SALE also exist but don'"'"'t contain this sentence.
+
+Proposed per store:
+A. Page:
+   1. GET pages.json?handle=politique-expedition, grab the one with matching handle
+   2. Save body_html to _backups/page-shipping.{shop}.{ts}.html
+   3. newBody = body_html.replace(" Vos droits légaux restent préservés, notamment votre droit de rétractation de 14 jours après réception.", "")
+   4. PUT pages/{id}.json with { page: { id, body_html: newBody } }
+   5. Re-GET and assert sentence absent
+
+B. Shopify shipping policy (GraphQL):
+   1. Query: { shop { shopPolicies { id type body } } }, pick type == SHIPPING_POLICY
+   2. Save body to _backups/policy-shipping.{shop}.{ts}.html
+   3. newBody = body.replace(" Vos droits...", "")
+   4. Mutation: shopPolicyUpdate(shopPolicy: { type: "SHIPPING_POLICY", body: newBody })
+   5. Check userErrors == []
+   6. Re-query and assert sentence absent
+
+Scopes: project rule says "scope manquant = l'"'"'installer soi-même" — I will detect missing write_legal_policies via 403 and auto-install via the repo'"'"'s standard OAuth localhost flow.
+
+Safety posture:
+- Backups stored under _backups/ on disk before each write.
+- Any userErrors or failed assertion → STOP, restore from disk backup manually, report.
+- No simultaneous parallel writes across stores. Serial, store by store, verify-after-each.
+- Idempotent: second run on an already-cleaned store is a no-op.
+
+== Open questions for the second opinion ==
+(a) For Task 1, is recursive-walk for "description_subtext" fields correct for Shopify section group JSON? Shopify section groups have a nested structure like { sections: { footer-x: { type, settings: { description_subtext: "..." }, blocks: {...} } }, order: [...] }. Is the field always under sections.*.settings.description_subtext, or can it also appear inside block settings? Should the walk touch block settings too, or only section settings?
+
+(b) Will JSON.stringify preserve the format Shopify accepts? Shopify'"'"'s JSON theme files are sometimes indented with 2 spaces; does Shopify re-accept minified JSON in PUT without issues? Any known gotcha with key ordering or numeric precision?
+
+(c) For Task 2, is the mutation signature correct on Admin API 2025-01?
+    shopPolicyUpdate(shopPolicy: { type: SHIPPING_POLICY, body: "..." })
+    → or does it need the ShopPolicy gid (id: "gid://shopify/ShopPolicy/XXX") instead of type?
+    Give exact ShopPolicyInput field list for 2025-01 and whether "type" or "id" is the right selector.
+
+(d) Does Shopify sanitize/re-escape policy body HTML on shopPolicyUpdate? Specifically, I'"'"'m writing HTML that contains French accented chars (é, à), <p>, <strong>, <a href=...>. Can that mutation mangle &nbsp; or non-breaking spaces or non-ASCII?
+
+(e) Backup strategy: is _backups/ to disk enough for 4 production stores, OR should I first POST a theme duplicate (themes.json with src or via theme API) to create a live rollback checkpoint per store before touching footer-group.json? Concrete cost/complexity tradeoff, not theory.
+
+(f) Replacement safety: my string replace uses an exact sentence with leading space " Vos droits...". If the body was slightly re-encoded by Shopify (e.g. NBSP \u00a0 instead of space, or &nbsp;), my string.replace() will silently not match and the plan will claim "no changes" on re-run. How do you recommend detecting "I expected to match but didn'"'"'t"? Should I fail loudly if the pre-change body contains the sentence but post-change still contains it?
+
+(g) Any hidden landmine in re-PUTting a 140kB footer-group.json — e.g., Shopify rejects assets > N bytes, async theme compilation, settings_data.json revalidation, preset drift? I only care about real-behavior gotchas you'"'"'ve actually seen, not hypothetical ones.
+
+Please return (structured):
+1) Decisive verdict: GO / PARTIAL-GO / NO-GO
+2) Direct answers to (a) through (g)
+3) Concrete fix recommendations before execution
+4) Any killer bug or risk I haven'"'"'t mentioned
+5) Open questions that can only be resolved by running it locally
+' --output-format json`
+- Repair strategy: `gemini-auto`
+- Verified models: `{"gemini-2.5-flash-lite": {"api": {"totalErrors": 0, "totalLatencyMs": 2586, "totalRequests": 1}, "roles": {"utility_router": {"tokens": {"cached": 0, "candidates": 107, "input": 4840, "prompt": 4840, "thoughts": 363, "tool": 0, "total": 5310}, "totalErrors": 0, "totalLatencyMs": 2586, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 107, "input": 4840, "prompt": 4840, "thoughts": 363, "tool": 0, "total": 5310}}, "gemini-3-flash-preview": {"api": {"totalErrors": 0, "totalLatencyMs": 88206, "totalRequests": 14}, "roles": {"main": {"tokens": {"cached": 290841, "candidates": 1782, "input": 53116, "prompt": 343957, "thoughts": 3689, "tool": 0, "total": 349428}, "totalErrors": 0, "totalLatencyMs": 64622, "totalRequests": 11}, "utility_tool": {"tokens": {"cached": 8127, "candidates": 1383, "input": 58260, "prompt": 66387, "thoughts": 801, "tool": 0, "total": 68571}, "totalErrors": 0, "totalLatencyMs": 23584, "totalRequests": 3}}, "tokens": {"cached": 298968, "candidates": 3165, "input": 111376, "prompt": 410344, "thoughts": 4490, "tool": 0, "total": 417999}}}`
+- Response preview: `This is my technical review of your revised plan for the Footer and Shipping Policy cleanup.
+
+### 1) Decisive Verdict: *`
+
+
 ## 2026-03-30T16:59:10+00:00 — gemini
 
 - Current engine: `codex`
