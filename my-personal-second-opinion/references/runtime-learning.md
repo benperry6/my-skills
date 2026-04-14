@@ -2,6 +2,215 @@
 
 Auto-managed by `scripts/second_opinion_runner.py`.
 
+## 2026-04-14T14:56:07+00:00 — gemini
+
+- Current engine: `claude`
+- Working directory: `/Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/ShopifyMCP_Codex`
+- Failed path: `gemini -m pro -p 'Context: ShopifyMCP_Codex — dropshipping e-commerce management for 6 Shopify stores (Pa en Ma group) sourcing from AliExpress. Customer support via Gmail + Shopify Inbox.
+
+Working directory: /Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/ShopifyMCP_Codex
+
+## SITUATION — Urgent
+
+We just received an AliExpress suspension notice on our purchasing account `paenma.va1@gmail.com`. The account has been **temporarily restricted** from placing new orders. If we don'"'"'t submit a successful appeal, the restriction **may become permanent** → entire dropshipping operation (6 stores) would be blocked from its sole supplier.
+
+## THE SANCTION
+
+**Email from `promotion@aliexpress.com`** — subject "Your AliExpress account may be suspended" (received 2026-04-14 01:01 PDT).
+
+**AliExpress Appeal Center details** :
+- **Case ID** : 200502957083
+- **Case time** : 2026-04-14 16:01:35
+- **Status** : Not appealed
+- **Case type** : [AE] Other
+- **Decision trigger** : `ProactiveInvestigation`
+- **Fully Automated Decision** : NO (human reviewed/supervised)
+- **Violation Impact** : Notification Message Center Message
+- **Reason for disposal** : *"We'"'"'ve identified a significant discrepancy between the item(s) you returned and the original item(s) shipped or approved for return."*
+- **Case reason** : *"We have identified significant abnormalities with the return you submitted for order 3068480000956776, 3068480000976776. This may be due to: (1) A substantial discrepancy between the item(s) you returned and the original item(s) shipped or approved for return; or (2) The return information you uploaded present substantial risks. For your account security, we have temporarily restricted your ability to place orders. Please visit our appeal platform as soon as possible to submit an appeal and, if applicable, return the correct item(s) or re-upload accurate return information. If you do not submit an appeal or fail to provide the correct items/information during the appeal process, this restriction may become permanent in accordance with our policies."*
+
+## FACTUAL BACKGROUND (what actually happened)
+
+**Shopify order #1632 — Berceau des Rêves** — customer Océane Gilles, Namur, Belgium, oceanegilles23@gmail.com.
+
+- **2026-02-12**: order placed. 1× "Tresse de Lit Beige / 3 Brins / 4 mètres" — €89.90 — paid via Klarna. Customer asked the same day if she could cancel (no direct reply from us found in gmail).
+- We fulfilled via 2 AliExpress orders: **3068480000956776** (€1.79 cost, likely accessory/component) + **3068480000976776** (€36.85 cost, main product). Both shipped to Océane'"'"'s Belgium address.
+- **2026-02-24**: Parcel 1 arrived at pickup point `BBOX CARREFOUR JAMBES, Avenue Prince de Liège 57-59, 5100 Namur`. **4-day pickup deadline**. We emailed Océane with the parcel code (L4264G) + barcode image.
+- **2026-02-26**: We emailed her a reminder ("2 days left").
+- **2026-03-01**: 2nd reminder ("today is the last day").
+- **2026-03-04**: Parcel 2 arrived at the same pickup point (code 8K2C44), we emailed her with the 2nd parcel info.
+- Both parcels were **not collected by the customer** and got **automatically returned to sender** through the Belgian postal network (Bpost) after the deadline expired.
+- We also left her a voicemail by phone.
+- **2026-03-14**: Customer finally replies: *"I couldn'"'"'t go pick up the parcel and in the meantime I bought another one. Since I didn'"'"'t receive the parcel, I don'"'"'t want to pay Klarna."* She sends original shipping tracking `LD723284582BE` as "proof".
+- **2026-03-16**: She opens a bank chargeback (Klarna inquiry) BEFORE we had time to respond.
+- **2026-03-17**: We refund the full €89.90 on Shopify with note *"Colis retourné à l'"'"'expéditeur — non récupéré par la cliente. Remboursement intégral pour clôturer l'"'"'enquête bancaire."* and send her a firm but polite final email.
+- Then we opened a dispute on AliExpress for both AE orders to recover the supplier funds. We likely filled in the return information with the original outbound tracking `LD723284582BE` (Chinese-to-Belgium leg), because we **never physically possessed the parcels** (they were returned by Bpost via the automated postal reverse logistics). There is no separate "return tracking" — the reverse logistics is carrier-internal.
+
+**AliExpress'"'"'s automated ProactiveInvestigation system has flagged our return**, because the tracking we submitted does NOT show Belgium-to-China flow. It shows Outbound → deliver-fail → return-to-sender inside Bpost, without any visible international reverse leg. To AliExpress'"'"'s detection model this looks either like a fake return, or like a fraudulent "I'"'"'m getting refunded without actually returning the item".
+
+We acted in good faith. The parcels are genuinely not in our possession and never were. The customer never collected them. The reverse logistics is handled by the postal network and we have no control over where the parcels physically end up.
+
+## CURRENT PLAN — DRAFT APPEAL (what I was about to submit)
+
+**Where** : AliExpress Appeal Center (`m.aliexpress.com/p/complaint-center/...?punishId=200502957083`)
+**Form fields** :
+- Appeal reason (textarea, 1000 chars max)
+- Appeal documents (.jpg/.jpeg/.png/.pdf)
+
+**Proposed appeal reason (English, ~1000 chars)** :
+
+```
+The returns for orders 3068480000956776 and 3068480000976776 were not physical returns from our side. The customer (Océane Gilles, 5100 Namur, Belgium) failed to collect both parcels at her designated pickup point (BBOX CARREFOUR JAMBES, Avenue Prince de Liège 57-59, 5100 Namur). The parcels were automatically returned to the sender through the Belgian postal network after the 4-day pickup deadline expired.
+
+We contacted the customer 4 times by email (24 Feb, 26 Feb, 1 Mar, 4 Mar) and left a voicemail. She never replied until 14 March, when she admitted she had not collected the parcels and had bought the same product elsewhere in the meantime.
+
+We never had physical possession of the parcels. The tracking number LD723284582BE is the original outbound shipment from China to Belgium — there is no separate return tracking because the return was handled automatically by the postal network. We are acting in good faith and request the restriction to be lifted.
+```
+
+**Proposed supporting documents** :
+1. Screenshots of our 4 pickup reminder emails to Océane (24 Feb, 26 Feb, 1 Mar, 4 Mar)
+2. Screenshot of Océane'"'"'s 14 March message where she admits not collecting + bought elsewhere
+3. Screenshot of the Bpost tracking `LD723284582BE` showing "retour expéditeur / non retiré"
+
+## QUESTIONS I NEED YOUR INDEPENDENT OPINION ON
+
+1. **Is the overall strategy correct?** Should we explicitly admit we never physically possessed the parcels and that the "return" is purely the postal network'"'"'s automatic reverse logistics? Or is this admission dangerous vis-à-vis AliExpress'"'"'s buyer-protection policies? Is there a better framing that acknowledges the facts without triggering AE'"'"'s TOS risk?
+
+2. **Wording of the appeal text** : is it too defensive? Too admitting? Too short? Does it miss a required element (e.g. explicit request to rescind the restriction, apology for any confusion, commitment to future compliance)?
+
+3. **Supporting documents** : are the 3 proposed items enough? Should we also include :
+   - Shopify order #1632 detail page (proving the chronology)
+   - The Klarna chargeback notification
+   - Our refund proof (€89.90 refunded to customer)
+   - The AE dispute original submission (if we can retrieve what we submitted)
+   - A PDF combining everything into one document
+   Which format gives the best signal of good faith vs which might look like "data dump"?
+
+4. **Risk of the appeal failing** : if the appeal is rejected, what'"'"'s the fallback? Can we open a new AliExpress account to continue dropshipping, or is that also against TOS? Are there other platforms we should prepare as backup (CJdropshipping, Zendrop, Spocket) and what'"'"'s the switching cost?
+
+5. **Is there a known pattern** for this specific AE sanction ("significant discrepancy between item(s) returned and original item(s) shipped")? Have you seen dropshippers successfully recover from this exact violation? What worked?
+
+6. **Timing** : the email says "as soon as possible". Should we submit IMMEDIATELY with the current draft, or is it worth taking 24 h to gather additional evidence and polish the appeal? The user is anxious because dropshipping is already blocked.
+
+7. **Systemic risk** : this is a point-relay-not-collected edge case that can reasonably happen again with other customers. If we survive this one, what procedural change should we implement to avoid repeating the pattern that triggered this sanction? (E.g. never open an AE return dispute when the real reason is "customer didn'"'"'t collect"? Use a different AE refund request code?)
+
+## WHAT I WANT FROM THIS SECOND OPINION
+
+- **Decisive verdict** on the draft appeal : GO / GO-WITH-REVISIONS / NO-GO
+- **Revised appeal text** if you recommend changes
+- **Document list ranking** (which files help, which dilute the signal)
+- **Killer risks** I haven'"'"'t considered
+- **Pattern knowledge** from similar cases you'"'"'re aware of
+- **Future policy recommendation** to prevent recurrence
+
+Please be direct and opinionated. This is a business-critical decision with material financial consequences.
+' --output-format json`
+- Failure classification: `timeout`
+- Failure signature: `Timed out while waiting for command completion.`
+- Repaired path: `gemini -m auto -p 'Context: ShopifyMCP_Codex — dropshipping e-commerce management for 6 Shopify stores (Pa en Ma group) sourcing from AliExpress. Customer support via Gmail + Shopify Inbox.
+
+Working directory: /Users/benjaminperry/My Drive/ProStrike Holdings/VisualCode/ShopifyMCP_Codex
+
+## SITUATION — Urgent
+
+We just received an AliExpress suspension notice on our purchasing account `paenma.va1@gmail.com`. The account has been **temporarily restricted** from placing new orders. If we don'"'"'t submit a successful appeal, the restriction **may become permanent** → entire dropshipping operation (6 stores) would be blocked from its sole supplier.
+
+## THE SANCTION
+
+**Email from `promotion@aliexpress.com`** — subject "Your AliExpress account may be suspended" (received 2026-04-14 01:01 PDT).
+
+**AliExpress Appeal Center details** :
+- **Case ID** : 200502957083
+- **Case time** : 2026-04-14 16:01:35
+- **Status** : Not appealed
+- **Case type** : [AE] Other
+- **Decision trigger** : `ProactiveInvestigation`
+- **Fully Automated Decision** : NO (human reviewed/supervised)
+- **Violation Impact** : Notification Message Center Message
+- **Reason for disposal** : *"We'"'"'ve identified a significant discrepancy between the item(s) you returned and the original item(s) shipped or approved for return."*
+- **Case reason** : *"We have identified significant abnormalities with the return you submitted for order 3068480000956776, 3068480000976776. This may be due to: (1) A substantial discrepancy between the item(s) you returned and the original item(s) shipped or approved for return; or (2) The return information you uploaded present substantial risks. For your account security, we have temporarily restricted your ability to place orders. Please visit our appeal platform as soon as possible to submit an appeal and, if applicable, return the correct item(s) or re-upload accurate return information. If you do not submit an appeal or fail to provide the correct items/information during the appeal process, this restriction may become permanent in accordance with our policies."*
+
+## FACTUAL BACKGROUND (what actually happened)
+
+**Shopify order #1632 — Berceau des Rêves** — customer Océane Gilles, Namur, Belgium, oceanegilles23@gmail.com.
+
+- **2026-02-12**: order placed. 1× "Tresse de Lit Beige / 3 Brins / 4 mètres" — €89.90 — paid via Klarna. Customer asked the same day if she could cancel (no direct reply from us found in gmail).
+- We fulfilled via 2 AliExpress orders: **3068480000956776** (€1.79 cost, likely accessory/component) + **3068480000976776** (€36.85 cost, main product). Both shipped to Océane'"'"'s Belgium address.
+- **2026-02-24**: Parcel 1 arrived at pickup point `BBOX CARREFOUR JAMBES, Avenue Prince de Liège 57-59, 5100 Namur`. **4-day pickup deadline**. We emailed Océane with the parcel code (L4264G) + barcode image.
+- **2026-02-26**: We emailed her a reminder ("2 days left").
+- **2026-03-01**: 2nd reminder ("today is the last day").
+- **2026-03-04**: Parcel 2 arrived at the same pickup point (code 8K2C44), we emailed her with the 2nd parcel info.
+- Both parcels were **not collected by the customer** and got **automatically returned to sender** through the Belgian postal network (Bpost) after the deadline expired.
+- We also left her a voicemail by phone.
+- **2026-03-14**: Customer finally replies: *"I couldn'"'"'t go pick up the parcel and in the meantime I bought another one. Since I didn'"'"'t receive the parcel, I don'"'"'t want to pay Klarna."* She sends original shipping tracking `LD723284582BE` as "proof".
+- **2026-03-16**: She opens a bank chargeback (Klarna inquiry) BEFORE we had time to respond.
+- **2026-03-17**: We refund the full €89.90 on Shopify with note *"Colis retourné à l'"'"'expéditeur — non récupéré par la cliente. Remboursement intégral pour clôturer l'"'"'enquête bancaire."* and send her a firm but polite final email.
+- Then we opened a dispute on AliExpress for both AE orders to recover the supplier funds. We likely filled in the return information with the original outbound tracking `LD723284582BE` (Chinese-to-Belgium leg), because we **never physically possessed the parcels** (they were returned by Bpost via the automated postal reverse logistics). There is no separate "return tracking" — the reverse logistics is carrier-internal.
+
+**AliExpress'"'"'s automated ProactiveInvestigation system has flagged our return**, because the tracking we submitted does NOT show Belgium-to-China flow. It shows Outbound → deliver-fail → return-to-sender inside Bpost, without any visible international reverse leg. To AliExpress'"'"'s detection model this looks either like a fake return, or like a fraudulent "I'"'"'m getting refunded without actually returning the item".
+
+We acted in good faith. The parcels are genuinely not in our possession and never were. The customer never collected them. The reverse logistics is handled by the postal network and we have no control over where the parcels physically end up.
+
+## CURRENT PLAN — DRAFT APPEAL (what I was about to submit)
+
+**Where** : AliExpress Appeal Center (`m.aliexpress.com/p/complaint-center/...?punishId=200502957083`)
+**Form fields** :
+- Appeal reason (textarea, 1000 chars max)
+- Appeal documents (.jpg/.jpeg/.png/.pdf)
+
+**Proposed appeal reason (English, ~1000 chars)** :
+
+```
+The returns for orders 3068480000956776 and 3068480000976776 were not physical returns from our side. The customer (Océane Gilles, 5100 Namur, Belgium) failed to collect both parcels at her designated pickup point (BBOX CARREFOUR JAMBES, Avenue Prince de Liège 57-59, 5100 Namur). The parcels were automatically returned to the sender through the Belgian postal network after the 4-day pickup deadline expired.
+
+We contacted the customer 4 times by email (24 Feb, 26 Feb, 1 Mar, 4 Mar) and left a voicemail. She never replied until 14 March, when she admitted she had not collected the parcels and had bought the same product elsewhere in the meantime.
+
+We never had physical possession of the parcels. The tracking number LD723284582BE is the original outbound shipment from China to Belgium — there is no separate return tracking because the return was handled automatically by the postal network. We are acting in good faith and request the restriction to be lifted.
+```
+
+**Proposed supporting documents** :
+1. Screenshots of our 4 pickup reminder emails to Océane (24 Feb, 26 Feb, 1 Mar, 4 Mar)
+2. Screenshot of Océane'"'"'s 14 March message where she admits not collecting + bought elsewhere
+3. Screenshot of the Bpost tracking `LD723284582BE` showing "retour expéditeur / non retiré"
+
+## QUESTIONS I NEED YOUR INDEPENDENT OPINION ON
+
+1. **Is the overall strategy correct?** Should we explicitly admit we never physically possessed the parcels and that the "return" is purely the postal network'"'"'s automatic reverse logistics? Or is this admission dangerous vis-à-vis AliExpress'"'"'s buyer-protection policies? Is there a better framing that acknowledges the facts without triggering AE'"'"'s TOS risk?
+
+2. **Wording of the appeal text** : is it too defensive? Too admitting? Too short? Does it miss a required element (e.g. explicit request to rescind the restriction, apology for any confusion, commitment to future compliance)?
+
+3. **Supporting documents** : are the 3 proposed items enough? Should we also include :
+   - Shopify order #1632 detail page (proving the chronology)
+   - The Klarna chargeback notification
+   - Our refund proof (€89.90 refunded to customer)
+   - The AE dispute original submission (if we can retrieve what we submitted)
+   - A PDF combining everything into one document
+   Which format gives the best signal of good faith vs which might look like "data dump"?
+
+4. **Risk of the appeal failing** : if the appeal is rejected, what'"'"'s the fallback? Can we open a new AliExpress account to continue dropshipping, or is that also against TOS? Are there other platforms we should prepare as backup (CJdropshipping, Zendrop, Spocket) and what'"'"'s the switching cost?
+
+5. **Is there a known pattern** for this specific AE sanction ("significant discrepancy between item(s) returned and original item(s) shipped")? Have you seen dropshippers successfully recover from this exact violation? What worked?
+
+6. **Timing** : the email says "as soon as possible". Should we submit IMMEDIATELY with the current draft, or is it worth taking 24 h to gather additional evidence and polish the appeal? The user is anxious because dropshipping is already blocked.
+
+7. **Systemic risk** : this is a point-relay-not-collected edge case that can reasonably happen again with other customers. If we survive this one, what procedural change should we implement to avoid repeating the pattern that triggered this sanction? (E.g. never open an AE return dispute when the real reason is "customer didn'"'"'t collect"? Use a different AE refund request code?)
+
+## WHAT I WANT FROM THIS SECOND OPINION
+
+- **Decisive verdict** on the draft appeal : GO / GO-WITH-REVISIONS / NO-GO
+- **Revised appeal text** if you recommend changes
+- **Document list ranking** (which files help, which dilute the signal)
+- **Killer risks** I haven'"'"'t considered
+- **Pattern knowledge** from similar cases you'"'"'re aware of
+- **Future policy recommendation** to prevent recurrence
+
+Please be direct and opinionated. This is a business-critical decision with material financial consequences.
+' --output-format json`
+- Repair strategy: `gemini-auto`
+- Verified models: `{"gemini-2.5-flash-lite": {"api": {"totalErrors": 0, "totalLatencyMs": 3911, "totalRequests": 1}, "roles": {"utility_router": {"tokens": {"cached": 0, "candidates": 148, "input": 5853, "prompt": 5853, "thoughts": 388, "tool": 0, "total": 6389}, "totalErrors": 0, "totalLatencyMs": 3911, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 148, "input": 5853, "prompt": 5853, "thoughts": 388, "tool": 0, "total": 6389}}, "gemini-3-flash-preview": {"api": {"totalErrors": 0, "totalLatencyMs": 328893, "totalRequests": 1}, "roles": {"main": {"tokens": {"cached": 0, "candidates": 1231, "input": 27937, "prompt": 27937, "thoughts": 1001, "tool": 0, "total": 30169}, "totalErrors": 0, "totalLatencyMs": 328893, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 1231, "input": 27937, "prompt": 27937, "thoughts": 1001, "tool": 0, "total": 30169}}}`
+- Response preview: `This is a high-stakes "Return Fraud" flag triggered by using outbound tracking as return proof. AliExpress treats this a`
+
+
 ## 2026-04-14T11:16:44+00:00 — gemini
 
 - Current engine: `claude`
