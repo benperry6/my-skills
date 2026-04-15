@@ -63,9 +63,34 @@ This skill does not own:
 - deciding frontend aesthetics
 - inventing business scope from thin air
 - pretending public platform docs define the exact doctrine already
+- canonical business, narrative, customer, or performance context for marketing and communication work
+- `.agents/business-model.md`, `.agents/storytelling.md`, `.agents/know-your-customer.md`, or `.agents/performance-memory.md`
 
 It can summarize and operationalize platform primitives.
 It must not overclaim that Antigravity, Claude Code, or Codex publicly document this exact doctrine end to end.
+
+If the primary need is to turn messy founder/business/customer/performance material into durable marketing or communication context, use `my-personal-context-distillation` instead.
+
+## Boundary Against Context Distillation
+
+This skill and `my-personal-context-distillation` both operate on context, but they do not own the same layer.
+
+- `my-personal-persistent-context-first` owns the technical project control plane before implementation:
+  - repo instruction entrypoint
+  - docs-first bootstrap
+  - project brief
+  - architecture
+  - backlog
+  - current state
+  - ADRs
+  - explicit stop line before code
+- `my-personal-context-distillation` owns the canonical business/marketing/customer/performance truth used by downstream messaging, CRO, SEO, and communication work.
+
+Practical rule:
+
+- if the context must become durable so a technical product can be implemented safely across sessions and agents, this skill owns it
+- if the context must become durable so AI can reason better about the business, audience, positioning, or performance of a product/site/brand, `my-personal-context-distillation` owns it
+- when both are needed, run this skill first for the implementation control plane, then run `my-personal-context-distillation` for the business/marketing context layer
 
 ## Core Doctrine
 
@@ -82,13 +107,15 @@ It must not overclaim that Antigravity, Claude Code, or Codex publicly document 
 
 Use this skill when:
 
-- the user says they plan in ChatGPT and then hand off to Codex
+- the user says they plan in ChatGPT and then hand off to Codex or another coding agent for implementation
 - the user wants "persistent context first"
 - a repo needs a clean docs-first restart
 - a subproject needs its own `AGENTS.md` and `docs/` before coding
 - the agent must transform a long export into brief, architecture, backlog, state, and ADR files
 - the user wants to delete premature scratch code and restart properly
 - the user wants a reusable doctrine for future repos, not just one-off instructions
+- a technical product, SaaS, app, system, or engineering-heavy subproject is about to move from transcript/planning material into real implementation
+- the next reliable step depends on turning long-form chat/transcript context into durable implementation guidance first
 
 Strong trigger phrases include:
 
@@ -105,6 +132,13 @@ Strong trigger phrases include:
 - lis cette conversation et bootstrap le projet
 - transforme ce transcript en contexte persistant
 - ne code pas, prepare d'abord le projet
+
+Do not trigger this skill just because the input is long-form context.
+
+The trigger is not "there is a transcript."
+The trigger is "this transcript is about to function as the operating context for technical implementation, and that context is not yet durably materialized."
+
+If the transcript's main job is instead to update business context, audience understanding, narrative, or performance learnings for marketing/site/communication work, use `my-personal-context-distillation` instead.
 
 ## Source-of-Truth Hierarchy
 

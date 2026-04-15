@@ -20,6 +20,10 @@ And, when customer research is in scope, one durable evidence-layer file:
 
 - `docs/context-sources/voc-bank.csv`
 
+This skill does not own the technical implementation control plane of a product repo.
+It does not bootstrap the docs-first architecture/backlog/state/ADR layer that governs coding work.
+That job belongs to `my-personal-persistent-context-first`.
+
 After that work is complete, it should always propose running the separate `product-marketing-context` skill, whose job is to compile those source files into:
 
 - `.agents/product-marketing-context.md`
@@ -135,7 +139,7 @@ It must follow the schema defined in [references/voc-bank-schema.md](references/
 
 Use this skill when the user wants to:
 
-- bootstrap context files for a new repo
+- bootstrap canonical business context files for a new repo
 - update context files from a founder dump or speech-to-text transcript
 - process a voice memo transcript into durable business context
 - merge new business, customer, or narrative information into the canonical files
@@ -147,6 +151,7 @@ Use this skill when the user wants to:
 - do web-backed voice-of-customer research for `know-your-customer.md`
 
 Do not use this skill to write final marketing assets such as ads, pages, articles, or emails.
+Do not use this skill to bootstrap the technical project control plane for a new software product or technical subproject. If the immediate goal is to create the durable implementation layer before coding, use `my-personal-persistent-context-first`.
 
 Strong trigger phrases include:
 
