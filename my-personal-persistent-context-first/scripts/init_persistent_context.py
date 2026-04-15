@@ -5,7 +5,7 @@ import argparse
 from pathlib import Path
 
 
-FILES = {
+CORE_FILES = {
     "__INSTRUCTION_FILE__": """# {project_name}
 
 ## Local Doctrine
@@ -33,6 +33,12 @@ Until `docs/PROJECT_STATE.md` explicitly says implementation is authorized:
 3. [BACKLOG.md](BACKLOG.md)
 4. [PROJECT_STATE.md](PROJECT_STATE.md)
 5. [DECISIONS/ADR-0001-initial.md](DECISIONS/ADR-0001-initial.md)
+
+## Out Of The Live Set
+
+- `docs/completed/`
+- `docs/archive/`
+- `docs/deprecated/`
 """,
     "docs/PROJECT_BRIEF.md": """# Project Brief
 
@@ -66,26 +72,6 @@ Until `docs/PROJECT_STATE.md` explicitly says implementation is authorized:
 
 [Fill]
 """,
-    "docs/CONTEXT_SOURCES.md": """# Context Sources
-
-## Input Sources
-
-- [Fill]
-
-## Durable Truth Created From These Sources
-
-- [Fill]
-
-## Notes
-
-- The raw transcript remains historical source material, not the operating system of the project.
-""",
-    "docs/EVAL_V1.md": """# Eval v1
-
-## Status
-
-- [Fill if the source material already fixes an eval protocol]
-""",
     "docs/BACKLOG.md": """# Backlog
 
 ## P0
@@ -96,6 +82,10 @@ Until `docs/PROJECT_STATE.md` explicitly says implementation is authorized:
 - [ ] Define implementation order
 """,
     "docs/PROJECT_STATE.md": """# Project State
+
+## Lifecycle Stage
+
+- bootstrap
 
 ## Current Status
 
@@ -109,6 +99,13 @@ Until `docs/PROJECT_STATE.md` explicitly says implementation is authorized:
 ## Done When
 
 - Brief, architecture, backlog, and state are approved
+
+## Live File Policy
+
+- Keep `docs/` root at 6 live markdown files or fewer
+- Move finished plans to `docs/completed/`
+- Move historical context to `docs/archive/`
+- Move replaced canonical docs to `docs/deprecated/`
 """,
     "docs/DECISIONS/ADR-0001-initial.md": """# ADR-0001 — Docs-first bootstrap
 
@@ -122,6 +119,39 @@ This project adopts a `persistent-context first` doctrine.
 
 No implementation starts before durable project docs exist.
 """,
+}
+
+OPTIONAL_FILES = {
+    "context-sources": (
+        "docs/CONTEXT_SOURCES.md",
+        """# Context Sources
+
+## Input Sources
+
+- [Fill]
+
+## Durable Truth Created From These Sources
+
+- [Fill]
+
+## Exit Rule
+
+- Once durable truth is absorbed into the core docs, move this file out of the live set or delete it.
+""",
+    ),
+    "eval-v1": (
+        "docs/EVAL_V1.md",
+        """# Eval v1
+
+## Status
+
+- [Fill if the source material already fixes an eval protocol]
+
+## Exit Rule
+
+- Keep this file live only while it still gates rollout or autonomy decisions.
+""",
+    ),
 }
 
 
@@ -141,15 +171,36 @@ def main() -> int:
         default="AGENTS.md",
         help="Repo instruction entrypoint filename to create (for example AGENTS.md or CLAUDE.md)",
     )
+    parser.add_argument(
+        "--with-context-sources",
+        action="store_true",
+        help="Create docs/CONTEXT_SOURCES.md as the single optional flex-slot live doc",
+    )
+    parser.add_argument(
+        "--with-eval-v1",
+        action="store_true",
+        help="Create docs/EVAL_V1.md as the single optional flex-slot live doc",
+    )
     parser.add_argument("--force", action="store_true", help="Overwrite existing files")
     args = parser.parse_args()
 
     target = Path(args.target).expanduser().resolve()
     target.mkdir(parents=True, exist_ok=True)
 
-    for relative_path, template in FILES.items():
+    optional_selections = [flag for flag in ("context-sources", "eval-v1") if getattr(args, f"with_{flag.replace('-', '_')}")]
+    if len(optional_selections) > 1:
+        parser.error(
+            "The default live-file budget allows only one optional flex-slot file. "
+            "Choose either --with-context-sources or --with-eval-v1."
+        )
+
+    for relative_path, template in CORE_FILES.items():
         resolved_path = args.instruction_file if relative_path == "__INSTRUCTION_FILE__" else relative_path
         write_file(target / resolved_path, template.format(project_name=args.project_name), args.force)
+
+    for selection in optional_selections:
+        relative_path, template = OPTIONAL_FILES[selection]
+        write_file(target / relative_path, template, args.force)
 
     keep = target / "artifacts" / "runs" / ".gitkeep"
     keep.parent.mkdir(parents=True, exist_ok=True)

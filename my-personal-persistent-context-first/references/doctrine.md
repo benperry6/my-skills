@@ -33,8 +33,6 @@ Durable layer:
 - repo instruction entrypoint
 - `docs/PROJECT_BRIEF.md`
 - `docs/ARCHITECTURE.md`
-- `docs/CONTEXT_SOURCES.md`
-- `docs/EVAL_V1.md` when already fixed by source material
 - `docs/BACKLOG.md`
 - `docs/PROJECT_STATE.md`
 - ADRs
@@ -46,7 +44,12 @@ Transient layer:
 - intermediate agent reasoning
 - throwaway experiments
 
-The job of this skill is to convert from transient to durable.
+Optional bootstrap-only durable helpers:
+
+- `docs/CONTEXT_SOURCES.md`
+- `docs/EVAL_V1.md` when the evaluation protocol is already fixed and still operationally relevant
+
+The job of this skill is to convert from transient to durable, then compact the live layer so it does not stay bloated forever.
 
 ## Stop line
 
@@ -98,3 +101,20 @@ This lets deeper instructions override the generic root rules without polluting 
 This skill is finished when the project has a durable operating context and a clean handoff to implementation.
 
 It is not finished when the docs skeleton merely exists.
+
+## Small live control plane
+
+The public Antigravity pattern is closer to a few active artifacts than to a large doc tree.
+
+This skill should therefore prefer:
+
+- a small active reading order
+- a current plan/task surface
+- a current state surface
+- a small number of supporting canonical docs
+
+Default interpretation:
+
+- keep at most 6 live markdown files directly under `docs/`
+- use the 6th slot only when a bootstrap-only or rollout-critical doc clearly earns it
+- move old or finished material out of the live set instead of letting it accumulate

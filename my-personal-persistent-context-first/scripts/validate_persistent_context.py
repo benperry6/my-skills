@@ -9,13 +9,20 @@ REQUIRED = [
     "docs/INDEX.md",
     "docs/PROJECT_BRIEF.md",
     "docs/ARCHITECTURE.md",
-    "docs/CONTEXT_SOURCES.md",
-    "docs/EVAL_V1.md",
     "docs/BACKLOG.md",
     "docs/PROJECT_STATE.md",
     "docs/DECISIONS/ADR-0001-initial.md",
     "artifacts/runs/.gitkeep",
 ]
+
+OPTIONAL_LIVE = {
+    "docs/CONTEXT_SOURCES.md",
+    "docs/EVAL_V1.md",
+}
+
+ALLOWED_LIVE = {item for item in REQUIRED if item.startswith("docs/") and item.endswith(".md")} | OPTIONAL_LIVE
+
+MAX_LIVE_DOCS = 6
 
 UNEXPECTED_WHEN_DOCS_ONLY = [
     "src",
@@ -28,6 +35,26 @@ UNEXPECTED_WHEN_DOCS_ONLY = [
     "pyproject.toml",
     "Cargo.toml",
 ]
+
+
+def detect_lifecycle_stage(project_state: Path) -> str | None:
+    if not project_state.exists():
+        return None
+
+    text = project_state.read_text(encoding="utf-8")
+    in_stage_section = False
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if line.startswith("## "):
+            in_stage_section = line.lower() == "## lifecycle stage"
+            continue
+        if not in_stage_section:
+            continue
+        if line.startswith("- "):
+            value = line[2:].strip().lower()
+            if value in {"bootstrap", "implementation", "mature"}:
+                return value
+    return None
 
 
 def main() -> int:
@@ -62,6 +89,25 @@ def main() -> int:
     required = [instruction_file, *REQUIRED]
     missing = [item for item in required if not (target / item).exists()]
 
+    live_docs = sorted(
+        path.relative_to(target).as_posix()
+        for path in (target / "docs").glob("*.md")
+        if path.is_file()
+    )
+    unexpected_live = [item for item in live_docs if item not in ALLOWED_LIVE]
+    live_doc_overflow = len(live_docs) > MAX_LIVE_DOCS
+
+    lifecycle_stage = detect_lifecycle_stage(target / "docs" / "PROJECT_STATE.md")
+    lifecycle_violations = []
+    if lifecycle_stage in {"implementation", "mature"} and "docs/CONTEXT_SOURCES.md" in live_docs:
+        lifecycle_violations.append(
+            "docs/CONTEXT_SOURCES.md should not remain live once the project leaves bootstrap."
+        )
+    if lifecycle_stage == "mature" and "docs/EVAL_V1.md" in live_docs:
+        lifecycle_violations.append(
+            "docs/EVAL_V1.md should usually be archived, deprecated, merged, or deleted in mature phase."
+        )
+
     unexpected = []
     if args.docs_only:
         unexpected = [item for item in UNEXPECTED_WHEN_DOCS_ONLY if (target / item).exists()]
@@ -76,7 +122,25 @@ def main() -> int:
         for item in unexpected:
             print(f"- {item}")
 
-    if missing or unexpected:
+    if unexpected_live:
+        print("Unexpected live docs in docs/ root:")
+        for item in unexpected_live:
+            print(f"- {item}")
+
+    if live_doc_overflow:
+        print(f"Live docs exceed the default cap of {MAX_LIVE_DOCS}:")
+        for item in live_docs:
+            print(f"- {item}")
+
+    if lifecycle_stage is None:
+        print("Missing or invalid lifecycle stage in docs/PROJECT_STATE.md (expected bootstrap, implementation, or mature).")
+
+    if lifecycle_violations:
+        print("Lifecycle violations:")
+        for item in lifecycle_violations:
+            print(f"- {item}")
+
+    if missing or unexpected or unexpected_live or live_doc_overflow or lifecycle_stage is None or lifecycle_violations:
         return 1
 
     print(f"Persistent context bootstrap looks valid: {target}")

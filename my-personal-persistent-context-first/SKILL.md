@@ -132,20 +132,92 @@ Do not compensate by inventing scope or architecture.
 
 ## Default Deliverables
 
-Unless the user explicitly wants a different file contract, bootstrap the target repo or subproject with:
+Unless the user explicitly wants a different file contract, bootstrap the target repo or subproject with this default live set:
 
 - one repo instruction entrypoint (`AGENTS.md`, `CLAUDE.md`, or equivalent existing convention)
 - `docs/INDEX.md`
 - `docs/PROJECT_BRIEF.md`
 - `docs/ARCHITECTURE.md`
-- `docs/CONTEXT_SOURCES.md`
-- `docs/EVAL_V1.md` if the source material already fixes an eval protocol
 - `docs/BACKLOG.md`
 - `docs/PROJECT_STATE.md`
 - `docs/DECISIONS/ADR-0001-initial.md`
 - `artifacts/runs/.gitkeep`
 
+Optional bootstrap-only live files:
+
+- `docs/CONTEXT_SOURCES.md`
+- `docs/EVAL_V1.md`
+
+But do not create both by reflex.
+The default rule is: keep the live `docs/` root as small as possible and add at most one extra bootstrap-only file unless the user explicitly wants a richer contract.
+
 If the project already has a stronger equivalent contract, adapt to it rather than duplicating it.
+
+## Live File Budget
+
+This skill should stay close to the spirit of Antigravity's public artifacts:
+
+- one active planning surface
+- one active task surface
+- one current-state surface
+- a small number of supporting canonical docs
+
+So the hard default is:
+
+- at most 6 live markdown files directly under `docs/`
+- the repo instruction entrypoint does not count toward that cap
+- `docs/DECISIONS/`, `docs/completed/`, `docs/archive/`, and `docs/deprecated/` do not count toward that cap
+
+Interpretation:
+
+- 5 core live docs are normal
+- the 6th slot is the flex slot
+- if a 7th live doc seems necessary, consolidate first instead of adding another file
+
+## File Lifecycle
+
+Every durable doc must belong to one of these states:
+
+- `active`
+  - currently part of the reading order and still operational
+- `completed`
+  - useful record of finished implementation work or finished plans, but no longer part of the live control plane
+- `archive`
+  - historical material worth keeping for future forensic context, but not needed in normal operation
+- `deprecated`
+  - formerly canonical material replaced by a newer source of truth
+
+Default mapping:
+
+- live root docs in `docs/*.md` are `active`
+- finished execution notes and finished plans move to `docs/completed/`
+- old but still useful historical material moves to `docs/archive/`
+- replaced canonical docs move to `docs/deprecated/`
+
+## Maintenance Rules
+
+This skill is not only for bootstrap. It must also enforce doc gardening during the project.
+
+Rules:
+
+1. `docs/BACKLOG.md` keeps only active and upcoming work.
+2. Completed items should be removed from the active backlog once their outcome is folded back into durable truth.
+3. `docs/PROJECT_STATE.md` is the current status file, not a full project diary.
+4. Bootstrap-only files must either be absorbed into the permanent docs, moved out of the live set, or deleted once they no longer earn their keep.
+5. If a file is no longer in the normal reading order, it should not stay live at `docs/`.
+6. If a canonical file is replaced, move the old one to `docs/deprecated/` with a pointer to the replacement or delete it if the repo history already preserves enough traceability.
+7. Do not let live docs accumulate just because they were once useful during bootstrap.
+
+Lifecycle expectations by phase:
+
+- `bootstrap`
+  - the project may use the flex slot for one bootstrap-only helper file
+- `implementation`
+  - `CONTEXT_SOURCES.md` should usually be gone from the live set
+  - `EVAL_V1.md` may stay live only if it still drives rollout decisions
+- `mature`
+  - keep only the smallest operational live set
+  - bootstrap-only files should be archived, deprecated, merged, or deleted
 
 ## Transcript Handoff Mode
 
@@ -160,6 +232,9 @@ In that mode, the job is:
 5. stop before product code
 
 This means the user should not have to add a second long ad hoc instruction just to get the docs-first layer.
+
+The first implementation-ready bootstrap is not the end state of the docs.
+As the repo matures, the live set should shrink, not grow.
 
 ## Workflow
 
@@ -198,6 +273,8 @@ Use [scripts/init_persistent_context.py](scripts/init_persistent_context.py) to 
 
 The script only creates the durable structure and placeholder content.
 It does not decide the project truth for you.
+By default it creates only the core live set plus the repo instruction entrypoint.
+Optional bootstrap-only files must be requested explicitly.
 
 ### 4. Distill the source material into durable docs
 
@@ -231,6 +308,8 @@ Populate the docs from the transcript/export and accepted repo truth:
 - `ADR-0001-initial.md`
   - why the docs-first doctrine applies here
 
+When optional bootstrap-only files are created, they must later be merged, archived, deprecated, or deleted according to the lifecycle rules above.
+
 ### 5. Freeze the stop line
 
 Until the user validates the bootstrap:
@@ -248,6 +327,7 @@ Once the bootstrap is approved:
 - update `PROJECT_STATE.md` to say implementation is authorized
 - keep the backlog as the execution queue
 - keep the architecture and ADRs updated as the project evolves
+- keep the live-file budget under control as the project evolves
 
 This skill ends at the handoff.
 It should not silently slide into implementation mode.
@@ -260,6 +340,8 @@ Read only what the current task needs:
   - The durable doctrine and how to translate transcript context into repo truth.
 - [references/file-contract.md](references/file-contract.md)
   - The default file contract and what each file is responsible for.
+- [references/lifecycle.md](references/lifecycle.md)
+  - The active/completed/archive/deprecated lifecycle and the live-file budget.
 - [references/platform-primitives.md](references/platform-primitives.md)
   - Official and locally verified primitives from Codex, Claude Code, and Antigravity.
 - [references/reset-policy.md](references/reset-policy.md)
@@ -274,3 +356,4 @@ Read only what the current task needs:
 - When public docs are partial, say what is official and what is your transposition.
 - If the repo drifts again into code-first work, re-run this skill before resuming implementation.
 - The skill should be shareable with partners without leaking private machine setup.
+- The skill should leave behind a small live control plane, not a pile of bootstrap files.

@@ -55,6 +55,7 @@ Purpose:
 - tell any future session what changed
 - say whether the project is still in bootstrap or may resume implementation
 - define the immediate next action
+- declare the lifecycle phase (`bootstrap`, `implementation`, or `mature`)
 
 ## `docs/DECISIONS/ADR-0001-initial.md`
 
@@ -80,3 +81,18 @@ Common later additions:
 - `docs/DECISIONS/ADR-0002-*.md`
 
 These should be added only when the project truth needs them, not by reflex.
+
+## Active file budget
+
+Default live-set policy:
+
+- only markdown files directly under `docs/` count as live control-plane docs
+- keep that live set at 6 files or fewer
+- the instruction entrypoint and ADR folders do not count toward that cap
+- `docs/completed/`, `docs/archive/`, and `docs/deprecated/` are explicitly outside the live set
+
+Practical interpretation:
+
+- `INDEX`, `PROJECT_BRIEF`, `ARCHITECTURE`, `BACKLOG`, and `PROJECT_STATE` form the normal core
+- one additional live doc may exist when it clearly earns the flex slot
+- if another file seems necessary, consolidate before adding
