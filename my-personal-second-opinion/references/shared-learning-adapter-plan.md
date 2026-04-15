@@ -17,13 +17,17 @@ What is already true in local evidence:
 
 ## Decision
 
-`my-personal-second-opinion` remains a temporary special implementation on the path to convergence.
+`my-personal-second-opinion` now graduates from "temporary special implementation" to an intentional medium-term architecture:
+
+- the runner remains the authoritative native producer for orchestration and persistence
+- the shared loop remains the authoritative doctrinal contract
+- the mandatory shared mirror remains the convergence boundary
 
 That means:
 
 - do not replace the runner with the shared helper right now
-- do not leave `second-opinion` permanently outside the shared learning doctrine either
-- converge through an adapter layer first
+- do not make the runner depend on the shared helper for authoritative persistence
+- do keep the runner inside the shared doctrine through the adapter layer and mandatory mirror
 
 ## Why the runner stays special for now
 
@@ -41,7 +45,7 @@ Replacing the runner now would be a regression.
 
 ## Adapter strategy
 
-The near-term integration is an adapter and bridge layer, not a replacement.
+The adopted integration is an adapter and bridge layer, not a replacement.
 
 Target behavior:
 
@@ -49,6 +53,12 @@ Target behavior:
 - the runner aligns its terminology with the shared trigger and hook doctrine
 - the runner emits a shared-compatible incident mirror immediately after accepting a native incident
 - the shared mirror preserves runner-specific richness through `extensions`, not through schema flattening
+
+Allowed future refinement:
+
+- the runner may later delegate only the shared-mirror write path to the shared helper
+- the runner must still keep native capture, native persistence, and native resume semantics as its own responsibility
+- any such delegation must preserve one-pass de-duplication and single-shot git persist across native and shared artifacts
 
 ## Current machine-readable contract state
 
@@ -155,6 +165,29 @@ Only after phases 2 to 4 should we decide whether:
 - the runner consumes a matured shared helper
 - or both collapse into one canonical implementation
 
+Current status:
+
+- completed through a required second-opinion review from Claude Code and Gemini
+- decision: keep `second-opinion` as a permanent specialized producer with native authoritative persistence plus mandatory shared mirror
+- this is now intentional medium-term architecture, not a short-lived stopgap
+- rejected for now:
+  - direct shared-helper consumption for authoritative persistence
+  - full collapse into one canonical implementation
+- future convergence is limited to shared-mirror export mechanics, not native runner ownership
+
+Why this decision holds:
+
+- native records remain an operational lookup surface for repair logic, fallback ordering, and resume behavior
+- flattening the native store into the shared helper would make engine-specific fields second-class and weaken the runner's own recovery path
+- a full collapse would mix orchestration concerns with recording concerns and degrade both abstractions
+
+Specific risks to manage from this point:
+
+- dedup mismatch between native incident identity and shared `record_id` / `extensions.learning_fingerprint`
+- validation-depth mismatch if shared-schema validation becomes stricter than runner-side assumptions
+- git-persist collisions if native and shared writes each try to commit/push separately
+- mirror desynchronization if native persistence succeeds but shared export fails
+
 ## Non-goals
 
 This plan does **not** do any of the following yet:
@@ -163,6 +196,7 @@ This plan does **not** do any of the following yet:
 - rewrite runtime-learning history
 - claim that second-opinion is already a doctrinal consumer like paid-tracking
 - force shared-helper writes that drop runner-only fields
+- treat shared-helper consumption for native persistence as an immediate goal
 
 ## Regression guardrails
 

@@ -83,7 +83,7 @@ Memory split:
 - `references/runtime-learning.shared.json` = shared-compatible machine-readable mirror derived from accepted native runner incidents
 - `references/runtime-learning.shared.md` = human-readable mirror of the shared-compatible incidents
 - `references/learning-overlay.md` = second-opinion-specific overlay for the shared verified-learning doctrine
-- `references/shared-learning-adapter-plan.md` = current phased plan for eventual convergence without downgrading the runner
+- `references/shared-learning-adapter-plan.md` = current phased plan and Phase 5 decision: specialized native producer + mandatory shared mirror
 - `scripts/smoke_test_shared_incident_bridge.py` = repo-level smoke test for the shared incident bridge and schema compatibility
 
 **Do not update either from theory.** Update them only after a repaired path succeeds in real behavior.

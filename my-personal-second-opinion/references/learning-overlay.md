@@ -7,13 +7,14 @@ This file defines the second-opinion-specific overlay.
 
 ## Current status
 
-`my-personal-second-opinion` is currently a temporary special implementation on the path to convergence.
+`my-personal-second-opinion` is an intentional medium-term specialized producer inside the shared verified-learning doctrine.
 
 That means:
 
 - the runner remains the source of truth for orchestration, repair, and persistence behavior
 - the shared loop remains the source of truth for doctrine, trigger vocabulary, confidence tiers, and promotion guardrails
-- convergence should happen through an adapter layer first, not through immediate replacement of the runner with the shared helper
+- the mandatory shared mirror is the contract that keeps the skill converged with the shared ecosystem
+- convergence should happen through adapter/export mechanics, not through immediate replacement of the runner with the shared helper
 
 ## Skill-specific triggers
 
@@ -71,14 +72,14 @@ Use this mapping when translating runner-native incidents into the shared runtim
 
 ## Native source-of-truth rules
 
-During the adapter phase:
+Under the adopted architecture:
 
 - native runner persistence remains authoritative
 - native runner de-duplication remains authoritative
 - any shared-compatible mirror must be derived from an already accepted native record, not from a parallel best-effort write path
 - the bridge artifacts are `references/runtime-learning.shared.json` and `references/runtime-learning.shared.md`
 
-This avoids downgrading the runner to the current capabilities of the shared helper.
+This avoids downgrading the runner to the current capabilities of the shared helper and keeps repair-time behavior queryable from the native store.
 
 ## Promotion overrides
 
@@ -91,7 +92,15 @@ Use the shared promotion ladder, plus these second-opinion-specific rules:
 
 ## Convergence boundary
 
-Do not replace `second_opinion_runner.py` with the shared helper until the shared layer can support, at minimum:
+Do not replace `second_opinion_runner.py` with the shared helper. The current decision is that native authoritative persistence stays with the runner.
+
+The only acceptable future convergence in this area is narrower:
+
+- delegate the shared-mirror write path to the shared helper if it reduces duplicated export logic
+- keep native persistence, native de-duplication inputs, and native resume semantics inside the runner
+- ensure any delegated shared write preserves dedup identity alignment and single-shot git persist
+
+Do not reconsider deeper replacement unless the shared layer can support, at minimum:
 
 - producer-grade structured incident capture
 - machine-validated extensions
