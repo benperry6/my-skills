@@ -74,6 +74,8 @@ Read only what the current task needs:
   - The explicit trigger classes and checkpoints that should cause the learning loop to run.
 - `references/runtime-incident-schema.md`
   - The structured JSON shape for runtime incidents and how it maps to the Markdown mirror.
+- `references/runtime-incident.schema.json`
+  - The machine-readable contract for a single runtime incident object.
 - `references/skill-extension-contract.md`
   - The contract for skill-specific trigger overlays, extra JSON fields, and promotion overrides.
 - `references/runtime-hooks.md`
@@ -192,5 +194,6 @@ A correct learning loop should leave behind:
 - the evidence that justified the write-back
 - the confidence layer used (`runtime` or `verified`)
 - a structured runtime incident record when the loop was triggered
+- a machine-readable runtime incident contract that later adapters or validators can target
 - the smallest updated target surface
 - no contamination from project-specific or speculative content

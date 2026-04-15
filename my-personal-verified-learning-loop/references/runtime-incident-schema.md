@@ -23,6 +23,7 @@ Markdown is for:
 
 - `runtime-learning.json` = array of incident objects
 - `runtime-learning.md` = append-only human-readable mirror of those incidents
+- `runtime-incident.schema.json` = machine-readable contract for one runtime incident object
 
 ## Required fields
 
@@ -107,3 +108,23 @@ Promotion decisions should read this schema and decide whether the incident stay
 - escalated into a canonical `SKILL.md` update
 
 The `extensions` object is the approved place for skill-specific fields.
+
+## Machine-readable contract
+
+The Markdown explanation in this file is descriptive.
+
+The executable contract is:
+
+- `references/runtime-incident.schema.json`
+
+Intended use:
+
+- downstream adapters can map their native runtime records into this shape
+- future smoke tests can validate incident objects against it
+- the shared loop can evolve its helper scripts without relying only on prose
+
+Current scope:
+
+- the JSON Schema validates a **single incident object**
+- `runtime-learning.json` remains an array of such objects
+- a full file-level schema or validator can be added later if needed

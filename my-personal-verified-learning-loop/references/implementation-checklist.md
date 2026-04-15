@@ -9,6 +9,7 @@ Use this before claiming a skill has learned something durable.
 - [ ] the evidence is inspectable
 - [ ] the confidence tier is explicit (`runtime` or `verified`)
 - [ ] runtime incidents are stored in a structured machine-readable format, not only in prose
+- [ ] if compatibility matters, the incident shape is checked against `references/runtime-incident.schema.json`
 - [ ] unresolved findings are not promoted
 - [ ] the smallest correct write target was chosen
 - [ ] `SKILL.md` was touched only if canonical guidance truly changed

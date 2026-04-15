@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.skills/my-personal-verified-learning-loop/runtime-incident.schema.json",
+  "title": "Runtime Incident",
+  "description": "Machine-readable contract for a single runtime incident recorded by the verified learning loop.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "timestamp",
+    "kind",
+    "topic",
+    "summary",
+    "status",
+    "confidence",
+    "evidence",
+    "canonical_change_candidate"
+  ],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "kind": {
+      "type": "string",
+      "const": "runtime"
+    },
+    "topic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "repaired",
+        "unresolved",
+        "promoted"
+      ]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "failed_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "repaired_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": []
+    },
+    "source_skill": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_session": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "agent": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "target_files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": []
+    },
+    "extensions": {
+      "type": "object",
+      "default": {}
+    },
+    "canonical_change_candidate": {
+      "type": "boolean"
+    }
+  }
+}
