@@ -11,6 +11,12 @@ The durable context layer has four jobs:
 3. Give the next agent a deterministic reading order
 4. Prevent premature coding from becoming the de facto plan
 
+It also has to stay shareable:
+
+- reusable with partners
+- compatible with stronger local setups
+- free of private machine implementation details
+
 ## Why transcripts are not enough
 
 A ChatGPT export is useful raw material, but it is not enough on its own because:
@@ -24,9 +30,11 @@ A ChatGPT export is useful raw material, but it is not enough on its own because
 
 Durable layer:
 
-- `AGENTS.md`
+- repo instruction entrypoint
 - `docs/PROJECT_BRIEF.md`
 - `docs/ARCHITECTURE.md`
+- `docs/CONTEXT_SOURCES.md`
+- `docs/EVAL_V1.md` when already fixed by source material
 - `docs/BACKLOG.md`
 - `docs/PROJECT_STATE.md`
 - ADRs
@@ -57,6 +65,21 @@ That includes:
 - tests tied to unfinished code
 
 If any of that already exists from a bad start, the agent must not continue it by inertia.
+
+## Compatibility without disclosure
+
+This doctrine should adapt to the environment without documenting private machine wiring.
+
+The correct pattern is:
+
+- inspect the repo for existing instruction-file and memory conventions
+- follow them if they exist
+- otherwise create the minimum tool-appropriate entrypoint
+
+The incorrect pattern is:
+
+- dump a private local setup into the shared skill
+- make the skill depend on hidden machine-only file paths to make sense
 
 ## Subproject-first preference
 

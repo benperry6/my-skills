@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 FILES = {
-    "AGENTS.md": """# {project_name}
+    "__INSTRUCTION_FILE__": """# {project_name}
 
 ## Local Doctrine
 
@@ -66,6 +66,26 @@ Until `docs/PROJECT_STATE.md` explicitly says implementation is authorized:
 
 [Fill]
 """,
+    "docs/CONTEXT_SOURCES.md": """# Context Sources
+
+## Input Sources
+
+- [Fill]
+
+## Durable Truth Created From These Sources
+
+- [Fill]
+
+## Notes
+
+- The raw transcript remains historical source material, not the operating system of the project.
+""",
+    "docs/EVAL_V1.md": """# Eval v1
+
+## Status
+
+- [Fill if the source material already fixes an eval protocol]
+""",
     "docs/BACKLOG.md": """# Backlog
 
 ## P0
@@ -116,6 +136,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Initialize a docs-first project context tree.")
     parser.add_argument("target", help="Target repo or subproject directory")
     parser.add_argument("--project-name", default="Project", help="Display name for AGENTS.md")
+    parser.add_argument(
+        "--instruction-file",
+        default="AGENTS.md",
+        help="Repo instruction entrypoint filename to create (for example AGENTS.md or CLAUDE.md)",
+    )
     parser.add_argument("--force", action="store_true", help="Overwrite existing files")
     args = parser.parse_args()
 
@@ -123,7 +148,8 @@ def main() -> int:
     target.mkdir(parents=True, exist_ok=True)
 
     for relative_path, template in FILES.items():
-        write_file(target / relative_path, template.format(project_name=args.project_name), args.force)
+        resolved_path = args.instruction_file if relative_path == "__INSTRUCTION_FILE__" else relative_path
+        write_file(target / resolved_path, template.format(project_name=args.project_name), args.force)
 
     keep = target / "artifacts" / "runs" / ".gitkeep"
     keep.parent.mkdir(parents=True, exist_ok=True)

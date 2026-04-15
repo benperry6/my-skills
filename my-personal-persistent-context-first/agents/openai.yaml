@@ -1,4 +1,4 @@
 interface:
   display_name: "Persistent Context First"
   short_description: "Bootstrap durable repo context before coding"
-  default_prompt: "Use $my-personal-persistent-context-first to reset premature scratch work when needed, bootstrap a local AGENTS/docs context from my planning material, and stop all product coding until the docs-first baseline is approved."
+  default_prompt: "Use $my-personal-persistent-context-first to turn my planning material or ChatGPT export into a durable docs-first repo bootstrap, preserve the repo's existing instruction-file convention when present, and stop all product coding until the baseline is explicitly approved."

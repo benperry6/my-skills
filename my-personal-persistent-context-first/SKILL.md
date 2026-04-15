@@ -14,6 +14,31 @@ Its job is to turn raw planning material into durable repo context first, then h
 This skill is not a code generator.
 It is a bootstrap, restart, and governance skill.
 
+## Compatibility Contract
+
+This skill must stay infrastructure-agnostic in its visible content.
+
+That means:
+
+- do not embed one machine's private paths
+- do not hardcode one team's MCP layout
+- do not describe private wrapper scripts, local browser ports, or secret bootstrap internals
+
+At the same time, it must remain compatible with stronger local setups by convention.
+
+So always:
+
+- inspect the target repo for an existing instruction-file convention before creating anything
+- preserve an existing convention if one already exists
+- use a tool-native or repo-native instruction entrypoint instead of forcing one filename everywhere
+- keep the durable docs contract tool-agnostic even if the instruction entrypoint differs
+
+Practical rule:
+
+- if the repo already has a canonical instruction file pattern, keep it
+- if the repo has no convention yet, create the current tool's native instruction file or the explicitly requested one
+- do not expose a private machine setup just to stay compatible with it
+
 ## What This Skill Owns
 
 This skill owns the transition from:
@@ -24,7 +49,7 @@ This skill owns the transition from:
 
 to:
 
-- a local `AGENTS.md` or repo-level instruction file that routes work correctly
+- a local repo instruction entrypoint that routes work correctly
 - a durable `docs/` contract for the project or subproject
 - a prioritized backlog
 - a current state file that says what happens next
@@ -49,7 +74,7 @@ It must not overclaim that Antigravity, Claude Code, or Codex publicly document 
 3. For a serious project, bootstrap docs are a prerequisite, not a nice-to-have.
 4. If coding started too early, stop, reset, and rebuild the context layer first.
 5. The context layer must live in repo files that survive compaction, thread changes, and agent handoffs.
-6. A local `AGENTS.md` should stay short and route to durable docs; the spec should live in `docs/`.
+6. The repo instruction entrypoint should stay short and route to durable docs; the spec should live in `docs/`.
 7. No product code resumes until the bootstrap is explicitly approved.
 8. Reusable doctrine belongs in a reusable skill; project-specific truth belongs in the repo.
 
@@ -76,6 +101,10 @@ Strong trigger phrases include:
 - create AGENTS and docs first
 - Antigravity-style planning
 - planning mode before code
+- voici l'export ChatGPT
+- lis cette conversation et bootstrap le projet
+- transforme ce transcript en contexte persistant
+- ne code pas, prepare d'abord le projet
 
 ## Source-of-Truth Hierarchy
 
@@ -105,16 +134,32 @@ Do not compensate by inventing scope or architecture.
 
 Unless the user explicitly wants a different file contract, bootstrap the target repo or subproject with:
 
-- `AGENTS.md`
+- one repo instruction entrypoint (`AGENTS.md`, `CLAUDE.md`, or equivalent existing convention)
 - `docs/INDEX.md`
 - `docs/PROJECT_BRIEF.md`
 - `docs/ARCHITECTURE.md`
+- `docs/CONTEXT_SOURCES.md`
+- `docs/EVAL_V1.md` if the source material already fixes an eval protocol
 - `docs/BACKLOG.md`
 - `docs/PROJECT_STATE.md`
 - `docs/DECISIONS/ADR-0001-initial.md`
 - `artifacts/runs/.gitkeep`
 
 If the project already has a stronger equivalent contract, adapt to it rather than duplicating it.
+
+## Transcript Handoff Mode
+
+When the only input is a ChatGPT export or similar long transcript, this skill should still be sufficient to launch the project cleanly.
+
+In that mode, the job is:
+
+1. read the transcript fully enough to extract durable truth
+2. separate stable decisions from open questions and discarded brainstorming
+3. bootstrap the repo instruction entrypoint and durable docs
+4. write the stop line into the state file
+5. stop before product code
+
+This means the user should not have to add a second long ad hoc instruction just to get the docs-first layer.
 
 ## Workflow
 
@@ -127,6 +172,11 @@ Determine whether the bootstrap belongs at:
 - a new subfolder that will later contain the product
 
 If the repo already mixes multiple concerns, prefer a dedicated subproject folder with its own deeper `AGENTS.md`.
+
+Also determine the instruction-file strategy:
+
+- preserve existing repo convention if present
+- otherwise choose the instruction entrypoint appropriate for the active tool or the user's explicit preference
 
 ### 2. Decide the reset policy
 
@@ -164,6 +214,12 @@ Populate the docs from the transcript/export and accepted repo truth:
   - boundaries
   - data flow
   - open architectural decisions
+- `CONTEXT_SOURCES.md`
+  - what source material was used
+  - what became durable repo truth
+  - what remains only historical source material
+- `EVAL_V1.md`
+  - if the source material already fixed the evaluation doctrine, capture it now instead of leaving it trapped in the transcript
 - `BACKLOG.md`
   - prioritized tasks
   - dependencies
@@ -211,9 +267,10 @@ Read only what the current task needs:
 
 ## Practical Rules
 
-- Prefer a short routing `AGENTS.md` plus durable docs over a giant instruction dump.
+- Prefer a short routing instruction entrypoint plus durable docs over a giant instruction dump.
 - Prefer docs at the target subproject level when the repo contains multiple unrelated domains.
 - Capture project truth in the repo, not in the skill.
 - Capture reusable doctrine in the skill, not in one repo's docs.
 - When public docs are partial, say what is official and what is your transposition.
 - If the repo drifts again into code-first work, re-run this skill before resuming implementation.
+- The skill should be shareable with partners without leaking private machine setup.

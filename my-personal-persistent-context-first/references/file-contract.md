@@ -1,6 +1,6 @@
 # File Contract
 
-## `AGENTS.md`
+## Repo instruction entrypoint
 
 Purpose:
 
@@ -9,6 +9,12 @@ Purpose:
 - points to the durable docs
 
 It should not become the full spec.
+
+Possible filenames depend on the tool or existing repo convention:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- another already-established local convention
 
 ## `docs/INDEX.md`
 
@@ -67,6 +73,7 @@ Purpose:
 
 Common later additions:
 
+- `docs/CONTEXT_SOURCES.md`
 - `docs/EVAL_V1.md`
 - `docs/DATA_CONTRACTS.md`
 - `docs/IMPLEMENTATION_ORDER.md`

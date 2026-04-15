@@ -2,6 +2,16 @@
 
 This file separates what is officially documented from what is only inferred or locally verified.
 
+## Cross-tool compatibility principle
+
+The important design principle is not "encode one machine's setup in the skill".
+
+It is:
+
+- keep the skill tool-agnostic in public content
+- preserve stronger existing repo conventions
+- stay compatible with local cross-tool stacks by convention and inspection
+
 ## Codex — locally verified in the current environment
 
 The current Codex environment already verifies these primitives:
