@@ -74,6 +74,10 @@ Read only what the current task needs:
   - The explicit trigger classes and checkpoints that should cause the learning loop to run.
 - `references/runtime-incident-schema.md`
   - The structured JSON shape for runtime incidents and how it maps to the Markdown mirror.
+- `references/skill-extension-contract.md`
+  - The contract for skill-specific trigger overlays, extra JSON fields, and promotion overrides.
+- `references/runtime-hooks.md`
+  - The standard runtime hook names and when they should fire.
 - `references/implementation-checklist.md`
   - Practical checklist before claiming a skill has learned something durable.
 - `scripts/record_learning.py`
@@ -135,7 +139,21 @@ The structured incident should capture:
 
 This turns learning into an explicit runtime action rather than a vague intuition.
 
-### 5. Pick the smallest correct write target
+### 5. Apply any skill-specific overlay
+
+If the target skill defines an overlay, apply it here.
+
+Typical overlay responsibilities:
+
+- add skill-specific trigger classes
+- add skill-specific JSON extension fields
+- narrow or strengthen promotion conditions
+- define which runtime hooks matter for that skill
+
+The shared loop owns the base doctrine.
+The target skill owns its domain-specific overlay.
+
+### 6. Pick the smallest correct write target
 
 Default order:
 
@@ -146,7 +164,7 @@ Default order:
 
 Do not jump straight to `SKILL.md` when a runtime note is enough.
 
-### 6. Apply bounded self-modification
+### 7. Apply bounded self-modification
 
 When a write-back is justified:
 
@@ -155,7 +173,7 @@ When a write-back is justified:
 - prefer additive updates and explicit deprecation notes over broad rewrites
 - make the evidence trail clear enough that a later session can audit why the skill changed
 
-### 7. Keep unresolved gaps explicit
+### 8. Keep unresolved gaps explicit
 
 If the path still is not proven:
 

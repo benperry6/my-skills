@@ -61,6 +61,10 @@ def main() -> int:
     parser.add_argument("--agent", help="Agent or engine that observed the incident.")
     parser.add_argument("--target-file", action="append", default=[], help="File touched or implicated by this incident.")
     parser.add_argument(
+        "--extensions-json",
+        help="JSON object string containing skill-specific extension fields for runtime incidents.",
+    )
+    parser.add_argument(
         "--canonical-change-candidate",
         action=argparse.BooleanOptionalAction,
         default=False,
@@ -74,6 +78,9 @@ def main() -> int:
     references_dir = skill_dir / "references"
     target = references_dir / ("runtime-learning.md" if args.kind == "runtime" else "verified-learning.md")
     runtime_json = references_dir / "runtime-learning.json"
+    extensions = json.loads(args.extensions_json) if args.extensions_json else {}
+    if not isinstance(extensions, dict):
+        raise SystemExit("--extensions-json must decode to a JSON object.")
 
     heading = f"## {utc_now()} - {args.topic}"
     lines = [f"- Summary: {args.summary}"]
@@ -93,6 +100,8 @@ def main() -> int:
         lines.append("- Target files:")
         for item in args.target_file:
             lines.append(f"  - `{item}`")
+    if extensions:
+        lines.append(f"- Extensions JSON: `{json.dumps(extensions, sort_keys=True)}`")
     lines.append(f"- Canonical change candidate: `{str(args.canonical_change_candidate).lower()}`")
     for item in args.evidence:
         lines.append(f"- Evidence: {item}")
@@ -117,6 +126,7 @@ def main() -> int:
                 "source_session": args.source_session,
                 "agent": args.agent,
                 "target_files": args.target_file,
+                "extensions": extensions,
                 "canonical_change_candidate": args.canonical_change_candidate,
             }
         )

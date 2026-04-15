@@ -4,6 +4,7 @@ Use this before claiming a skill has learned something durable.
 
 - [ ] the finding came from real behavior, not theory alone
 - [ ] an explicit learning trigger fired before the loop was invoked
+- [ ] if the target skill defines an overlay, that overlay was applied instead of being ignored
 - [ ] the incident and repaired path are stated concretely
 - [ ] the evidence is inspectable
 - [ ] the confidence tier is explicit (`runtime` or `verified`)

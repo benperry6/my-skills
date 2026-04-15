@@ -46,6 +46,7 @@ Each runtime incident should include at least:
 - `source_session`
 - `agent`
 - `target_files`
+- `extensions`
 
 ## Example object
 
@@ -72,6 +73,10 @@ Each runtime incident should include at least:
   "target_files": [
     "references/runtime-learning.md"
   ],
+  "extensions": {
+    "vendor": "Gemini CLI",
+    "hook": "on_repair_success"
+  },
   "canonical_change_candidate": true
 }
 ```
@@ -100,3 +105,5 @@ Promotion decisions should read this schema and decide whether the incident stay
 - runtime-only
 - promoted into verified learning
 - escalated into a canonical `SKILL.md` update
+
+The `extensions` object is the approved place for skill-specific fields.

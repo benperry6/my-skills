@@ -9,6 +9,9 @@ description: "[My Personal Skill] Use when a project needs a paid media tracking
 
 This skill chooses the right paid media tracking foundation for a project without defaulting too early to expensive enterprise infrastructure. It is designed to recommend a clear baseline, explain the trade-offs, and then output a concrete implementation plan rather than a vague comparison.
 
+For shared verified-learning doctrine, triggering, runtime hooks, and structured runtime incident capture, pair this skill with `my-personal-verified-learning-loop`.
+This skill keeps the paid-tracking-specific overlay on top of that shared base.
+
 ## Trigger Conditions
 
 Use this skill when the user asks any variation of:
@@ -214,12 +217,15 @@ Separate clearly:
 
 Read:
 
+- `references/learning-overlay.md`
 - `references/programmatic-bootstrap.md`
 - `references/access-checklist.md`
 - `references/runtime-verification.md`
 
 When a vendor was not documented before, or when a documented flow had become outdated and had to be debugged:
 
+- use `my-personal-verified-learning-loop` as the shared doctrine for triggering, confidence tiers, and write targets
+- apply the paid-tracking overlay from `references/learning-overlay.md`
 - research first
 - execute the bootstrap or fix
 - verify the result in real behavior
@@ -305,6 +311,7 @@ This doctrine exists for a business reason, not a tooling reason:
 - keep vendor-required on-disk auth files only in the standard paths the official tooling expects, with restrictive permissions
 - prefer a secure local secret store for secrets and re-materializable bootstrap blobs; prefer 1Password if it is actually available and intended for team/shared secret management, otherwise use the macOS Keychain
 - use the browser only for genuine bootstrap gaps or missing machine-to-machine permissions that cannot yet be solved programmatically
+- record runtime incidents with the shared loop when a paid-tracking trigger fires, using the paid-tracking `extensions` fields defined in `references/learning-overlay.md`
 
 ### The user must typically provide
 
