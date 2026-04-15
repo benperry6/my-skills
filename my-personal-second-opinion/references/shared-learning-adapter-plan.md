@@ -117,6 +117,12 @@ Exit criteria:
 
 - adapter breakage becomes observable during maintenance instead of months later
 
+Current status:
+
+- implemented via `scripts/smoke_test_shared_incident_bridge.py`
+- the smoke test imports the native runner, translates a representative native incident through `to_shared_incident(...)`, validates it against `my-personal-verified-learning-loop/references/runtime-incident.schema.json`, verifies shared mirror writes, and verifies de-duplication on a second append
+- phase 3 is complete
+
 ### Phase 4 — Upstreaming
 
 Goal: move stable producer-grade patterns from the runner into the shared loop.
