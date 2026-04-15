@@ -331,6 +331,113 @@ Implication:
 - for this skill, do not treat the plugin as the canonical orchestration path yet
 - if the plugin is used as a Claude-specific fallback or validation surface, avoid `--effort minimal` on `task` until the plugin/runtime contract is revalidated
 
+## 2026-04-15 — Claude Code Codex plugin long-run audit
+
+Verified background task launch:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs task --background --write --fresh "..."
+```
+
+Observed behavior:
+
+- returns a queued job payload with:
+  - `jobId`
+  - `status = "queued"`
+  - `logFile`
+- `status <job-id>` on a real temporary git repo showed:
+  - `queued` -> `running`
+  - tracked `threadId`
+  - tracked `turnId`
+  - live `progressPreview`
+
+Verified cancellation path:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs cancel <job-id> --json
+```
+
+Observed behavior:
+
+- returned exit code `0`
+- returned:
+  - `status = "cancelled"`
+  - `turnInterruptAttempted = true`
+- `status <job-id>` then reported:
+  - `status = "cancelled"`
+  - `phase = "cancelled"`
+  - `errorMessage = "Cancelled by user."`
+- `result <job-id>` returned the stored cancelled job payload
+- the target file for the cancelled task was **not** created
+
+Observed long-run task hazard in real behavior:
+
+- one supervised background write task did create the requested file (`plugin-audit-output.txt = "LONGRUN_OK\\n"`)
+- but the job remained in `running` state for more than one minute because Codex continued repairing a later verification-side shell failure (`exit 127`)
+- implication:
+  - observable side effect alone does **not** prove a clean terminal job state
+  - `status` must remain the source of truth for terminal state
+
+Verified failure-surfacing path:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs status <job-id> --wait --timeout-ms 120000 --poll-interval-ms 2000 --json
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs result <job-id> --json
+```
+
+Observed behavior:
+
+- a real background task terminated as `failed`
+- `status --wait` surfaced the terminal failure state correctly
+- `result` returned the stored failed payload correctly
+- one verified failure message was:
+  - `You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at 1:54 PM.`
+
+Observed resume mismatch:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs task-resume-candidate --json
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs task --resume-last "Reply with exactly RESUME_OK and nothing else."
+```
+
+Observed behavior:
+
+- `task-resume-candidate` reported `available: true` for a failed task with a recorded `threadId`
+- `task --resume-last` then failed with:
+  - `No previous Codex task thread was found for this repository.`
+- local code inspection explains the mismatch:
+  - `task-resume-candidate` treats any non-queued/non-running task with `threadId` as resumable
+  - `task --resume-last` only resumes tracked tasks in `status === "completed"` before falling back to thread lookup
+
+Observed review-background mismatch:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs review --background --json
+```
+
+Observed behavior:
+
+- did **not** return queued background job metadata
+- instead returned a direct review payload
+- local code inspection confirmed no `background` branch exists for `handleReviewCommand(...)`; only `task` implements true detached background execution
+
+Implication:
+
+- the plugin is suitable as a supervised Claude-specific secondary surface
+- the currently verified safe subset is:
+  - `setup`
+  - `review --wait`
+  - `task --fresh` without `--effort minimal`
+  - `task --background` only with active supervision
+  - `status`
+  - `result`
+  - `cancel`
+- do **not** rely on:
+  - `review --background`
+  - `task --effort minimal`
+  - `task-resume-candidate` alone as proof that `task --resume-last` will succeed
+- keep the shared `second_opinion_runner.py` path as the canonical orchestration path for this skill
+
 ## 2026-03-30 — Post-implementation audit mode
 
 Verified helper behavior:

@@ -237,6 +237,7 @@ Supported current usage for this skill:
 - treat it as a Claude-Code-specific Codex surface
 - use it only when the task specifically benefits from the plugin runtime shape or when validating Claude-side integration behavior
 - keep the canonical shared runner above as the default second-opinion path
+- treat the plugin as a supervised secondary path, not as autonomous orchestration infrastructure
 
 Verified local preflight:
 
@@ -283,10 +284,26 @@ Current guardrail:
   - `invalid_request_error`
   - message: `The following tools cannot be used with reasoning.effort 'minimal': web_search.`
 
+Long-run guardrails:
+
+- `task --background` is usable only with active supervision through `status`, `result`, and `cancel`
+- do **not** treat `review --background` as a verified background path for this skill
+- do **not** trust `task-resume-candidate` alone as proof that `task --resume-last` will actually resume the same thread
+- if a background task has already produced its observable side effect but still reports `running`, treat it as a potentially stuck job and inspect/cancel it instead of assuming a clean terminal state
+- quota or billing failures from Codex are surfaced as normal failed jobs; treat them as runtime blockers, not as successful completions
+
 Implication:
 
 - in Claude Code, the plugin is a legitimate supported Codex access surface
 - but it is still a provider-specific secondary path for this skill, not the canonical orchestration path
+- the currently safe subset is:
+  - `setup`
+  - `review --wait`
+  - `task --fresh` without `--effort minimal`
+  - `task --background` only when the orchestrator is prepared to poll and cancel
+  - `status`
+  - `result`
+  - `cancel`
 
 ### Claude Code
 
