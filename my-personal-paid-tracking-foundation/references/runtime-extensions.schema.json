@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.skills/my-personal-paid-tracking-foundation/runtime-extensions.schema.json",
+  "title": "Paid Tracking Runtime Extensions",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "vendor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operation": {
+      "type": "string",
+      "minLength": 1
+    },
+    "auth_surface": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verification_surface": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approved_account": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "browser_fallback_used": {
+      "type": "boolean"
+    },
+    "learning_fingerprint": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

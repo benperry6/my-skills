@@ -5,6 +5,10 @@ Use this file when `my-personal-paid-tracking-foundation` invokes `my-personal-v
 The shared skill owns the base doctrine.
 This file defines the paid-tracking-specific overlay.
 
+Machine-readable extension validation for this overlay lives in:
+
+- `references/runtime-extensions.schema.json`
+
 ## Skill-specific triggers
 
 In addition to the shared triggers, fire the learning loop when:

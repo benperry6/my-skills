@@ -73,6 +73,7 @@ An overlay must not:
 The simplest form is a single reference file inside the downstream skill, for example:
 
 - `references/learning-overlay.md`
+- optional `references/runtime-extensions.schema.json`
 
 That file should define:
 
@@ -80,3 +81,11 @@ That file should define:
 - runtime incident `extensions`
 - promotion overrides
 - hook usage notes
+
+When machine validation matters, add `references/runtime-extensions.schema.json` to the downstream skill.
+
+Recommended use:
+
+- set `additionalProperties: false`
+- define the known `extensions` fields explicitly
+- reserve `extensions.learning_fingerprint` only for stable de-duplication overrides

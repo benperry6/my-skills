@@ -111,6 +111,12 @@ Promotion decisions should read this schema and decide whether the incident stay
 
 The `extensions` object is the approved place for skill-specific fields.
 
+If the target skill defines:
+
+- `references/runtime-extensions.schema.json`
+
+the shared helper should validate `extensions` against that schema before writing the runtime incident.
+
 ## Runtime de-duplication
 
 The shared helper may generate a stable `record_id` for runtime incidents.
@@ -127,6 +133,23 @@ If a downstream skill needs stronger control over what counts as "the same incid
 - `extensions.learning_fingerprint`
 
 That value becomes the deduplication seed for the generated `record_id`.
+
+## Producer-grade batch append behavior
+
+The shared helper may accept a batch payload instead of one runtime incident per subprocess invocation.
+
+Recommended payload shapes:
+
+- a JSON array of incident objects
+- or an object with a top-level `records` array
+
+Behavior expectations:
+
+- validate each runtime incident against the shared schema
+- validate `extensions` against the target skill's extension schema when present
+- de-duplicate within the existing runtime store before writing
+- write the updated JSON store and Markdown mirror once per batch
+- optionally persist the resulting files through git when the caller explicitly enables git persistence
 
 ## Machine-readable contract
 

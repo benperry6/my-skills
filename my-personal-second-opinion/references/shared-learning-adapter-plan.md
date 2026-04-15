@@ -139,6 +139,9 @@ Current status:
 - de-duplication strategy is now shared infrastructure in `my-personal-verified-learning-loop/scripts/record_learning.py`
 - the shared helper generates a stable `record_id` for runtime incidents and skips duplicate appends
 - downstream skills can override the dedup seed via `extensions.learning_fingerprint` when the default runtime identity is not precise enough
+- richer extension handling is now shared infrastructure through optional downstream `references/runtime-extensions.schema.json` validation
+- producer-grade batch append behavior is now shared infrastructure in the helper, so multiple incidents can be validated, de-duplicated, and written in one pass
+- optional git-persist semantics are now shared infrastructure in the helper for callers that need commit + push as part of the learning write
 
 Exit criteria:
 
