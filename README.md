@@ -141,11 +141,7 @@ These are the skills that most clearly represent the way I want to work with AI 
 | Skill | What it does | Why it matters |
 |-------|---------------|----------------|
 | [`my-personal-context-distillation`](./my-personal-context-distillation/README.md) | Turns messy founder notes, transcripts, market research, and learnings into durable source-of-truth context files plus a persistent VoC bank | Creates the missing context layer that makes downstream marketing and content work far less generic |
-| [`my-personal-technical-writer`](./my-personal-technical-writer/SKILL.md) | Improves developer-facing documentation, READMEs, references, and tutorials | Helps convert technical work into clear, usable documentation |
-| [`my-personal-executive-summary`](./my-personal-executive-summary/SKILL.md) | Produces concise executive-level summaries and strategic briefs | Useful when analysis exists but decision-makers need clarity, not raw detail |
-| [`my-personal-developer-advocate`](./my-personal-developer-advocate/SKILL.md) | Supports DX, API onboarding, dev education, and developer-facing strategy | Bridges product, documentation, and audience understanding |
 | [`my-personal-accessibility-auditor`](./my-personal-accessibility-auditor/SKILL.md) | Audits accessibility with real tooling and browser checks | Raises the quality bar beyond surface-level a11y commentary |
-| [`my-personal-image-prompt-engineer`](./my-personal-image-prompt-engineer/SKILL.md) | Crafts high-quality prompts for image generation tools | Turns vague creative asks into structured, production-usable prompts |
 | [`my-personal-og-image-mastery`](./my-personal-og-image-mastery/SKILL.md) | Covers both the technical and CTR-side strategy of Open Graph images | Useful because good OG images are both a design problem and a growth problem |
 | [`my-personal-frontend-backend-routing`](./my-personal-frontend-backend-routing/README.md) | Auto-routes frontend work to Claude Code and backend work to Codex, regardless of starting tool | Eliminates manual switching between AI tools when a task spans both frontend and backend |
 | [`my-personal-gemini-design`](./my-personal-gemini-design/README.md) | Design assistant: shadcn-first, Gemini consultation for aesthetics, quality gate | Combines Claude Code's codebase mastery with Gemini's visual design sense |

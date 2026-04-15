@@ -337,4 +337,3 @@ jobs:
 
 - **web-design-guidelines**: For Web Interface Guidelines compliance review
 - **page-cro**: For conversion optimization that maintains accessibility
-- **my-personal-technical-writer**: For writing accessible documentation
