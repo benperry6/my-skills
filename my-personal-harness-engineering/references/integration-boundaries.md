@@ -17,6 +17,18 @@ Use for:
 This harness skill decides whether such an evaluator is needed.
 `my-personal-second-opinion` performs that evaluator job.
 
+## my-personal-qa-evaluator
+
+Use for:
+
+- fulfillment-focused QA
+- behavior-first acceptance
+- rubric-based `PASS / REWORK / BLOCK` verdicts
+- proving what was really tested versus merely inferred
+
+This harness skill decides when a behavior-level evaluator is worth the overhead.
+`my-personal-qa-evaluator` performs that evaluator job.
+
 ## my-personal-subagent-orchestration
 
 Use for:

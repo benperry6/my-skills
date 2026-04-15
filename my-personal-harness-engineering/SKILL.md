@@ -96,6 +96,7 @@ Read only what the current task needs:
   - the minimum artifact contracts for plan, sprint, handoff, and QA
 - `references/integration-boundaries.md`
   - how this skill composes with `my-personal-second-opinion`, `my-personal-subagent-orchestration`, and `my-personal-verified-learning-loop`
+  - when behavior-level QA is needed, also use `my-personal-qa-evaluator`
 
 ## Workflow
 
@@ -142,6 +143,7 @@ There are at least two evaluator shapes:
   - use `my-personal-second-opinion` when you need independent technical review, plan challenge, or post-implementation audit
 - behavior-level evaluator
   - use tests, browser automation, API checks, or product interaction when code review alone is not enough
+  - use `my-personal-qa-evaluator` for the actual evaluator doctrine and verdict policy
 
 Do not assume one evaluator shape covers both.
 
