@@ -254,6 +254,83 @@ Implication:
 
 - the shared runner is verified to execute the Codex, Claude, and Gemini consultation paths successfully in real behavior on this machine
 
+## 2026-04-15 — Claude Code Codex plugin
+
+Observed local plugin surface:
+
+- marketplace/plugin: `openai/codex-plugin-cc`
+- installed plugin id: `codex@openai-codex`
+- local helper entrypoint:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs
+```
+
+Verified local preflight:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs setup --json
+```
+
+Observed behavior:
+
+- `ready: true`
+- `codex.detail = "codex-cli 0.116.0; advanced runtime available"`
+- `auth.loggedIn = true`
+- `sessionRuntime.mode = "direct"` when no shared runtime is already active for the current Claude session
+
+Verified read-only review path:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs review --wait
+```
+
+Observed behavior:
+
+- succeeded on a real temporary git repo with a working-tree diff
+- returned exit code `0`
+- returned a usable review body
+- stderr contained progress events from the Codex reviewer/runtime, including:
+  - thread creation
+  - reviewer start/finish
+  - shell commands executed by the reviewer
+
+Verified task path:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs task --fresh "Reply with exactly OK and nothing else."
+```
+
+Observed behavior:
+
+- succeeded on a real temporary git repo
+- returned exit code `0`
+- returned `OK`
+- stderr contained task-thread lifecycle events:
+  - thread ready
+  - turn started
+  - assistant message captured
+  - turn completed
+
+Observed failure in real behavior:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs task --fresh --effort minimal "Reply with exactly OK and nothing else."
+```
+
+Observed failure signature:
+
+- `invalid_request_error`
+- message: `The following tools cannot be used with reasoning.effort 'minimal': web_search.`
+
+Implication:
+
+- the Claude Code Codex plugin is a legitimate supported Codex access surface on this machine
+- the review path is verified and usable
+- the task path is also verified and usable when no explicit `--effort minimal` is forced
+- for this skill, do not treat the plugin as the canonical orchestration path yet
+- if the plugin is used as a Claude-specific fallback or validation surface, avoid `--effort minimal` on `task` until the plugin/runtime contract is revalidated
+
 ## 2026-03-30 — Post-implementation audit mode
 
 Verified helper behavior:

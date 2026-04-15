@@ -41,6 +41,12 @@ What the runner enforces:
 - persists runtime-learned repairs only after a real successful invocation
 - leaves the orchestrator responsible for any upstream web research that cannot be solved from local evidence alone
 
+Important boundary:
+
+- this shared runner remains the canonical entry point for `my-personal-second-opinion`
+- do not replace it with the Claude Code Codex plugin path by default
+- the Claude Code plugin is a supported Claude-specific surface for local validation and possible future provider-specific routing, but it is not the canonical path for this skill today
+
 ## Core Doctrine
 
 1. **No silent degradation**: if one of the external engine calls fails, do not quietly continue with only the surviving engine unless the user explicitly asked for a single-engine review.
@@ -217,6 +223,70 @@ codex exec --dangerously-bypass-approvals-and-sandbox \
 - Use `-C <git-root>` instead of `--skip-git-repo-check` when the review really needs a repo-aware working root and you know the actual git root.
 - `--json` is available and works, but in the current local environment stdout can still contain startup warnings before the JSON events.
 - Exit code `0` plus a populated `--output-last-message` file counts as success even if the log contains non-fatal state-db or MCP startup warnings.
+
+### Claude Code Codex plugin surface
+
+Observed local plugin:
+
+- marketplace/plugin: `openai/codex-plugin-cc`
+- local plugin id: `codex@openai-codex`
+- local helper entrypoint: `node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs`
+
+Supported current usage for this skill:
+
+- treat it as a Claude-Code-specific Codex surface
+- use it only when the task specifically benefits from the plugin runtime shape or when validating Claude-side integration behavior
+- keep the canonical shared runner above as the default second-opinion path
+
+Verified local preflight:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs setup --json
+```
+
+Observed behavior:
+
+- reports `ready: true` when:
+  - Node is available
+  - Codex CLI is installed
+  - `codex app-server` support is available
+  - Codex auth is valid
+- reports whether the Claude session currently has a shared Codex runtime or will start one on demand
+
+Verified read-only review path:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs review --wait
+```
+
+Observed behavior:
+
+- works on a real local git repo
+- uses the Codex advanced runtime (`codex app-server`)
+- returns a usable review payload plus reviewer progress logs
+
+Verified task path:
+
+```bash
+node /Users/benjaminperry/.claude/plugins/cache/openai-codex/codex/1.0.1/scripts/codex-companion.mjs task --fresh "Reply with exactly OK and nothing else."
+```
+
+Observed behavior:
+
+- works on a real local git repo
+- starts a persistent Codex task thread and returns the assistant message
+
+Current guardrail:
+
+- do **not** pass `--effort minimal` to the plugin task path for this skill until revalidated
+- a verified local run failed with:
+  - `invalid_request_error`
+  - message: `The following tools cannot be used with reasoning.effort 'minimal': web_search.`
+
+Implication:
+
+- in Claude Code, the plugin is a legitimate supported Codex access surface
+- but it is still a provider-specific secondary path for this skill, not the canonical orchestration path
 
 ### Claude Code
 
