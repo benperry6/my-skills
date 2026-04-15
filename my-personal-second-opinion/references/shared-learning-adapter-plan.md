@@ -134,6 +134,12 @@ Candidate upstream targets:
 - git-persist semantics
 - producer-grade batch append behavior
 
+Current status:
+
+- de-duplication strategy is now shared infrastructure in `my-personal-verified-learning-loop/scripts/record_learning.py`
+- the shared helper generates a stable `record_id` for runtime incidents and skips duplicate appends
+- downstream skills can override the dedup seed via `extensions.learning_fingerprint` when the default runtime identity is not precise enough
+
 Exit criteria:
 
 - at least one currently runner-only persistence feature becomes shared infrastructure

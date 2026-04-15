@@ -40,6 +40,7 @@ Each runtime incident should include at least:
 
 ## Recommended fields
 
+- `record_id`
 - `failed_path`
 - `repaired_path`
 - `notes`
@@ -53,6 +54,7 @@ Each runtime incident should include at least:
 
 ```json
 {
+  "record_id": "8d6dd6c39f5b2f52",
   "timestamp": "2026-04-15T10:02:00+00:00",
   "kind": "runtime",
   "topic": "gemini-cli-fallback",
@@ -108,6 +110,23 @@ Promotion decisions should read this schema and decide whether the incident stay
 - escalated into a canonical `SKILL.md` update
 
 The `extensions` object is the approved place for skill-specific fields.
+
+## Runtime de-duplication
+
+The shared helper may generate a stable `record_id` for runtime incidents.
+
+Use it to avoid appending the same incident repeatedly across repeated runs.
+
+Default behavior:
+
+- the helper computes `record_id` from a stable subset of the runtime incident
+- if the same `record_id` is already present in `runtime-learning.json`, the helper skips the duplicate append
+
+If a downstream skill needs stronger control over what counts as "the same incident", it may pass a stable override through:
+
+- `extensions.learning_fingerprint`
+
+That value becomes the deduplication seed for the generated `record_id`.
 
 ## Machine-readable contract
 

@@ -44,6 +44,9 @@ Examples:
 - `auth_surface`
 - `approved_account`
 - `verification_surface`
+- `learning_fingerprint`
+
+`extensions.learning_fingerprint` is reserved for stable runtime de-duplication when a downstream skill needs to decide explicitly what should count as the same incident across repeated runs.
 
 ### 3. Promotion overrides
 

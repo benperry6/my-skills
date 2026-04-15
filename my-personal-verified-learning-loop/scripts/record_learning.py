@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,6 +35,91 @@ def load_json_records(path: Path) -> list[dict]:
 def save_json_records(path: Path, records: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(records, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+
+
+def stable_json(value):
+    if isinstance(value, dict):
+        return {key: stable_json(value[key]) for key in sorted(value)}
+    if isinstance(value, list):
+        return [stable_json(item) for item in value]
+    return value
+
+
+def compute_runtime_record_id(record: dict) -> str:
+    extensions = dict(record.get("extensions") or {})
+    fingerprint_override = extensions.get("learning_fingerprint")
+    if isinstance(fingerprint_override, str) and fingerprint_override.strip():
+        digest_source = {"learning_fingerprint": fingerprint_override.strip()}
+    else:
+        digest_source = {
+            "kind": record.get("kind"),
+            "topic": record.get("topic"),
+            "summary": record.get("summary"),
+            "status": record.get("status"),
+            "confidence": record.get("confidence"),
+            "failed_path": record.get("failed_path"),
+            "repaired_path": record.get("repaired_path"),
+            "source_skill": record.get("source_skill"),
+            "agent": record.get("agent"),
+            "target_files": sorted(record.get("target_files") or []),
+            "canonical_change_candidate": record.get("canonical_change_candidate", False),
+            "extensions": stable_json(extensions),
+        }
+    digest = hashlib.sha256(
+        json.dumps(digest_source, sort_keys=True, ensure_ascii=True).encode("utf-8")
+    ).hexdigest()
+    return digest[:16]
+
+
+def render_runtime_markdown(records: list[dict]) -> str:
+    lines = ["# Runtime Learning", ""]
+    if not records:
+        lines.extend(
+            [
+                "No runtime incidents have been recorded yet.",
+                "",
+            ]
+        )
+        return "\n".join(lines)
+
+    for record in sorted(records, key=lambda item: item["timestamp"], reverse=True):
+        lines.extend(
+            [
+                f"## {record['timestamp']} - {record['topic']}",
+                "",
+                f"- Summary: {record['summary']}",
+                f"- Status: {record['status']}",
+                f"- Confidence: {record['confidence']}",
+                f"- Record ID: `{record['record_id']}`",
+            ]
+        )
+        if record.get("failed_path"):
+            lines.append(f"- Failed path: `{record['failed_path']}`")
+        if record.get("repaired_path"):
+            lines.append(f"- Repaired path: `{record['repaired_path']}`")
+        if record.get("source_skill"):
+            lines.append(f"- Source skill: `{record['source_skill']}`")
+        if record.get("source_session"):
+            lines.append(f"- Source session: `{record['source_session']}`")
+        if record.get("agent"):
+            lines.append(f"- Agent: `{record['agent']}`")
+        target_files = record.get("target_files") or []
+        if target_files:
+            lines.append("- Target files:")
+            for item in target_files:
+                lines.append(f"  - `{item}`")
+        extensions = record.get("extensions") or {}
+        if extensions:
+            lines.append(f"- Extensions JSON: `{json.dumps(extensions, sort_keys=True)}`")
+        lines.append(
+            f"- Canonical change candidate: `{str(record.get('canonical_change_candidate', False)).lower()}`"
+        )
+        for item in record.get("evidence") or []:
+            lines.append(f"- Evidence: {item}")
+        for item in record.get("notes") or []:
+            lines.append(f"- Note: {item}")
+        lines.extend(["", ""])
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def main() -> int:
@@ -110,29 +196,40 @@ def main() -> int:
 
     if args.kind == "runtime":
         records = load_json_records(runtime_json)
-        records.append(
-            {
-                "timestamp": heading.removeprefix("## ").split(" - ", 1)[0],
-                "kind": args.kind,
-                "topic": args.topic,
-                "summary": args.summary,
-                "status": args.status,
-                "confidence": args.confidence,
-                "failed_path": args.failed_path,
-                "repaired_path": args.repaired_path,
-                "evidence": args.evidence,
-                "notes": args.notes,
-                "source_skill": args.source_skill,
-                "source_session": args.source_session,
-                "agent": args.agent,
-                "target_files": args.target_file,
-                "extensions": extensions,
-                "canonical_change_candidate": args.canonical_change_candidate,
-            }
-        )
+        for item in records:
+            if "record_id" not in item or not item.get("record_id"):
+                item["record_id"] = compute_runtime_record_id(item)
+        record = {
+            "timestamp": heading.removeprefix("## ").split(" - ", 1)[0],
+            "kind": args.kind,
+            "topic": args.topic,
+            "summary": args.summary,
+            "status": args.status,
+            "confidence": args.confidence,
+            "failed_path": args.failed_path,
+            "repaired_path": args.repaired_path,
+            "evidence": args.evidence,
+            "notes": args.notes,
+            "source_skill": args.source_skill,
+            "source_session": args.source_session,
+            "agent": args.agent,
+            "target_files": args.target_file,
+            "extensions": extensions,
+            "canonical_change_candidate": args.canonical_change_candidate,
+        }
+        record["record_id"] = compute_runtime_record_id(record)
+        existing_ids = {item["record_id"] for item in records}
+        if record["record_id"] in existing_ids:
+            save_json_records(runtime_json, records)
+            target.write_text(render_runtime_markdown(records), encoding="utf-8")
+            print(f"[OK] Skipped duplicate runtime learning for {target} and {runtime_json}")
+            return 0
+        records.append(record)
         save_json_records(runtime_json, records)
+        target.write_text(render_runtime_markdown(records), encoding="utf-8")
+    else:
+        append_entry(target, heading, lines)
 
-    append_entry(target, heading, lines)
     if args.kind == "runtime":
         print(f"[OK] Appended runtime learning to {target} and {runtime_json}")
     else:
