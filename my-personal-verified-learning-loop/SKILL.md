@@ -17,6 +17,7 @@ Use it when:
 - a command, wrapper, provider path, or vendor flow changed
 - a fix worked in real behavior and should become reusable
 - an unresolved incident should be recorded without being promoted to canonical doctrine yet
+- a run hit an explicit learning trigger and should checkpoint that finding instead of letting it disappear
 
 This skill is about operational learning.
 
@@ -36,6 +37,8 @@ It is not:
 5. If a finding is still unresolved, mark it as unresolved or runtime-only instead of contaminating the verified base.
 6. Update the smallest correct surface: runtime note first, verified note second, `SKILL.md` only if the canonical guidance truly changed.
 7. Preserve specialization. Shared learning doctrine should not erase the business-specific logic of downstream skills.
+8. Learning should be triggered by explicit runtime checkpoints, not by hoping the model spontaneously self-reports something important from hidden chain-of-thought.
+9. Runtime incidents should be stored in a structured machine-readable format, with Markdown as a human-friendly mirror rather than the only source of truth.
 
 ## What "Self-Modification" Means Here
 
@@ -67,10 +70,14 @@ Read only what the current task needs:
   - The exact decision ladder for runtime-only vs verified vs `SKILL.md` updates.
 - `references/evidence-contract.md`
   - The minimum proof required before a learning can be promoted.
+- `references/triggering-rules.md`
+  - The explicit trigger classes and checkpoints that should cause the learning loop to run.
+- `references/runtime-incident-schema.md`
+  - The structured JSON shape for runtime incidents and how it maps to the Markdown mirror.
 - `references/implementation-checklist.md`
   - Practical checklist before claiming a skill has learned something durable.
 - `scripts/record_learning.py`
-  - Shared helper to append runtime or verified learning entries to a target skill.
+  - Shared helper to append runtime or verified learning entries to a target skill, including structured runtime JSON incidents.
 
 ## Workflow
 
@@ -85,7 +92,22 @@ Determine whether the finding is:
 
 If it is unresolved, do not promote it.
 
-### 2. Gather real evidence
+### 2. Check whether a learning trigger fired
+
+Do not rely on hidden reasoning to decide whether to learn.
+
+Run the learning loop when at least one explicit trigger fired, for example:
+
+- a documented path failed
+- an undocumented path worked
+- a repaired path differed from the current canonical guidance
+- the user corrected the agent's prior approach
+- a non-trivial multi-step workflow was discovered
+- a provider, auth mode, wrapper, or environment behavior drifted in a way that changed the real execution path
+
+If no trigger fired, do nothing.
+
+### 3. Gather real evidence
 
 Before any write-back, gather concrete evidence such as:
 
@@ -98,7 +120,22 @@ Before any write-back, gather concrete evidence such as:
 
 If you only have documentation or reasoning, you do not yet have promotion-grade evidence.
 
-### 3. Pick the smallest correct write target
+### 4. Record the runtime incident structurally first
+
+When a trigger fired, default to recording a structured runtime incident first.
+
+The structured incident should capture:
+
+- what failed or changed
+- what was tried
+- what worked or still remains unresolved
+- the evidence
+- the current confidence tier
+- whether the canonical guidance appears to need an update
+
+This turns learning into an explicit runtime action rather than a vague intuition.
+
+### 5. Pick the smallest correct write target
 
 Default order:
 
@@ -109,7 +146,7 @@ Default order:
 
 Do not jump straight to `SKILL.md` when a runtime note is enough.
 
-### 4. Apply bounded self-modification
+### 6. Apply bounded self-modification
 
 When a write-back is justified:
 
@@ -118,7 +155,7 @@ When a write-back is justified:
 - prefer additive updates and explicit deprecation notes over broad rewrites
 - make the evidence trail clear enough that a later session can audit why the skill changed
 
-### 5. Keep unresolved gaps explicit
+### 7. Keep unresolved gaps explicit
 
 If the path still is not proven:
 
@@ -136,5 +173,6 @@ A correct learning loop should leave behind:
 - the exact incident or repaired path
 - the evidence that justified the write-back
 - the confidence layer used (`runtime` or `verified`)
+- a structured runtime incident record when the loop was triggered
 - the smallest updated target surface
 - no contamination from project-specific or speculative content

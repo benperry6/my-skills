@@ -3,9 +3,11 @@
 Use this before claiming a skill has learned something durable.
 
 - [ ] the finding came from real behavior, not theory alone
+- [ ] an explicit learning trigger fired before the loop was invoked
 - [ ] the incident and repaired path are stated concretely
 - [ ] the evidence is inspectable
 - [ ] the confidence tier is explicit (`runtime` or `verified`)
+- [ ] runtime incidents are stored in a structured machine-readable format, not only in prose
 - [ ] unresolved findings are not promoted
 - [ ] the smallest correct write target was chosen
 - [ ] `SKILL.md` was touched only if canonical guidance truly changed
