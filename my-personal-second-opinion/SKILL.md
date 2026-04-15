@@ -80,6 +80,8 @@ Memory split:
 
 - `references/verified-learning.md` = curated durable base for canonical guidance
 - `references/runtime-learning.md` = auto-managed incident log written by the runner
+- `references/runtime-learning.shared.json` = shared-compatible machine-readable mirror derived from accepted native runner incidents
+- `references/runtime-learning.shared.md` = human-readable mirror of the shared-compatible incidents
 - `references/learning-overlay.md` = second-opinion-specific overlay for the shared verified-learning doctrine
 - `references/shared-learning-adapter-plan.md` = current phased plan for eventual convergence without downgrading the runner
 

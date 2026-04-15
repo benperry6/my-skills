@@ -20,6 +20,14 @@ SKILL_DIR = Path(__file__).resolve().parents[1]
 REFERENCES_DIR = SKILL_DIR / "references"
 RUNTIME_LEARNING_JSON = REFERENCES_DIR / "runtime-learning.json"
 RUNTIME_LEARNING_MD = REFERENCES_DIR / "runtime-learning.md"
+SHARED_RUNTIME_LEARNING_JSON = REFERENCES_DIR / "runtime-learning.shared.json"
+SHARED_RUNTIME_LEARNING_MD = REFERENCES_DIR / "runtime-learning.shared.md"
+SHARED_RUNTIME_INCIDENT_SCHEMA = (
+    SKILL_DIR.parent
+    / "my-personal-verified-learning-loop"
+    / "references"
+    / "runtime-incident.schema.json"
+)
 CLAUDE_SESSION_BUNDLE_SCRIPT = SKILL_DIR / "scripts" / "claude_session_bundle.py"
 
 TARGETS_BY_ENGINE = {
@@ -468,12 +476,33 @@ def ensure_runtime_learning_files() -> None:
         )
 
 
+def ensure_shared_runtime_learning_files() -> None:
+    REFERENCES_DIR.mkdir(parents=True, exist_ok=True)
+    if not SHARED_RUNTIME_LEARNING_JSON.exists():
+        SHARED_RUNTIME_LEARNING_JSON.write_text("[]\n", encoding="utf-8")
+    if not SHARED_RUNTIME_LEARNING_MD.exists():
+        SHARED_RUNTIME_LEARNING_MD.write_text(
+            "# Shared Runtime Learning Mirror — my-personal-second-opinion\n\n"
+            "Derived from native runner incidents after they are accepted by the runner.\n\n"
+            "No shared-compatible runtime incidents recorded yet.\n",
+            encoding="utf-8",
+        )
+
+
 def load_runtime_records() -> dict[str, Any]:
     ensure_runtime_learning_files()
     payload = json.loads(RUNTIME_LEARNING_JSON.read_text(encoding="utf-8"))
     if not isinstance(payload, dict) or not isinstance(payload.get("records"), list):
         return {"records": []}
     return payload
+
+
+def load_shared_runtime_records() -> list[dict[str, Any]]:
+    ensure_shared_runtime_learning_files()
+    payload = json.loads(SHARED_RUNTIME_LEARNING_JSON.read_text(encoding="utf-8"))
+    if not isinstance(payload, list):
+        return []
+    return [item for item in payload if isinstance(item, dict)]
 
 
 def render_runtime_learning(records: list[dict[str, Any]]) -> str:
@@ -512,6 +541,201 @@ def render_runtime_learning(records: list[dict[str, Any]]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def render_shared_runtime_learning(records: list[dict[str, Any]]) -> str:
+    lines = [
+        "# Shared Runtime Learning Mirror — my-personal-second-opinion",
+        "",
+        "Derived from native runner incidents after they are accepted by the runner.",
+        "",
+    ]
+    if not records:
+        lines.append("No shared-compatible runtime incidents recorded yet.")
+        lines.append("")
+        return "\n".join(lines)
+
+    for record in sorted(records, key=lambda item: item["timestamp"], reverse=True):
+        extensions = record.get("extensions") or {}
+        lines.extend(
+            [
+                f"## {record['timestamp']} — {record['topic']}",
+                "",
+                f"- Summary: {record['summary']}",
+                f"- Status: `{record['status']}`",
+                f"- Confidence: `{record['confidence']}`",
+            ]
+        )
+        if record.get("failed_path"):
+            lines.append(f"- Failed path: `{record['failed_path']}`")
+        if record.get("repaired_path"):
+            lines.append(f"- Repaired path: `{record['repaired_path']}`")
+        if record.get("source_skill"):
+            lines.append(f"- Source skill: `{record['source_skill']}`")
+        if record.get("agent"):
+            lines.append(f"- Agent: `{record['agent']}`")
+        if extensions.get("target_engine"):
+            lines.append(f"- Target engine: `{extensions['target_engine']}`")
+        if extensions.get("repair_strategy"):
+            lines.append(f"- Repair strategy: `{extensions['repair_strategy']}`")
+        for evidence in record.get("evidence", []):
+            lines.append(f"- Evidence: {evidence}")
+        lines.extend(["", ""])
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def load_shared_runtime_incident_schema() -> dict[str, Any]:
+    if not SHARED_RUNTIME_INCIDENT_SCHEMA.exists():
+        raise SystemExit(f"Missing shared incident schema: {SHARED_RUNTIME_INCIDENT_SCHEMA}")
+    payload = json.loads(SHARED_RUNTIME_INCIDENT_SCHEMA.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise SystemExit(f"Invalid shared incident schema: {SHARED_RUNTIME_INCIDENT_SCHEMA}")
+    return payload
+
+
+def is_canonical_change_candidate(classification: str) -> bool:
+    return classification in {"cli-surface-drift", "git-topology", "model-unavailable"}
+
+
+def to_shared_incident(native_record: dict[str, Any]) -> dict[str, Any]:
+    classification = native_record.get("failure_classification", "")
+    target_engine = native_record.get("target_engine", "unknown")
+    topic = f"{target_engine}-invocation-repair"
+    summary = (
+        f"Runner repaired the {target_engine} invocation path after a "
+        f"{classification or 'runtime'} failure."
+    )
+    response_preview = (native_record.get("response_preview", "") or "").strip()
+    evidence = [
+        f"Runner accepted repaired path `{native_record.get('repair_strategy', '')}` for target engine `{target_engine}`.",
+    ]
+    if native_record.get("repaired_command"):
+        evidence.append("A repaired invocation returned a usable response.")
+    if response_preview:
+        evidence.append(f"Response preview: {response_preview}")
+
+    shared_incident = {
+        "timestamp": native_record["recorded_at"],
+        "kind": "runtime",
+        "topic": topic,
+        "summary": summary,
+        "status": "repaired",
+        "confidence": "medium",
+        "failed_path": native_record.get("failed_command"),
+        "repaired_path": native_record.get("repaired_command"),
+        "evidence": evidence,
+        "notes": [
+            "Shared-compatible mirror generated from a native second-opinion runner incident."
+        ],
+        "source_skill": "my-personal-second-opinion",
+        "source_session": None,
+        "agent": native_record.get("current_engine"),
+        "target_files": [
+            str(RUNTIME_LEARNING_JSON),
+            str(SHARED_RUNTIME_LEARNING_JSON),
+        ],
+        "extensions": {
+            "native_record_id": native_record.get("id"),
+            "target_engine": target_engine,
+            "working_directory": native_record.get("working_directory"),
+            "failure_classification": classification,
+            "failure_signature": native_record.get("failure_signature"),
+            "repair_strategy": native_record.get("repair_strategy"),
+            "verified_models": native_record.get("verified_models", {}),
+            "response_preview": response_preview,
+            "hook": "on_repair_success",
+            "mode": "standard",
+            "needs_web_research": False,
+        },
+        "canonical_change_candidate": is_canonical_change_candidate(classification),
+    }
+    return shared_incident
+
+
+def validate_shared_incident(incident: dict[str, Any], schema: dict[str, Any]) -> None:
+    if schema.get("type") != "object":
+        raise SystemExit("Shared incident schema must define an object root.")
+    required = schema.get("required", [])
+    properties = schema.get("properties", {})
+    additional_allowed = schema.get("additionalProperties", True)
+
+    if not isinstance(incident, dict):
+        raise ValueError("Shared incident must be a JSON object.")
+    for key in required:
+        if key not in incident:
+            raise ValueError(f"Shared incident missing required field: {key}")
+    if additional_allowed is False:
+        extra = sorted(set(incident.keys()) - set(properties.keys()))
+        if extra:
+            raise ValueError(f"Shared incident has unsupported field(s): {', '.join(extra)}")
+
+    for key, rule in properties.items():
+        if key not in incident:
+            continue
+        value = incident[key]
+        expected_type = rule.get("type")
+        if isinstance(expected_type, list):
+            valid = any(_matches_type(value, item_type) for item_type in expected_type)
+        elif isinstance(expected_type, str):
+            valid = _matches_type(value, expected_type)
+        else:
+            valid = True
+        if not valid:
+            raise ValueError(f"Field `{key}` does not match expected type `{expected_type}`.")
+        if "enum" in rule and value not in rule["enum"]:
+            raise ValueError(f"Field `{key}` has invalid enum value `{value}`.")
+        if "const" in rule and value != rule["const"]:
+            raise ValueError(f"Field `{key}` must equal `{rule['const']}`.")
+
+
+def _matches_type(value: Any, expected_type: str) -> bool:
+    if expected_type == "string":
+        return isinstance(value, str)
+    if expected_type == "array":
+        return isinstance(value, list)
+    if expected_type == "object":
+        return isinstance(value, dict)
+    if expected_type == "boolean":
+        return isinstance(value, bool)
+    if expected_type == "null":
+        return value is None
+    return True
+
+
+def persist_shared_runtime_learning(native_records: list[dict[str, Any]]) -> dict[str, Any]:
+    if not native_records:
+        return {"shared_added": 0}
+
+    schema = load_shared_runtime_incident_schema()
+    existing = load_shared_runtime_records()
+    existing_ids = {
+        ((item.get("extensions") or {}).get("native_record_id"))
+        for item in existing
+        if isinstance(item, dict)
+    }
+    added = 0
+
+    for native_record in native_records:
+        native_id = native_record.get("id")
+        if native_id in existing_ids:
+            continue
+        incident = to_shared_incident(native_record)
+        validate_shared_incident(incident, schema)
+        existing.append(incident)
+        existing_ids.add(native_id)
+        added += 1
+
+    if added:
+        SHARED_RUNTIME_LEARNING_JSON.write_text(
+            json.dumps(existing, indent=2, ensure_ascii=True) + "\n",
+            encoding="utf-8",
+        )
+        SHARED_RUNTIME_LEARNING_MD.write_text(
+            render_shared_runtime_learning(existing),
+            encoding="utf-8",
+        )
+
+    return {"shared_added": added}
+
+
 def persist_runtime_learning(records: list[dict[str, Any]], enable_git_persist: bool) -> dict[str, Any]:
     payload = load_runtime_records()
     existing = payload["records"]
@@ -543,12 +767,13 @@ def persist_runtime_learning(records: list[dict[str, Any]], enable_git_persist: 
         encoding="utf-8",
     )
     RUNTIME_LEARNING_MD.write_text(render_runtime_learning(existing), encoding="utf-8")
+    shared_result = persist_shared_runtime_learning(added)
 
     git_result = {"committed": False, "pushed": False}
     if enable_git_persist:
         git_result = git_persist_learning_files()
 
-    return {"added": len(added), **git_result}
+    return {"added": len(added), **shared_result, **git_result}
 
 
 def git_persist_learning_files() -> dict[str, Any]:
@@ -563,7 +788,16 @@ def git_persist_learning_files() -> dict[str, Any]:
     root = repo_root.stdout.strip()
 
     subprocess.run(
-        ["git", "-C", root, "add", str(RUNTIME_LEARNING_JSON), str(RUNTIME_LEARNING_MD)],
+        [
+            "git",
+            "-C",
+            root,
+            "add",
+            str(RUNTIME_LEARNING_JSON),
+            str(RUNTIME_LEARNING_MD),
+            str(SHARED_RUNTIME_LEARNING_JSON),
+            str(SHARED_RUNTIME_LEARNING_MD),
+        ],
         check=False,
         capture_output=True,
         text=True,

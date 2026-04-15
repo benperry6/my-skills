@@ -76,6 +76,7 @@ During the adapter phase:
 - native runner persistence remains authoritative
 - native runner de-duplication remains authoritative
 - any shared-compatible mirror must be derived from an already accepted native record, not from a parallel best-effort write path
+- the bridge artifacts are `references/runtime-learning.shared.json` and `references/runtime-learning.shared.md`
 
 This avoids downgrading the runner to the current capabilities of the shared helper.
 

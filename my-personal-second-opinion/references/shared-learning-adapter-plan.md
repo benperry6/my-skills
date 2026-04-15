@@ -50,17 +50,16 @@ Target behavior:
 - the runner emits a shared-compatible incident mirror immediately after accepting a native incident
 - the shared mirror preserves runner-specific richness through `extensions`, not through schema flattening
 
-## Important constraint
+## Current machine-readable contract state
 
-Today, the shared loop defines the runtime incident contract in Markdown only.
+The shared loop now exposes:
 
-It does **not** yet expose a machine-readable JSON Schema artifact.
+- `my-personal-verified-learning-loop/references/runtime-incident.schema.json`
 
 Therefore:
 
-- do not promise full schema validation yet
-- first add a lightweight machine-readable validator or schema artifact to the shared loop
-- only then add automated compatibility tests for the second-opinion adapter output
+- adapter output can now target a real machine-readable contract
+- the next hardening step is to add an explicit compatibility smoke test for the adapter output
 
 ## Phase plan
 
@@ -97,6 +96,13 @@ Preferred transitional shape:
 Exit criteria:
 
 - second-opinion learnings are no longer trapped in a bespoke format only
+
+Current status:
+
+- the adapter bridge is implemented when the runner accepts a native runtime incident
+- the emitted bridge artifacts are:
+  - `references/runtime-learning.shared.json`
+  - `references/runtime-learning.shared.md`
 
 ### Phase 3 — Machine validation
 
