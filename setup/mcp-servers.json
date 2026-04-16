@@ -36,8 +36,8 @@
 
     "brave-devtools": {
       "command": "${HOME}/.codex/mcp/brave-devtools-wrapper.sh",
-      "_note": "Needs local Brave browser — excluded from Desktop/Cowork (VM)",
-      "targets": ["codex"]
+      "_note": "Needs local Brave browser and explicit browser identity checks — excluded from Desktop/Cowork (VM)",
+      "targets": ["claude-code", "codex"]
     },
     "chrome-devtools": {
       "command": "${HOME}/.codex/mcp/chrome-devtools-wrapper.sh",

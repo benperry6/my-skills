@@ -252,14 +252,17 @@ This policy is defined in `~/.claude/CLAUDE.md`. The implementation lives in sha
 - `Brave AI-safe` launches Brave with CDP on `127.0.0.1:9222` and restores the prior session.
 - `Chrome AI-safe` launches Chrome with CDP on `127.0.0.1:9223`, using a cloned `user-data-dir` at `~/.codex/browser-profiles/chrome-ai-safe`, then restores the prior session.
 - The Chrome clone exists because the native CDP path was unreliable on the real default profile. The cloned profile keeps the real profile as the source of truth while exposing a stable CDP endpoint.
-- `Brave` stays on the custom local MCP server because the live Brave session needs a custom bootstrap and session-preserving behavior.
-- `Chrome` uses the official `chrome-devtools-mcp` package, attached to the running `Chrome AI-safe` instance via `--browserUrl http://127.0.0.1:9223`.
+- `Brave` and `Chrome` both use the local MCP server at `~/.codex/brave-cdp-client/brave-devtools-server.mjs`, parameterized by wrapper so each server exposes its own verified browser identity.
+- The wrappers bind each browser to its own bootstrap, process-name expectation, and port: Brave → `9222` / `Brave Browser`; Chrome → `9223` / `Google Chrome`.
+- The MCP responses now include an explicit verified browser identity block, and the server exposes `verify_browser_identity` so agents can confirm the active browser instead of inferring it from tab memory.
 - Brave and Chrome can run in parallel because they use separate ports and separate bootstrap logic.
-- Today, the browser devtools wrappers are registered in Codex by default through `~/.codex/config.toml`. The scripts themselves are global local infrastructure and can be wired into other tools later if wanted.
+- Each `AI-safe` bootstrap is serialized with a per-browser lock under `~/.codex/browser-locks/` so concurrent tool sessions do not restart the same browser twice.
+- Today, the browser devtools wrappers are registered in Codex by default through `~/.codex/config.toml` and in Claude Code through `~/.claude.json`.
 
 #### Resource protection policy for Brave
 
 - `Brave` is the default browser for short, targeted work in the existing live session.
+- Before any browser task where Chrome vs Brave matters, call `verify_browser_identity` or require an MCP response that explicitly confirms the verified browser identity.
 - Do **not** use the live Brave session for heavy automation patterns: deep scraping, repeated DOM polling, repeated `Runtime.evaluate` loops, aggressive retries after navigation, or repeated creation of temporary CDP targets/tabs.
 - If Brave shows signs of saturation — repeated timeouts, empty/incomplete snapshots, a page that does not visibly finish loading, or the browser becoming unresponsive — stop quickly, do not intensify retries, do not open extra temporary targets/tabs, and resume only with lighter, more targeted actions in the same Brave session.
 - Do not automatically switch away from Brave just because automation becomes difficult or slow. Switch to Chrome or an isolated browser only if the user explicitly asks for it, or if the Brave session is genuinely unavailable.
@@ -297,6 +300,8 @@ Useful logs:
 - `/tmp/brave-devtools-stderr.log`
 - `/tmp/chrome-devtools-stderr.log`
 - `/tmp/chrome-devtools-mcp.log`
+- `/tmp/brave-ai-safe.log`
+- `/tmp/chrome-ai-safe.log`
 - `/tmp/brave-cdp.log`
 - `/tmp/chrome-cdp.log`
 

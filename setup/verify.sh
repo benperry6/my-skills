@@ -187,16 +187,32 @@ else
     fail "~/.codex/config.toml MISSING"
 fi
 
-if rg -q 'chrome-devtools-mcp@latest' ~/.codex/mcp/chrome-devtools-wrapper.sh; then
-    ok "chrome-devtools wrapper uses official chrome-devtools-mcp"
+if [ -f ~/.claude.json ]; then
+    if rg -q '"brave-devtools"' ~/.claude.json; then
+        ok "Claude Code config registers brave-devtools"
+    else
+        fail "Claude Code config missing brave-devtools registration"
+    fi
+
+    if rg -q '"chrome-devtools"' ~/.claude.json; then
+        ok "Claude Code config registers chrome-devtools"
+    else
+        fail "Claude Code config missing chrome-devtools registration"
+    fi
 else
-    warn "chrome-devtools wrapper does not appear to use official chrome-devtools-mcp"
+    fail "~/.claude.json MISSING"
 fi
 
-if rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/brave-devtools-wrapper.sh; then
-    ok "brave-devtools wrapper uses local custom Brave MCP server"
+if rg -q 'BROWSER_LABEL="Chrome"' ~/.codex/mcp/chrome-devtools-wrapper.sh && rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/chrome-devtools-wrapper.sh; then
+    ok "chrome-devtools wrapper uses the explicit-identity local browser MCP server"
 else
-    warn "brave-devtools wrapper does not appear to use the local custom server"
+    warn "chrome-devtools wrapper does not appear to use the explicit-identity local browser MCP server"
+fi
+
+if rg -q 'BROWSER_LABEL="Brave"' ~/.codex/mcp/brave-devtools-wrapper.sh && rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/brave-devtools-wrapper.sh; then
+    ok "brave-devtools wrapper uses the explicit-identity local browser MCP server"
+else
+    warn "brave-devtools wrapper does not appear to use the explicit-identity local browser MCP server"
 fi
 
 echo ""
