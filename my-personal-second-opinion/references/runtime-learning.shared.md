@@ -2,6 +2,60 @@
 
 Derived from native runner incidents after they are accepted by the runner.
 
+## 2026-04-16T14:30:50+00:00 — gemini-invocation-repair
+
+- Summary: Runner repaired the gemini invocation path after a capacity failure.
+- Status: `repaired`
+- Confidence: `medium`
+- Failed path: `gemini -m pro -p 'We are in the repo /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex, subproject apps/shopify-aliexpress-fulfillment.
+
+Task: review the durable docs state and challenge the proposed next work items.
+
+Current documented state:
+- Product is a future paid multi-merchant Shopify SaaS similar to DSERS but differentiated by AI matching/autonomous decisioning.
+- Runtime must be API/CLI-first; no browser execution for supplier runtime.
+- Current official AliExpress route now proven: public api-sg OAuth authorize + POST /rest/auth/token/create + POST /sync with legacy DS method names in method= and HMAC-SHA256 signed body params.
+- Gateway code now supports api_sg_sync mode, while legacy_top remains compatibility-only.
+- P0 backlog shows T-017 (AliExpress order prepare/place) is the next unfinished task.
+- Main missing item in PROJECT_STATE: method-level validation on real products because tested product_id did not yet yield sufficiently useful product-detail/freight payloads.
+- No eval dataset yet.
+- Real production auto_order remains out of scope pending eval gate.
+
+I need a strict second opinion on the highest-signal next work order. Please answer with:
+1. Recommended next task order (top 3 only)
+2. What should be done immediately vs deferred
+3. Any major risk if we keep coding T-017 before a better real-product method validation harness exists
+4. Keep it concise and practical
+' --output-format json`
+- Repaired path: `gemini -m auto -p 'We are in the repo /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex, subproject apps/shopify-aliexpress-fulfillment.
+
+Task: review the durable docs state and challenge the proposed next work items.
+
+Current documented state:
+- Product is a future paid multi-merchant Shopify SaaS similar to DSERS but differentiated by AI matching/autonomous decisioning.
+- Runtime must be API/CLI-first; no browser execution for supplier runtime.
+- Current official AliExpress route now proven: public api-sg OAuth authorize + POST /rest/auth/token/create + POST /sync with legacy DS method names in method= and HMAC-SHA256 signed body params.
+- Gateway code now supports api_sg_sync mode, while legacy_top remains compatibility-only.
+- P0 backlog shows T-017 (AliExpress order prepare/place) is the next unfinished task.
+- Main missing item in PROJECT_STATE: method-level validation on real products because tested product_id did not yet yield sufficiently useful product-detail/freight payloads.
+- No eval dataset yet.
+- Real production auto_order remains out of scope pending eval gate.
+
+I need a strict second opinion on the highest-signal next work order. Please answer with:
+1. Recommended next task order (top 3 only)
+2. What should be done immediately vs deferred
+3. Any major risk if we keep coding T-017 before a better real-product method validation harness exists
+4. Keep it concise and practical
+' --output-format json`
+- Source skill: `my-personal-second-opinion`
+- Agent: `codex`
+- Target engine: `gemini`
+- Repair strategy: `gemini-auto`
+- Evidence: Runner accepted repaired path `gemini-auto` for target engine `gemini`.
+- Evidence: A repaired invocation returned a usable response.
+- Evidence: Response preview: Based on a review of the `apps/shopify-aliexpress-fulfillment` state and the 40KB `gateway.ts` implementation, here is t
+
+
 ## 2026-04-15T07:50:02+00:00 — gemini-invocation-repair
 
 - Summary: Runner repaired the gemini invocation path after a capacity failure.

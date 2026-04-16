@@ -2,6 +2,57 @@
 
 Auto-managed by `scripts/second_opinion_runner.py`.
 
+## 2026-04-16T14:30:50+00:00 — gemini
+
+- Current engine: `codex`
+- Working directory: `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex`
+- Failed path: `gemini -m pro -p 'We are in the repo /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex, subproject apps/shopify-aliexpress-fulfillment.
+
+Task: review the durable docs state and challenge the proposed next work items.
+
+Current documented state:
+- Product is a future paid multi-merchant Shopify SaaS similar to DSERS but differentiated by AI matching/autonomous decisioning.
+- Runtime must be API/CLI-first; no browser execution for supplier runtime.
+- Current official AliExpress route now proven: public api-sg OAuth authorize + POST /rest/auth/token/create + POST /sync with legacy DS method names in method= and HMAC-SHA256 signed body params.
+- Gateway code now supports api_sg_sync mode, while legacy_top remains compatibility-only.
+- P0 backlog shows T-017 (AliExpress order prepare/place) is the next unfinished task.
+- Main missing item in PROJECT_STATE: method-level validation on real products because tested product_id did not yet yield sufficiently useful product-detail/freight payloads.
+- No eval dataset yet.
+- Real production auto_order remains out of scope pending eval gate.
+
+I need a strict second opinion on the highest-signal next work order. Please answer with:
+1. Recommended next task order (top 3 only)
+2. What should be done immediately vs deferred
+3. Any major risk if we keep coding T-017 before a better real-product method validation harness exists
+4. Keep it concise and practical
+' --output-format json`
+- Failure classification: `capacity`
+- Failure signature: `"status": "RESOURCE_EXHAUSTED",`
+- Repaired path: `gemini -m auto -p 'We are in the repo /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex, subproject apps/shopify-aliexpress-fulfillment.
+
+Task: review the durable docs state and challenge the proposed next work items.
+
+Current documented state:
+- Product is a future paid multi-merchant Shopify SaaS similar to DSERS but differentiated by AI matching/autonomous decisioning.
+- Runtime must be API/CLI-first; no browser execution for supplier runtime.
+- Current official AliExpress route now proven: public api-sg OAuth authorize + POST /rest/auth/token/create + POST /sync with legacy DS method names in method= and HMAC-SHA256 signed body params.
+- Gateway code now supports api_sg_sync mode, while legacy_top remains compatibility-only.
+- P0 backlog shows T-017 (AliExpress order prepare/place) is the next unfinished task.
+- Main missing item in PROJECT_STATE: method-level validation on real products because tested product_id did not yet yield sufficiently useful product-detail/freight payloads.
+- No eval dataset yet.
+- Real production auto_order remains out of scope pending eval gate.
+
+I need a strict second opinion on the highest-signal next work order. Please answer with:
+1. Recommended next task order (top 3 only)
+2. What should be done immediately vs deferred
+3. Any major risk if we keep coding T-017 before a better real-product method validation harness exists
+4. Keep it concise and practical
+' --output-format json`
+- Repair strategy: `gemini-auto`
+- Verified models: `{"gemini-2.5-flash-lite": {"api": {"totalErrors": 0, "totalLatencyMs": 2432, "totalRequests": 1}, "roles": {"utility_router": {"tokens": {"cached": 0, "candidates": 104, "input": 3808, "prompt": 3808, "thoughts": 365, "tool": 0, "total": 4277}, "totalErrors": 0, "totalLatencyMs": 2432, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 104, "input": 3808, "prompt": 3808, "thoughts": 365, "tool": 0, "total": 4277}}, "gemini-3-flash-preview": {"api": {"totalErrors": 0, "totalLatencyMs": 47898, "totalRequests": 8}, "roles": {"main": {"tokens": {"cached": 195176, "candidates": 1040, "input": 44844, "prompt": 240020, "thoughts": 3061, "tool": 0, "total": 244121}, "totalErrors": 0, "totalLatencyMs": 47898, "totalRequests": 8}}, "tokens": {"cached": 195176, "candidates": 1040, "input": 44844, "prompt": 240020, "thoughts": 3061, "tool": 0, "total": 244121}}}`
+- Response preview: `Based on a review of the `apps/shopify-aliexpress-fulfillment` state and the 40KB `gateway.ts` implementation, here is t`
+
+
 ## 2026-04-15T07:50:02+00:00 — gemini
 
 - Current engine: `codex`
