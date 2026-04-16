@@ -209,6 +209,20 @@ else
     warn "chrome-devtools wrapper does not appear to use the explicit-identity local browser MCP server"
 fi
 
+if rg -q "Sessions/\\*\\*\\*" ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh && \
+   rg -q "Last Session" ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh && \
+   rg -q "Current Session" ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh; then
+    ok "Chrome AI-safe launcher excludes source session restore files from sync"
+else
+    warn "Chrome AI-safe launcher may still sync source session restore files"
+fi
+
+if rg -q 'profile.exit_type = "Normal"' ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh; then
+    ok "Chrome AI-safe launcher normalizes cloned profile exit state"
+else
+    warn "Chrome AI-safe launcher does not appear to normalize cloned profile exit state"
+fi
+
 if rg -q 'BROWSER_LABEL="Brave"' ~/.codex/mcp/brave-devtools-wrapper.sh && rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/brave-devtools-wrapper.sh; then
     ok "brave-devtools wrapper uses the explicit-identity local browser MCP server"
 else
