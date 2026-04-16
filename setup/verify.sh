@@ -223,6 +223,19 @@ else
     warn "Chrome AI-safe launcher does not appear to normalize cloned profile exit state"
 fi
 
+if rg -q 'mirror-chrome-ai-safe-session.sh' ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh && \
+   [ -x ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh ]; then
+    ok "Chrome AI-safe launcher starts the background session mirror"
+else
+    warn "Chrome AI-safe launcher does not appear to start the background session mirror"
+fi
+
+if rg -Fq '"$clone_profile/Sessions/" "$source_profile/Sessions/"' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh; then
+    ok "Chrome AI-safe session mirror syncs clone session artifacts back to the real profile"
+else
+    warn "Chrome AI-safe session mirror does not appear to sync session artifacts back to the real profile"
+fi
+
 if rg -q 'BROWSER_LABEL="Brave"' ~/.codex/mcp/brave-devtools-wrapper.sh && rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/brave-devtools-wrapper.sh; then
     ok "brave-devtools wrapper uses the explicit-identity local browser MCP server"
 else
