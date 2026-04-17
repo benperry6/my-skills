@@ -260,6 +260,7 @@ This policy is defined in `~/.claude/CLAUDE.md`. The implementation lives in sha
 - Brave and Chrome can run in parallel because they use separate ports and separate bootstrap logic.
 - Each `AI-safe` bootstrap is serialized with a per-browser lock under `~/.codex/browser-locks/` so concurrent tool sessions do not restart the same browser twice.
 - Today, the browser devtools wrappers are registered in Codex by default through `~/.codex/config.toml` and in Claude Code through `~/.claude.json`.
+- Browser-control changes do not stop at `~/.codex/`: if `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/Twitter:X Scraper` is present, re-check `src/lib/grok-browser.js` and `src/lib/browser-search.js` too, because that project still talks directly to CDP and must mirror the same guardrails locally instead of silently drifting away from the shared browser behavior.
 
 #### Resource protection policy for Brave
 

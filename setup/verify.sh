@@ -287,6 +287,23 @@ else
     warn "Chrome CDP endpoint not responding on 127.0.0.1:9223"
 fi
 
+twitter_scraper_root="/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/Twitter:X Scraper"
+if [ -d "$twitter_scraper_root" ]; then
+    browser_control_file="$twitter_scraper_root/src/lib/browser-control.js"
+    grok_browser_file="$twitter_scraper_root/src/lib/grok-browser.js"
+    browser_search_file="$twitter_scraper_root/src/lib/browser-search.js"
+
+    if [ -f "$browser_control_file" ] && \
+       rg -q 'assertBrowserIdentity' "$grok_browser_file" && \
+       rg -q 'ensureResponsiveTarget' "$grok_browser_file" && \
+       rg -q 'assertBrowserIdentity' "$browser_search_file" && \
+       rg -q 'ensureResponsiveTarget' "$browser_search_file"; then
+        ok "Twitter:X Scraper mirrors the shared browser guardrails in grok-browser/browser-search"
+    else
+        warn "Twitter:X Scraper exists but does not appear aligned with the shared browser guardrails"
+    fi
+fi
+
 echo ""
 echo "========================================="
 echo "SUMMARY"
