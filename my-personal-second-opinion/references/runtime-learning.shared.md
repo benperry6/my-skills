@@ -2,6 +2,55 @@
 
 Derived from native runner incidents after they are accepted by the runner.
 
+## 2026-04-17T09:36:11+00:00 — gemini-invocation-repair
+
+- Summary: Runner repaired the gemini invocation path after a timeout failure.
+- Status: `repaired`
+- Confidence: `medium`
+- Failed path: `gemini -m pro -p 'Need a short second opinion on a concrete V1 Hermes spec.
+
+Proposed V1:
+- One main agent only.
+- Telegram only.
+- Hermes native memory for hot state; external vault for cold knowledge.
+- No skill until used manually 3+ times.
+- One nightly consolidation job max.
+- Explicit provider routing by task class.
+- No OpenClaw plugin migration, no auth hacks, no second interface, no extra agents.
+
+Please answer briefly:
+1. What is strongest?
+2. What is most likely to fail first?
+3. What one guardrail should be written explicitly in the spec?
+' --output-format json`
+- Repaired path: `gemini -m gemini-3-flash-preview -p 'Need a short second opinion on a concrete V1 Hermes spec.
+
+Proposed V1:
+- One main agent only.
+- Telegram only.
+- Hermes native memory for hot state; external vault for cold knowledge.
+- No skill until used manually 3+ times.
+- One nightly consolidation job max.
+- Explicit provider routing by task class.
+- No OpenClaw plugin migration, no auth hacks, no second interface, no extra agents.
+
+Please answer briefly:
+1. What is strongest?
+2. What is most likely to fail first?
+3. What one guardrail should be written explicitly in the spec?
+' --output-format json`
+- Source skill: `my-personal-second-opinion`
+- Agent: `codex`
+- Target engine: `gemini`
+- Repair strategy: `gemini-3-flash-preview`
+- Evidence: Runner accepted repaired path `gemini-3-flash-preview` for target engine `gemini`.
+- Evidence: A repaired invocation returned a usable response.
+- Evidence: Response preview: Based on the existing `PRODUCT_MEMORY.md` and your proposed V1, here is a second opinion:
+
+### 1. What is strongest?
+**T
+
+
 ## 2026-04-16T14:30:50+00:00 — gemini-invocation-repair
 
 - Summary: Runner repaired the gemini invocation path after a capacity failure.

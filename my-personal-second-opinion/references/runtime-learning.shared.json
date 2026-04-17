@@ -324,5 +324,77 @@
       "needs_web_research": false
     },
     "canonical_change_candidate": false
+  },
+  {
+    "timestamp": "2026-04-17T09:36:11+00:00",
+    "kind": "runtime",
+    "topic": "gemini-invocation-repair",
+    "summary": "Runner repaired the gemini invocation path after a timeout failure.",
+    "status": "repaired",
+    "confidence": "medium",
+    "failed_path": "gemini -m pro -p 'Need a short second opinion on a concrete V1 Hermes spec.\n\nProposed V1:\n- One main agent only.\n- Telegram only.\n- Hermes native memory for hot state; external vault for cold knowledge.\n- No skill until used manually 3+ times.\n- One nightly consolidation job max.\n- Explicit provider routing by task class.\n- No OpenClaw plugin migration, no auth hacks, no second interface, no extra agents.\n\nPlease answer briefly:\n1. What is strongest?\n2. What is most likely to fail first?\n3. What one guardrail should be written explicitly in the spec?\n' --output-format json",
+    "repaired_path": "gemini -m gemini-3-flash-preview -p 'Need a short second opinion on a concrete V1 Hermes spec.\n\nProposed V1:\n- One main agent only.\n- Telegram only.\n- Hermes native memory for hot state; external vault for cold knowledge.\n- No skill until used manually 3+ times.\n- One nightly consolidation job max.\n- Explicit provider routing by task class.\n- No OpenClaw plugin migration, no auth hacks, no second interface, no extra agents.\n\nPlease answer briefly:\n1. What is strongest?\n2. What is most likely to fail first?\n3. What one guardrail should be written explicitly in the spec?\n' --output-format json",
+    "evidence": [
+      "Runner accepted repaired path `gemini-3-flash-preview` for target engine `gemini`.",
+      "A repaired invocation returned a usable response.",
+      "Response preview: Based on the existing `PRODUCT_MEMORY.md` and your proposed V1, here is a second opinion:\n\n### 1. What is strongest?\n**T"
+    ],
+    "notes": [
+      "Shared-compatible mirror generated from a native second-opinion runner incident."
+    ],
+    "source_skill": "my-personal-second-opinion",
+    "source_session": null,
+    "agent": "codex",
+    "target_files": [
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/references/runtime-learning.json",
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/references/runtime-learning.shared.json"
+    ],
+    "extensions": {
+      "native_record_id": "429868728b98b2c3",
+      "target_engine": "gemini",
+      "working_directory": "/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/Twitter:X Scraper",
+      "failure_classification": "timeout",
+      "failure_signature": "Timed out while waiting for command completion.",
+      "repair_strategy": "gemini-3-flash-preview",
+      "verified_models": {
+        "gemini-3-flash-preview": {
+          "api": {
+            "totalRequests": 2,
+            "totalErrors": 0,
+            "totalLatencyMs": 16138
+          },
+          "tokens": {
+            "input": 29463,
+            "prompt": 51968,
+            "candidates": 338,
+            "total": 53576,
+            "cached": 22505,
+            "thoughts": 1270,
+            "tool": 0
+          },
+          "roles": {
+            "main": {
+              "totalRequests": 2,
+              "totalErrors": 0,
+              "totalLatencyMs": 16138,
+              "tokens": {
+                "input": 29463,
+                "prompt": 51968,
+                "candidates": 338,
+                "total": 53576,
+                "cached": 22505,
+                "thoughts": 1270,
+                "tool": 0
+              }
+            }
+          }
+        }
+      },
+      "response_preview": "Based on the existing `PRODUCT_MEMORY.md` and your proposed V1, here is a second opinion:\n\n### 1. What is strongest?\n**T",
+      "hook": "on_repair_success",
+      "mode": "standard",
+      "needs_web_research": false
+    },
+    "canonical_change_candidate": false
   }
 ]
