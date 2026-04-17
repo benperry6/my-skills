@@ -102,6 +102,12 @@ Recurring pattern across projects that use a hosting platform with per-deploy ep
 
 **Trade-off to accept.** Single stable URL = "latest preview wins". For two PRs in flight simultaneously, manually realias the non-current one with `<platform> alias set`. Automating per-branch aliasing would require wildcard certs → requires DNS control delegation → usually not worth the infra cost for a 1 % usage case.
 
+**Operational rule — do not lose the feature preview behind the infra preview.** When a stable alias preview is already in use and you open a later PR (for example infra / CI / preview plumbing), assume the stable URL will move to that later branch as soon as its preview succeeds. If a user still needs to validate an earlier feature fix on the stable URL, do **not** tell them to use the stable alias blindly. Either:
+- manually realias the specific feature deployment back to the stable hostname, or
+- create a short-lived integration branch that contains both the preview infra and the feature fix, then test that branch on the stable alias.
+
+Use the second option when the user needs one truthful preview URL that exercises the real end-to-end path without manual re-alias steps.
+
 **Don't try** (tried and documented so future sessions skip the dead ends):
 - Adding the platform apex to the allowlist — permissive, insecure.
 - Wildcard custom domain (`*.preview.<prod-domain>`) on platforms without DNS control over the subdomain — DNS-01 challenge will fail (Vercel: `dns_pretest_cns_not_using_vercel_ns_error`).
