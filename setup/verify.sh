@@ -51,25 +51,17 @@ echo "========================================="
 echo "2. SKILLS"
 echo "========================================="
 
-source_count=$(ls -d ~/.agents/skills/my-personal-*/ 2>/dev/null | wc -l | tr -d ' ')
-claude_count=$(ls -d ~/.claude/skills/my-personal-*/ 2>/dev/null | wc -l | tr -d ' ')
-codex_count=$(ls -d ~/.codex/skills/my-personal-*/ 2>/dev/null | wc -l | tr -d ' ')
-
-echo "  Source (~/.agents/skills):  $source_count"
-echo "  Claude Code symlinks:       $claude_count"
-echo "  Codex symlinks:             $codex_count"
-
-if [ "$source_count" -eq 0 ]; then
-    warn "No personal skills found in ~/.agents/skills/"
-elif [ "$source_count" = "$claude_count" ] && [ "$source_count" = "$codex_count" ]; then
-    ok "All $source_count skills synced to both tools"
+if [ -f ~/.agents/skills/setup/sync-skills.py ]; then
+    sync_output="$(python3 ~/.agents/skills/setup/sync-skills.py --check 2>&1)"
+    sync_status=$?
+    if [ "$sync_status" -eq 0 ]; then
+        ok "Shared personal skills synced across Claude Code, Codex, and Gemini"
+    else
+        fail "Shared personal skills DESYNC"
+        printf '%s\n' "$sync_output" | sed 's/^/    /'
+    fi
 else
-    fail "DESYNC: source=$source_count, claude=$claude_count, codex=$codex_count"
-    for skill in ~/.agents/skills/my-personal-*/; do
-        name=$(basename "$skill")
-        [ ! -L ~/.claude/skills/"$name" ] && echo "    Missing in Claude Code: $name"
-        [ ! -L ~/.codex/skills/"$name" ] && echo "    Missing in Codex: $name"
-    done
+    fail "~/.agents/skills/setup/sync-skills.py missing"
 fi
 
 if [ -L ~/.gemini/antigravity/global_skills ]; then
@@ -83,21 +75,24 @@ else
     fail "~/.gemini/antigravity/global_skills is NOT a symlink"
 fi
 
+if [ -f ~/Library/LaunchAgents/com.codex.skill-sync-guard.plist ]; then
+    ok "LaunchAgent plist installed for skill sync guard"
+else
+    fail "LaunchAgent plist missing for skill sync guard"
+fi
+
+if launchctl print "gui/$(id -u)/com.codex.skill-sync-guard" >/dev/null 2>&1; then
+    ok "LaunchAgent com.codex.skill-sync-guard loaded"
+else
+    fail "LaunchAgent com.codex.skill-sync-guard not loaded"
+fi
+
 echo ""
 echo "========================================="
 echo "3. REPOS — CLAUDE.md ↔ AGENTS.md"
 echo "========================================="
 
-{
-    find "/Users/$USER/My Drive" -maxdepth 6 \( -name "CLAUDE.md" -o -name "AGENTS.md" \) -print 2>/dev/null | \
-        while IFS= read -r path; do
-            dirname "$path"
-        done
-
-    if [ -e "$HOME/.agents/skills/CLAUDE.md" ] || [ -e "$HOME/.agents/skills/AGENTS.md" ]; then
-        printf '%s\n' "$HOME/.agents/skills"
-    fi
-} | sort -u | while IFS= read -r dir; do
+while IFS= read -r dir; do
 
     echo ""
     echo "  --- $(basename "$dir") ---"
@@ -126,7 +121,16 @@ echo "========================================="
     if [ -f "$dir/CLAUDE_MEMORY.md" ]; then
         ok "CLAUDE_MEMORY.md exists ($(wc -c < "$dir/CLAUDE_MEMORY.md" | tr -d ' ') bytes)"
     fi
-done
+done < <({
+    find "/Users/$USER/My Drive" -maxdepth 6 \( -name "CLAUDE.md" -o -name "AGENTS.md" \) -print 2>/dev/null | \
+        while IFS= read -r path; do
+            dirname "$path"
+        done
+
+    if [ -e "$HOME/.agents/skills/CLAUDE.md" ] || [ -e "$HOME/.agents/skills/AGENTS.md" ]; then
+        printf '%s\n' "$HOME/.agents/skills"
+    fi
+} | sort -u)
 
 echo ""
 echo "========================================="
@@ -349,7 +353,9 @@ echo "  ⚠️  Warn: $WARN"
 if [ "$FAIL" -eq 0 ]; then
     echo ""
     echo "  All checks passed."
+    exit 0
 else
     echo ""
     echo "  $FAIL issue(s) to fix."
+    exit 1
 fi

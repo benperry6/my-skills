@@ -124,6 +124,42 @@ ln -sfn ~/.agents/skills ~/.gemini/antigravity/global_skills
 
 **Why a different setup for Gemini?** Gemini discovers shared skills from `~/.gemini/antigravity/global_skills`. Do not duplicate the same shared skills into `~/.gemini/skills/` or Gemini will detect them twice.
 
+### Step 3b — Install the persistent skill-sync guard
+
+The manual symlink loop above is necessary, but not sufficient on its own. New personal skills can be added later, and a partial machine drift can silently leave Claude Code or Codex with an incomplete skill set.
+
+Install the shared sync script and LaunchAgent guard:
+
+```bash
+# Repair current drift immediately
+python3 ~/.agents/skills/setup/sync-skills.py
+
+# Install the LaunchAgent
+cp ~/.agents/skills/setup/com.codex.skill-sync-guard.plist ~/Library/LaunchAgents/com.codex.skill-sync-guard.plist
+launchctl unload ~/Library/LaunchAgents/com.codex.skill-sync-guard.plist >/dev/null 2>&1 || true
+launchctl load ~/Library/LaunchAgents/com.codex.skill-sync-guard.plist
+```
+
+What it does:
+
+- keeps `~/.claude/skills/my-personal-*` in sync with `~/.agents/skills/my-personal-*`
+- keeps `~/.codex/skills/my-personal-*` in sync with `~/.agents/skills/my-personal-*`
+- keeps `~/.gemini/antigravity/global_skills` pointed at `~/.agents/skills`
+- runs at load, on relevant directory changes, and periodically
+
+Useful commands:
+
+```bash
+# Preview drift
+python3 ~/.agents/skills/setup/sync-skills.py --dry-run
+
+# Fail if out of sync
+python3 ~/.agents/skills/setup/sync-skills.py --check
+
+# Repair now
+python3 ~/.agents/skills/setup/sync-skills.py
+```
+
 ### Step 4 — Set up MCP wrapper scripts
 
 MCP servers need API keys. Instead of hardcoding them, we use macOS Keychain + wrapper scripts.
@@ -452,7 +488,7 @@ Run the maintained script in this repo:
 bash ~/.agents/skills/setup/verify.sh
 ```
 
-It checks the shared rules symlinks, the skill wiring, the project memory symlinks, the MCP wrapper layer, the Gemini global skill hook, and the local browser automation files.
+It checks the shared rules symlinks, the skill wiring, the persistent skill-sync guard, the project memory symlinks, the MCP wrapper layer, the Gemini global skill hook, and the local browser automation files.
 
 ## Design decisions and trade-offs
 

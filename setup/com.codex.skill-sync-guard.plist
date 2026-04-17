@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.codex.skill-sync-guard</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/env</string>
+    <string>python3</string>
+    <string>/Users/benjaminperry/.agents/skills/setup/sync-skills.py</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StartInterval</key>
+  <integer>60</integer>
+  <key>WatchPaths</key>
+  <array>
+    <string>/Users/benjaminperry/.agents/skills</string>
+    <string>/Users/benjaminperry/.claude/skills</string>
+    <string>/Users/benjaminperry/.codex/skills</string>
+  </array>
+  <key>StandardOutPath</key>
+  <string>/Users/benjaminperry/Library/Logs/com.codex.skill-sync-guard.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/benjaminperry/Library/Logs/com.codex.skill-sync-guard.log</string>
+</dict>
+</plist>
