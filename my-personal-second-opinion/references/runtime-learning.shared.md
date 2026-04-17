@@ -2,6 +2,46 @@
 
 Derived from native runner incidents after they are accepted by the runner.
 
+## 2026-04-17T09:54:05+00:00 — gemini-invocation-repair
+
+- Summary: Runner repaired the gemini invocation path after a timeout failure.
+- Status: `repaired`
+- Confidence: `medium`
+- Failed path: `gemini -m pro -p 'Need a short second opinion on a command-by-command install procedure.
+
+Target:
+- OVHcloud VPS-2
+- Ubuntu 24.04 LTS
+- Hermes Agent
+- Provider: OpenAI Codex via `hermes model`
+- Messaging: Telegram only
+- Lean V1: one agent, hot memory native, cold vault external, no skills initially
+
+Question:
+What is the biggest procedural risk in such an installation checklist, and what one explicit warning should be included to prevent a misleading "works on first boot" setup?
+' --output-format json`
+- Repaired path: `gemini -m gemini-2.5-pro -p 'Need a short second opinion on a command-by-command install procedure.
+
+Target:
+- OVHcloud VPS-2
+- Ubuntu 24.04 LTS
+- Hermes Agent
+- Provider: OpenAI Codex via `hermes model`
+- Messaging: Telegram only
+- Lean V1: one agent, hot memory native, cold vault external, no skills initially
+
+Question:
+What is the biggest procedural risk in such an installation checklist, and what one explicit warning should be included to prevent a misleading "works on first boot" setup?
+' --output-format json`
+- Source skill: `my-personal-second-opinion`
+- Agent: `codex`
+- Target engine: `gemini`
+- Repair strategy: `gemini-2.5-pro`
+- Evidence: Runner accepted repaired path `gemini-2.5-pro` for target engine `gemini`.
+- Evidence: A repaired invocation returned a usable response.
+- Evidence: Response preview: Opening authentication page in your browser. Do you want to continue? [Y/n]:
+
+
 ## 2026-04-17T09:38:26+00:00 — gemini-invocation-repair
 
 - Summary: Runner repaired the gemini invocation path after a unknown failure.

@@ -500,5 +500,44 @@
       "needs_web_research": false
     },
     "canonical_change_candidate": false
+  },
+  {
+    "timestamp": "2026-04-17T09:54:05+00:00",
+    "kind": "runtime",
+    "topic": "gemini-invocation-repair",
+    "summary": "Runner repaired the gemini invocation path after a timeout failure.",
+    "status": "repaired",
+    "confidence": "medium",
+    "failed_path": "gemini -m pro -p 'Need a short second opinion on a command-by-command install procedure.\n\nTarget:\n- OVHcloud VPS-2\n- Ubuntu 24.04 LTS\n- Hermes Agent\n- Provider: OpenAI Codex via `hermes model`\n- Messaging: Telegram only\n- Lean V1: one agent, hot memory native, cold vault external, no skills initially\n\nQuestion:\nWhat is the biggest procedural risk in such an installation checklist, and what one explicit warning should be included to prevent a misleading \"works on first boot\" setup?\n' --output-format json",
+    "repaired_path": "gemini -m gemini-2.5-pro -p 'Need a short second opinion on a command-by-command install procedure.\n\nTarget:\n- OVHcloud VPS-2\n- Ubuntu 24.04 LTS\n- Hermes Agent\n- Provider: OpenAI Codex via `hermes model`\n- Messaging: Telegram only\n- Lean V1: one agent, hot memory native, cold vault external, no skills initially\n\nQuestion:\nWhat is the biggest procedural risk in such an installation checklist, and what one explicit warning should be included to prevent a misleading \"works on first boot\" setup?\n' --output-format json",
+    "evidence": [
+      "Runner accepted repaired path `gemini-2.5-pro` for target engine `gemini`.",
+      "A repaired invocation returned a usable response.",
+      "Response preview: Opening authentication page in your browser. Do you want to continue? [Y/n]:"
+    ],
+    "notes": [
+      "Shared-compatible mirror generated from a native second-opinion runner incident."
+    ],
+    "source_skill": "my-personal-second-opinion",
+    "source_session": null,
+    "agent": "codex",
+    "target_files": [
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/references/runtime-learning.json",
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/references/runtime-learning.shared.json"
+    ],
+    "extensions": {
+      "native_record_id": "b5eff5e9afbd5156",
+      "target_engine": "gemini",
+      "working_directory": "/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/Twitter:X Scraper",
+      "failure_classification": "timeout",
+      "failure_signature": "Timed out while waiting for command completion.",
+      "repair_strategy": "gemini-2.5-pro",
+      "verified_models": {},
+      "response_preview": "Opening authentication page in your browser. Do you want to continue? [Y/n]:",
+      "hook": "on_repair_success",
+      "mode": "standard",
+      "needs_web_research": false
+    },
+    "canonical_change_candidate": false
   }
 ]
