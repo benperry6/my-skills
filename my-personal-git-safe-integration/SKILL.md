@@ -139,6 +139,27 @@ So when validating or repairing this setup, always verify both:
 - the project setting (`ssoProtection.deploymentType`)
 - the alias target itself (`preview.<prod-domain>` must resolve to a non-production deployment)
 
+### Additional Vercel nuance — do not leave the project-domain `gitBranch` empty
+
+If `preview.<prod-domain>` is attached to the Vercel project as a custom domain and that project-domain config has `gitBranch = null`, Vercel may auto-apply that hostname to **production** deployments on `main`.
+
+That means a correct GitHub alias workflow is **not sufficient by itself**. The production deployment can still steal the stable preview hostname after merge, making the preview host public again.
+
+Use this hardened pattern instead:
+- keep `preview.<prod-domain>` attached to the real Vercel project
+- set the project-domain `gitBranch` to a **real branch that exists but is not used for product work**
+- then move the hostname between actual preview deployments with `vercel alias set`
+
+Recommended operational pattern:
+- create a dedicated anchor branch such as `chore/preview-domain-anchor`
+- use that branch only to satisfy Vercel's domain config requirement
+- do **not** delete that remote branch during normal branch cleanup
+
+When validating the final setup, verify all three:
+- the project setting (`ssoProtection.deploymentType`)
+- the project-domain config (`preview.<prod-domain>` has a non-null `gitBranch`)
+- the alias target (`preview.<prod-domain>` resolves to a `target=preview` deployment)
+
 ### Do not trust GitHub deployment environment alone for alias automation
 
 If a GitHub Actions workflow auto-aliases a stable preview host after a Vercel deployment:
@@ -151,6 +172,17 @@ If a GitHub Actions workflow auto-aliases a stable preview host after a Vercel d
   - the resolved Git ref is `main`
 
 This avoids a subtle but serious failure mode where a production deployment steals the stable preview hostname, making the preview host public again and defeating Vercel Authentication.
+
+### Post-merge verification rule for protected stable previews
+
+After merging to the production branch on a Vercel project that uses a protected stable preview hostname, do not stop at "production deploy succeeded".
+
+Also verify that:
+- the production host still serves normally
+- the stable preview host still returns the expected protected behavior for an anonymous request
+- the stable preview domain did not drift back to `gitBranch = null`
+
+If the stable preview host becomes public again right after a production merge, inspect the **project-domain config** first, not just the alias workflow.
 
 ### Automation access rule
 
