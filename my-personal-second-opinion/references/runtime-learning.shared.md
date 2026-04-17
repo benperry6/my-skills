@@ -2,6 +2,128 @@
 
 Derived from native runner incidents after they are accepted by the runner.
 
+## 2026-04-17T10:30:37+00:00 — claude-invocation-repair
+
+- Summary: Runner repaired the claude invocation path after a unknown failure.
+- Status: `repaired`
+- Confidence: `medium`
+- Failed path: `claude -p 'Context: ShopifyMCP_Codex, subproject apps/shopify-aliexpress-fulfillment (TypeScript backend).
+Working directory: /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex
+Relevant docs: PRODUCT_MEMORY.md; apps/shopify-aliexpress-fulfillment/docs/BACKLOG.md; apps/shopify-aliexpress-fulfillment/docs/PROJECT_STATE.md.
+Repository evidence:
+- BACKLOG P1 starts at T-018 Candidate retrieval run, then T-019, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-027, T-028, T-029.
+- PROJECT_STATE says the main next block is the retrieval/evaluation path for memory-miss cases, not more AliExpress execution work.
+- Address architecture is already decided: open-source-first + AliExpress-specific canonicalization + selective paid fallback. No vendor frozen yet.
+
+Task: Challenge this draft sprint plan and tell me if the sprint boundaries/order are sound or what exact adjustments you recommend.
+
+Draft sprint plan:
+Sprint 1 — Baseline + contracts
+- X-001 Benchmark harness + golden fixtures
+- A-001 Address contracts + persistence + telemetry
+- A-002 Paid validation provider interface stub
+
+Sprint 2 — Retrieval foundation
+- T-018 Candidate retrieval run
+- T-019 Historical candidates first
+- T-020 Image search retrieval
+- T-021 Text fallback retrieval (minimal viable fallback)
+
+Sprint 3 — Evaluation core
+- T-022 Candidate fact sheet builder
+- T-023 Product matcher
+- T-024 Variant matcher
+- T-025 Size matcher (only where category-relevant)
+- T-026 Candidate evaluation composer
+
+Sprint 4 — Decision + runtime path
+- T-027 Deterministic Decision Engine
+- R-001 Runtime integration for memory-miss path
+
+Sprint 5 — Address runtime hardening + operator path
+- A-003 Local address pipeline (ICU, libpostal, country metadata rules)
+- A-004 AliExpress canonicalizer + bounded retries
+- T-028 Blocked Case Manager
+- T-029 Merchant actions and overrides
+
+Constraints:
+- Do not reorder in a way that violates backlog intent unless you have a strong reason.
+- We want the smallest execution plan that closes the unknown-product path quickly.
+- Address work is transverse but important; it should not swallow the main retrieval/evaluation block.
+- No paid vendor should be frozen now unless architecture truly requires it.
+
+Please return:
+(1) Decisive answer on whether this sprint plan is sound or exact changes recommended
+(2) Supporting citations (file paths:line numbers when possible; otherwise mark inference)
+(3) Risks / edge cases
+(4) Recommended next steps/tests
+(5) Open questions
+Be concise.
+' --output-format json`
+- Repaired path: `claude -p 'Context: ShopifyMCP_Codex, subproject apps/shopify-aliexpress-fulfillment (TypeScript backend).
+Working directory: /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex
+Relevant docs: PRODUCT_MEMORY.md; apps/shopify-aliexpress-fulfillment/docs/BACKLOG.md; apps/shopify-aliexpress-fulfillment/docs/PROJECT_STATE.md.
+Repository evidence:
+- BACKLOG P1 starts at T-018 Candidate retrieval run, then T-019, T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-027, T-028, T-029.
+- PROJECT_STATE says the main next block is the retrieval/evaluation path for memory-miss cases, not more AliExpress execution work.
+- Address architecture is already decided: open-source-first + AliExpress-specific canonicalization + selective paid fallback. No vendor frozen yet.
+
+Task: Challenge this draft sprint plan and tell me if the sprint boundaries/order are sound or what exact adjustments you recommend.
+
+Draft sprint plan:
+Sprint 1 — Baseline + contracts
+- X-001 Benchmark harness + golden fixtures
+- A-001 Address contracts + persistence + telemetry
+- A-002 Paid validation provider interface stub
+
+Sprint 2 — Retrieval foundation
+- T-018 Candidate retrieval run
+- T-019 Historical candidates first
+- T-020 Image search retrieval
+- T-021 Text fallback retrieval (minimal viable fallback)
+
+Sprint 3 — Evaluation core
+- T-022 Candidate fact sheet builder
+- T-023 Product matcher
+- T-024 Variant matcher
+- T-025 Size matcher (only where category-relevant)
+- T-026 Candidate evaluation composer
+
+Sprint 4 — Decision + runtime path
+- T-027 Deterministic Decision Engine
+- R-001 Runtime integration for memory-miss path
+
+Sprint 5 — Address runtime hardening + operator path
+- A-003 Local address pipeline (ICU, libpostal, country metadata rules)
+- A-004 AliExpress canonicalizer + bounded retries
+- T-028 Blocked Case Manager
+- T-029 Merchant actions and overrides
+
+Constraints:
+- Do not reorder in a way that violates backlog intent unless you have a strong reason.
+- We want the smallest execution plan that closes the unknown-product path quickly.
+- Address work is transverse but important; it should not swallow the main retrieval/evaluation block.
+- No paid vendor should be frozen now unless architecture truly requires it.
+
+Please return:
+(1) Decisive answer on whether this sprint plan is sound or exact changes recommended
+(2) Supporting citations (file paths:line numbers when possible; otherwise mark inference)
+(3) Risks / edge cases
+(4) Recommended next steps/tests
+(5) Open questions
+Be concise.
+' --output-format text`
+- Source skill: `my-personal-second-opinion`
+- Agent: `codex`
+- Target engine: `claude`
+- Repair strategy: `claude-text`
+- Evidence: Runner accepted repaired path `claude-text` for target engine `claude`.
+- Evidence: A repaired invocation returned a usable response.
+- Evidence: Response preview: **(1) Verdict: mostly sound, three exact adjustments recommended.**
+
+The spine (contracts → retrieval → evaluation → dec
+
+
 ## 2026-04-17T09:54:05+00:00 — gemini-invocation-repair
 
 - Summary: Runner repaired the gemini invocation path after a timeout failure.
