@@ -259,6 +259,7 @@ This policy is defined in `~/.claude/CLAUDE.md`. The implementation lives in sha
 - The MCP responses now include an explicit verified browser identity block, and the server exposes `verify_browser_identity` so agents can confirm the active browser instead of inferring it from tab memory.
 - Brave and Chrome can run in parallel because they use separate ports and separate bootstrap logic.
 - Each `AI-safe` bootstrap is serialized with a per-browser lock under `~/.codex/browser-locks/` so concurrent tool sessions do not restart the same browser twice.
+- A persistent browser-parasite guard now runs from `~/.codex/browser-control/cleanup-browser-parasites.sh`, is loaded by `~/Library/LaunchAgents/com.codex.browser-parasite-guard.plist`, and kills forbidden `@playwright/mcp` stacks that try to attach directly to the live Brave or Chrome apps instead of using `brave-devtools` / `chrome-devtools`.
 - Today, the browser devtools wrappers are registered in Codex by default through `~/.codex/config.toml` and in Claude Code through `~/.claude.json`.
 - Browser-control changes do not stop at `~/.codex/`: if `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/Twitter:X Scraper` is present, re-check `src/lib/grok-browser.js` and `src/lib/browser-search.js` too, because that project still talks directly to CDP and must mirror the same guardrails locally instead of silently drifting away from the shared browser behavior.
 
@@ -307,6 +308,7 @@ Useful logs:
 - `/tmp/chrome-ai-safe.log`
 - `/tmp/brave-cdp.log`
 - `/tmp/chrome-cdp.log`
+- `~/.codex/browser-control/cleanup.log`
 
 #### Claude in Chrome — "No Chrome extension connected"
 

@@ -203,6 +203,24 @@ else
     fail "~/.claude.json MISSING"
 fi
 
+if [ -x ~/.codex/browser-control/cleanup-browser-parasites.sh ]; then
+    ok "Persistent browser parasite guard script installed"
+else
+    fail "Persistent browser parasite guard script missing at ~/.codex/browser-control/cleanup-browser-parasites.sh"
+fi
+
+if [ -f ~/Library/LaunchAgents/com.codex.browser-parasite-guard.plist ]; then
+    ok "LaunchAgent plist installed for browser parasite guard"
+else
+    fail "LaunchAgent plist missing for browser parasite guard"
+fi
+
+if launchctl print "gui/$(id -u)/com.codex.browser-parasite-guard" >/dev/null 2>&1; then
+    ok "LaunchAgent com.codex.browser-parasite-guard loaded"
+else
+    warn "LaunchAgent com.codex.browser-parasite-guard not currently loaded"
+fi
+
 if rg -q 'BROWSER_LABEL="Chrome"' ~/.codex/mcp/chrome-devtools-wrapper.sh && rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/chrome-devtools-wrapper.sh; then
     ok "chrome-devtools wrapper uses the explicit-identity local browser MCP server"
 else
@@ -240,6 +258,23 @@ if rg -q 'BROWSER_LABEL="Brave"' ~/.codex/mcp/brave-devtools-wrapper.sh && rg -q
     ok "brave-devtools wrapper uses the explicit-identity local browser MCP server"
 else
     warn "brave-devtools wrapper does not appear to use the explicit-identity local browser MCP server"
+fi
+
+if rg -q 'cleanup-browser-parasites.sh' ~/.codex/mcp/brave-devtools-wrapper.sh && \
+   rg -q 'cleanup-browser-parasites.sh' ~/.codex/mcp/chrome-devtools-wrapper.sh && \
+   rg -q 'cleanup-browser-parasites.sh' ~/.codex/brave-cdp-client/launch-brave-ai-safe.sh && \
+   rg -q 'cleanup-browser-parasites.sh' ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh; then
+    ok "Browser wrappers and AI-safe launchers run the parasite guard before starting work"
+else
+    warn "Browser wrappers and launchers do not all appear to run the parasite guard"
+fi
+
+if rg -q 'executable-path /Applications/Brave Browser.app/Contents/MacOS/Brave Browser' ~/.codex/browser-control/cleanup-browser-parasites.sh && \
+   rg -q 'executable-path /Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ~/.codex/browser-control/cleanup-browser-parasites.sh && \
+   rg -q 'chrome-headless-shell' ~/.codex/browser-control/cleanup-browser-parasites.sh; then
+    ok "Browser parasite guard targets attached-browser Playwright and stale temporary headless browsers"
+else
+    warn "Browser parasite guard does not appear to target the expected parasite browser patterns"
 fi
 
 echo ""
