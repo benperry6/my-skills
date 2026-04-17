@@ -115,3 +115,49 @@ Use the second option when the user needs one truthful preview URL that exercise
 - Using the local CLI auth token as the CI secret — typically expires within hours to days; the workflow will start failing silently at renewal time.
 
 **State reporting impact.** When this setup exists in a project, the `État:` preview line should name the stable URL (e.g., `https://preview.<prod-domain>`), not the raw ephemeral URL. The ephemeral URL stays active in parallel and cannot be disabled on free / Hobby tiers; it's simply ignored for manual testing.
+
+## Stable preview URL + Vercel Authentication
+
+When the stable preview URL is meant for **internal QA / reviewer access only**, prefer the following hardened setup over a fully public preview:
+
+1. Enable **Vercel Authentication** on the real Vercel project with Standard Protection:
+   ```json
+   {
+     "ssoProtection": {
+       "deploymentType": "prod_deployment_urls_and_all_previews"
+     }
+   }
+   ```
+2. Enable **Protection Bypass for Automation** on that same project so browser automation, headless tests, and isolated agents can still access the preview.
+3. Keep app-level `X-Robots-Tag: noindex, nofollow` as **defense in depth**, not as the primary protection mechanism.
+
+### Critical nuance — the stable preview host must point to a preview deployment
+
+On Vercel, Standard Protection only protects the stable preview host if that host is currently aliased to a **preview deployment**. If `preview.<prod-domain>` accidentally points to a deployment with `target=production`, the host behaves like a production URL and remains publicly accessible.
+
+So when validating or repairing this setup, always verify both:
+- the project setting (`ssoProtection.deploymentType`)
+- the alias target itself (`preview.<prod-domain>` must resolve to a non-production deployment)
+
+### Do not trust GitHub deployment environment alone for alias automation
+
+If a GitHub Actions workflow auto-aliases a stable preview host after a Vercel deployment:
+
+- Do **not** rely only on `github.event.deployment.environment != 'Production'`.
+- First resolve the Vercel deployment from the `dpl_...` id in `deployment_status.target_url`.
+- Query the Vercel Deployment API and inspect the resolved deployment's authoritative metadata.
+- Skip aliasing when either of these is true:
+  - `target == "production"`
+  - the resolved Git ref is `main`
+
+This avoids a subtle but serious failure mode where a production deployment steals the stable preview hostname, making the preview host public again and defeating Vercel Authentication.
+
+### Automation access rule
+
+CLI or API authentication to Vercel is **not** enough by itself to access a protected preview inside an isolated browser. For automation, use one of the official bypass methods:
+
+- HTTP header: `x-vercel-protection-bypass: <secret>`
+- Query parameter: `?x-vercel-protection-bypass=<secret>`
+- For browser sessions that should keep navigating after the first hit, add `x-vercel-set-bypass-cookie=samesitenone` once so Vercel sets the bypass cookie.
+
+Never store the bypass secret in the repo. Retrieve/manage it through the official Vercel project settings or API.
