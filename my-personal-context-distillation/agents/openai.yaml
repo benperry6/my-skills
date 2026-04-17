@@ -1,4 +1,4 @@
 interface:
   display_name: "Context Distillation"
-  short_description: "Turn founder dumps into canonical business context"
-  default_prompt: "Create or update the canonical context files for this repo from the available transcripts, raw notes, and docs, then summarize what changed and propose running product-marketing-context next."
+  short_description: "Turn source material into canonical business context, not repo bootstrap"
+  default_prompt: "Create or update the canonical business-context files for this repo from the available transcripts, raw notes, and docs: `.agents/business-model.md`, `.agents/storytelling.md`, `.agents/know-your-customer.md`, `.agents/performance-memory.md`, and the VoC evidence bank when needed. Do not use this for `AGENTS.md`, `CLAUDE.md`, docs-first repo bootstrap, architecture/backlog/state/ADR work, or the stop line before code."

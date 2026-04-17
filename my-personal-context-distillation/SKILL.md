@@ -1,6 +1,6 @@
 ---
 name: "my-personal-context-distillation"
-description: "[My Personal Skill] Distill founder dumps, voice memo transcripts, speech-to-text notes, raw context docs, repo docs, public market research, and performance learnings into canonical business context files. Also build and maintain a persistent voice-of-customer evidence bank for customer research. Use when the user wants to bootstrap or update `.agents/business-model.md`, `.agents/storytelling.md`, `.agents/know-your-customer.md`, or `.agents/performance-memory.md`, especially before generating `.agents/product-marketing-context.md` for downstream marketing skills. Also use when the user mentions 'context distillation,' 'business context bootstrap,' or 'voice-of-customer research' for a repo."
+description: "[My Personal Skill] Distill founder dumps, voice memo transcripts, speech-to-text notes, raw context docs, repo docs, public market research, and performance learnings into canonical business context files. Use when the user wants to bootstrap or update `.agents/business-model.md`, `.agents/storytelling.md`, `.agents/know-your-customer.md`, `.agents/performance-memory.md`, or the VoC evidence bank. Not for `AGENTS.md`, `CLAUDE.md`, docs-first repo bootstrap, `docs/PROJECT_BRIEF.md`, `docs/ARCHITECTURE.md`, `docs/BACKLOG.md`, `docs/PROJECT_STATE.md`, ADRs, or the stop line before code."
 ---
 
 # Context Distillation
@@ -23,6 +23,31 @@ And, when customer research is in scope, one durable evidence-layer file:
 This skill does not own the technical implementation control plane of a product repo.
 It does not bootstrap the docs-first architecture/backlog/state/ADR layer that governs coding work.
 That job belongs to `my-personal-persistent-context-first`.
+
+## Hard Reroute Gate
+
+Before doing anything else, inspect the request for technical control-plane signals.
+
+If the request is mainly about any of the following, stop immediately and reroute to `my-personal-persistent-context-first` instead of starting context-distillation work:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- docs-first bootstrap
+- repo or subproject restart before coding
+- `docs/PROJECT_BRIEF.md`
+- `docs/ARCHITECTURE.md`
+- `docs/BACKLOG.md`
+- `docs/PROJECT_STATE.md`
+- `docs/DECISIONS/ADR-*`
+- "stop coding and rebuild persistent project state"
+- "stop line before code"
+- a request to convert a transcript/export into durable implementation guidance for coding agents
+
+Reroute behavior:
+
+1. Say plainly that this request targets the technical implementation control plane, not the canonical business-context layer.
+2. Name `my-personal-persistent-context-first` explicitly.
+3. Do not create, edit, or propose `.agents/business-model.md`, `.agents/storytelling.md`, `.agents/know-your-customer.md`, `.agents/performance-memory.md`, or `voc-bank.csv` as the first move for that request.
 
 After that work is complete, it should always propose running the separate `product-marketing-context` skill, whose job is to compile those source files into:
 

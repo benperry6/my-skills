@@ -1,6 +1,6 @@
 ---
 name: my-personal-persistent-context-first
-description: "[My Personal Skill] Use when a new technical product starts from a ChatGPT export, brainstorming transcript, founder dump, or other long-form context and must be turned into durable repo context before any implementation begins. Also use when a repo drifted into premature coding, when the user wants a docs-first restart, when a subproject needs local AGENTS/docs bootstrap, or when an agent must stop coding and rebuild persistent project state first."
+description: "[My Personal Skill] Use when a new technical product starts from a ChatGPT export, brainstorming transcript, founder dump, or other long-form context and must be turned into durable repo context before any implementation begins. This skill owns the technical implementation control plane: repo instruction entrypoint, docs-first bootstrap, project brief, architecture, backlog, project state, ADRs, and the stop line before code. Not for `.agents/business-model.md`, `.agents/storytelling.md`, `.agents/know-your-customer.md`, `.agents/performance-memory.md`, or VoC/context distillation work."
 ---
 
 # Persistent Context First
@@ -70,6 +70,27 @@ It can summarize and operationalize platform primitives.
 It must not overclaim that Antigravity, Claude Code, or Codex publicly document this exact doctrine end to end.
 
 If the primary need is to turn messy founder/business/customer/performance material into durable marketing or communication context, use `my-personal-context-distillation` instead.
+
+## Hard Reroute Gate
+
+Do not start this skill if the user's real target is the canonical business-context layer instead of the technical implementation control plane.
+
+Immediate reroute to `my-personal-context-distillation` when the request is mainly about:
+
+- `.agents/business-model.md`
+- `.agents/storytelling.md`
+- `.agents/know-your-customer.md`
+- `.agents/performance-memory.md`
+- `docs/context-sources/voc-bank.csv`
+- business context bootstrap
+- founder/business/customer/performance context distillation
+- voice-of-customer research or evidence-bank maintenance
+
+Practical rule:
+
+- if the durable output should govern coding work, repo structure, and implementation sequencing, this skill owns it
+- if the durable output should govern messaging, audience understanding, customer truth, or marketing reasoning, reroute to `my-personal-context-distillation`
+- if both layers are needed, bootstrap the technical control plane first, then hand off to `my-personal-context-distillation`
 
 ## Boundary Against Context Distillation
 
