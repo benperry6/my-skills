@@ -75,3 +75,37 @@ Use one clean final title:
 - `feat: ...`
 - `refactor: ...`
 - `docs: ...`
+
+## Preview deploys blocked by third-party hostname allowlists
+
+Recurring pattern across projects that use a hosting platform with per-deploy ephemeral URLs (Vercel `*.vercel.app`, Netlify `*.netlify.app`, Cloudflare Pages `*.pages.dev`, etc.) **and** a third-party service with a hostname allowlist (Turnstile / reCAPTCHA / hCaptcha site keys, Stripe webhook allowlists, OAuth redirect URIs, strict CORS, CSP `connect-src`, SSO callbacks, …).
+
+**Problem.** Protected flows (login, signup, checkout, OAuth, any challenge-gated action) cannot be exercised on preview URLs because the ephemeral hostname is not on the allowlist. Tests break silently or only on previews.
+
+**Wrong fix — never do this.** Adding the platform apex (`vercel.app`, `netlify.app`, `pages.dev`) to the allowlist. Every tenant on that platform can then host a site under that apex, embed the widget / site key, and harvest valid tokens to replay against **your** backend. This defeats the point of the allowlist entirely.
+
+**Right fix — stable branded preview URL under a domain you own.**
+1. Pick a subdomain on a domain already covered by the allowlist (or add the apex). Example: `preview.<prod-domain>`. Most allowlists (Turnstile, CSP host-source, OAuth) cover subdomains automatically when the apex is present.
+2. Add the **non-wildcard** domain to the hosting platform project: `preview.<prod-domain>`. Keep it non-wildcard on purpose (see constraint below).
+3. DNS: CNAME `preview` → platform canonical target (Vercel: `cname.vercel-dns.com`). Proxy / CDN **off** during cert validation, otherwise ACME HTTP-01 fails.
+4. Cert: HTTP-01 auto-provisions for specific hostnames. Don't use a wildcard (`*.preview.<prod-domain>`) — wildcards require DNS-01, which requires DNS control by the platform. Subdomain NS delegation is typically refused by platform APIs (Vercel accepts only apex as a managed DNS zone), and delegating the apex is too invasive for this use case.
+5. CI: after each preview deploy, alias it to the stable URL. For Vercel:
+   ```yaml
+   on: { deployment_status: {} }
+   jobs:
+     alias:
+       if: github.event.deployment_status.state == 'success' && github.event.deployment.environment != 'Production'
+       steps:
+         - run: npx vercel@latest alias set "$DEPLOY_HOST" preview.<prod-domain> --token "$VERCEL_TOKEN" --scope <team-slug>
+   ```
+6. Token: create a **long-lived, team-scoped** platform token via the provider dashboard (not via the local CLI, which issues short-TTL interactive tokens). Store as a repo secret. Minimum scope, no account-wide access.
+
+**Trade-off to accept.** Single stable URL = "latest preview wins". For two PRs in flight simultaneously, manually realias the non-current one with `<platform> alias set`. Automating per-branch aliasing would require wildcard certs → requires DNS control delegation → usually not worth the infra cost for a 1 % usage case.
+
+**Don't try** (tried and documented so future sessions skip the dead ends):
+- Adding the platform apex to the allowlist — permissive, insecure.
+- Wildcard custom domain (`*.preview.<prod-domain>`) on platforms without DNS control over the subdomain — DNS-01 challenge will fail (Vercel: `dns_pretest_cns_not_using_vercel_ns_error`).
+- Subdomain-level NS delegation to the hosting platform on Hobby / free plans — the platform's DNS zone API usually refuses subdomains (Vercel: `invalid_name`).
+- Using the local CLI auth token as the CI secret — typically expires within hours to days; the workflow will start failing silently at renewal time.
+
+**State reporting impact.** When this setup exists in a project, the `État:` preview line should name the stable URL (e.g., `https://preview.<prod-domain>`), not the raw ephemeral URL. The ephemeral URL stays active in parallel and cannot be disabled on free / Hobby tiers; it's simply ignored for manual testing.
