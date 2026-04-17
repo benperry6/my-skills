@@ -2,6 +2,58 @@
 
 Derived from native runner incidents after they are accepted by the runner.
 
+## 2026-04-17T09:38:26+00:00 — gemini-invocation-repair
+
+- Summary: Runner repaired the gemini invocation path after a unknown failure.
+- Status: `repaired`
+- Confidence: `medium`
+- Failed path: `gemini -m pro -p 'Need a short second opinion on an installation checklist for a lean Hermes V1.
+
+Checklist shape:
+1. Provision host and secrets.
+2. Install Hermes and one messaging channel (Telegram only).
+3. Configure one main agent with SOUL.md and AGENTS.md.
+4. Configure hot memory only.
+5. Prepare external vault for cold knowledge.
+6. Add retrieval bridge only after vault exists.
+7. Configure provider routing.
+8. Run manual workflows before creating any skills.
+9. Add at most one nightly consolidation job.
+10. Review memory drift and split rules weekly.
+
+Please answer briefly:
+1. What step order is strongest?
+2. What should move earlier or later?
+3. What one installation mistake should be explicitly warned against?
+' --output-format json`
+- Repaired path: `gemini -m auto -p 'Need a short second opinion on an installation checklist for a lean Hermes V1.
+
+Checklist shape:
+1. Provision host and secrets.
+2. Install Hermes and one messaging channel (Telegram only).
+3. Configure one main agent with SOUL.md and AGENTS.md.
+4. Configure hot memory only.
+5. Prepare external vault for cold knowledge.
+6. Add retrieval bridge only after vault exists.
+7. Configure provider routing.
+8. Run manual workflows before creating any skills.
+9. Add at most one nightly consolidation job.
+10. Review memory drift and split rules weekly.
+
+Please answer briefly:
+1. What step order is strongest?
+2. What should move earlier or later?
+3. What one installation mistake should be explicitly warned against?
+' --output-format json`
+- Source skill: `my-personal-second-opinion`
+- Agent: `codex`
+- Target engine: `gemini`
+- Repair strategy: `gemini-auto`
+- Evidence: Runner accepted repaired path `gemini-auto` for target engine `gemini`.
+- Evidence: A repaired invocation returned a usable response.
+- Evidence: Response preview: Based on the "lean" requirement for Hermes V1 and standard agentic architecture principles, here is a strategic critique
+
+
 ## 2026-04-17T09:36:11+00:00 — gemini-invocation-repair
 
 - Summary: Runner repaired the gemini invocation path after a timeout failure.
