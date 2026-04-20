@@ -768,5 +768,109 @@
       "needs_web_research": false
     },
     "canonical_change_candidate": false
+  },
+  {
+    "timestamp": "2026-04-20T06:28:38+00:00",
+    "kind": "runtime",
+    "topic": "gemini-invocation-repair",
+    "summary": "Runner repaired the gemini invocation path after a timeout failure.",
+    "status": "repaired",
+    "confidence": "medium",
+    "failed_path": "gemini -m pro -p 'Current repo: /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment\nCurrent engine: Codex\n\nI need a blocking second opinion on the NEXT product/runtime slice to implement.\n\nVerified local evidence:\n- benchmark-merchant-live-full-path.report.json currently shows 17 line jobs, 14 auto_prepare, 3 human_review.\n- Residual review queue:\n  1. lineJob 9ea132e4-c039-4034-9842-dbdc83dcc211 blocked only by return_policy_unknown.\n  2. lineJob ea428a5c-4bd3-4ddd-be2e-c23d1a4605cf blocked only by return_policy_unknown.\n  3. lineJob fb810716-796e-46af-a82e-17df14ec0125 blocked by supplier_size_alias_match_ambiguous + return_policy_unknown + size_resolution_uncertain.\n- I inspected live API payloads for the 2 simple cases and returnPolicy is still null/unknown; current evidence does NOT prove there is untapped return-policy data to extract right now.\n- I inspected the mixed case deeply. Existing grouped image tie-break in variant-matcher already works synthetically, but on the real mixed case the best-vs-second non-size image distance margin is only about 0.48 while the current safety margin is 2. Lowering it blindly looks risky.\n- Existing size matcher already handles French child-age aliases like \"7 ans\" in dedicated smokes. The mixed case still fails because multiple non-size color groups survive upstream.\n- I also found a concrete persistence inconsistency: blocked_cases rows can lag behind the current line_fulfillment_jobs.payload. The control-surface read path partially masks this by rebuilding an effective blocked case from live line-job payload, but the persisted blocked_cases row itself can still contain stale reasons/candidate ids from an older run.\n- Server code already rebuilds a current blocked-case response for /api/control/blocked-cases?status=open and /api/control/line-jobs/:id, but runners like merchant-action-processor-runner and feedback-review-storage-runner still look up the stored blocked case record directly.\n\nCandidate next slice:\n1. Do NOT start with matcher loosening or return-policy extraction.\n2. Start with a runtime coherence fix: introduce a reusable blocked-case sync path so that whenever a line job is still review-blocked after a re-run, the persisted blocked_cases row is refreshed from the current line-job payload, not left stale from the first open.\n3. Add a focused smoke proving a stale stored blocked case gets refreshed after the line job evolves to a new blocking state/reason set.\n4. Re-run typecheck/build and the review/control-surface smokes.\n\nQuestions:\n- Is this a better next slice than touching variant/size matching now?\n- What is the safest place to hook the sync: explicit helper in selected runners, blocked-case manager only, or another write-path?\n- What verification gap or failure mode should I cover so this does not become a cosmetic DB-sync patch only?\n' --output-format json",
+    "repaired_path": "gemini -m auto -p 'Current repo: /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment\nCurrent engine: Codex\n\nI need a blocking second opinion on the NEXT product/runtime slice to implement.\n\nVerified local evidence:\n- benchmark-merchant-live-full-path.report.json currently shows 17 line jobs, 14 auto_prepare, 3 human_review.\n- Residual review queue:\n  1. lineJob 9ea132e4-c039-4034-9842-dbdc83dcc211 blocked only by return_policy_unknown.\n  2. lineJob ea428a5c-4bd3-4ddd-be2e-c23d1a4605cf blocked only by return_policy_unknown.\n  3. lineJob fb810716-796e-46af-a82e-17df14ec0125 blocked by supplier_size_alias_match_ambiguous + return_policy_unknown + size_resolution_uncertain.\n- I inspected live API payloads for the 2 simple cases and returnPolicy is still null/unknown; current evidence does NOT prove there is untapped return-policy data to extract right now.\n- I inspected the mixed case deeply. Existing grouped image tie-break in variant-matcher already works synthetically, but on the real mixed case the best-vs-second non-size image distance margin is only about 0.48 while the current safety margin is 2. Lowering it blindly looks risky.\n- Existing size matcher already handles French child-age aliases like \"7 ans\" in dedicated smokes. The mixed case still fails because multiple non-size color groups survive upstream.\n- I also found a concrete persistence inconsistency: blocked_cases rows can lag behind the current line_fulfillment_jobs.payload. The control-surface read path partially masks this by rebuilding an effective blocked case from live line-job payload, but the persisted blocked_cases row itself can still contain stale reasons/candidate ids from an older run.\n- Server code already rebuilds a current blocked-case response for /api/control/blocked-cases?status=open and /api/control/line-jobs/:id, but runners like merchant-action-processor-runner and feedback-review-storage-runner still look up the stored blocked case record directly.\n\nCandidate next slice:\n1. Do NOT start with matcher loosening or return-policy extraction.\n2. Start with a runtime coherence fix: introduce a reusable blocked-case sync path so that whenever a line job is still review-blocked after a re-run, the persisted blocked_cases row is refreshed from the current line-job payload, not left stale from the first open.\n3. Add a focused smoke proving a stale stored blocked case gets refreshed after the line job evolves to a new blocking state/reason set.\n4. Re-run typecheck/build and the review/control-surface smokes.\n\nQuestions:\n- Is this a better next slice than touching variant/size matching now?\n- What is the safest place to hook the sync: explicit helper in selected runners, blocked-case manager only, or another write-path?\n- What verification gap or failure mode should I cover so this does not become a cosmetic DB-sync patch only?\n' --output-format json",
+    "evidence": [
+      "Runner accepted repaired path `gemini-auto` for target engine `gemini`.",
+      "A repaired invocation returned a usable response.",
+      "Response preview: The proposed next slice is fundamentally better than touching the matching logic or return policy extraction now. You've"
+    ],
+    "notes": [
+      "Shared-compatible mirror generated from a native second-opinion runner incident."
+    ],
+    "source_skill": "my-personal-second-opinion",
+    "source_session": null,
+    "agent": "codex",
+    "target_files": [
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/references/runtime-learning.json",
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/references/runtime-learning.shared.json"
+    ],
+    "extensions": {
+      "native_record_id": "8a7fb29e86a7b3e2",
+      "target_engine": "gemini",
+      "working_directory": "/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment",
+      "failure_classification": "timeout",
+      "failure_signature": "Timed out while waiting for command completion.",
+      "repair_strategy": "gemini-auto",
+      "verified_models": {
+        "gemini-2.5-flash-lite": {
+          "api": {
+            "totalRequests": 1,
+            "totalErrors": 0,
+            "totalLatencyMs": 3791
+          },
+          "tokens": {
+            "input": 4494,
+            "prompt": 4494,
+            "candidates": 93,
+            "total": 4941,
+            "cached": 0,
+            "thoughts": 354,
+            "tool": 0
+          },
+          "roles": {
+            "utility_router": {
+              "totalRequests": 1,
+              "totalErrors": 0,
+              "totalLatencyMs": 3791,
+              "tokens": {
+                "input": 4494,
+                "prompt": 4494,
+                "candidates": 93,
+                "total": 4941,
+                "cached": 0,
+                "thoughts": 354,
+                "tool": 0
+              }
+            }
+          }
+        },
+        "gemini-3-flash-preview": {
+          "api": {
+            "totalRequests": 21,
+            "totalErrors": 0,
+            "totalLatencyMs": 84145
+          },
+          "tokens": {
+            "input": 159356,
+            "prompt": 1046794,
+            "candidates": 2308,
+            "total": 1053622,
+            "cached": 887438,
+            "thoughts": 4520,
+            "tool": 0
+          },
+          "roles": {
+            "main": {
+              "totalRequests": 21,
+              "totalErrors": 0,
+              "totalLatencyMs": 84145,
+              "tokens": {
+                "input": 159356,
+                "prompt": 1046794,
+                "candidates": 2308,
+                "total": 1053622,
+                "cached": 887438,
+                "thoughts": 4520,
+                "tool": 0
+              }
+            }
+          }
+        }
+      },
+      "response_preview": "The proposed next slice is fundamentally better than touching the matching logic or return policy extraction now. You've",
+      "hook": "on_repair_success",
+      "mode": "standard",
+      "needs_web_research": false
+    },
+    "canonical_change_candidate": false
   }
 ]

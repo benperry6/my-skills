@@ -2,6 +2,73 @@
 
 Auto-managed by `scripts/second_opinion_runner.py`.
 
+## 2026-04-20T06:28:38+00:00 — gemini
+
+- Current engine: `codex`
+- Working directory: `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment`
+- Failed path: `gemini -m pro -p 'Current repo: /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment
+Current engine: Codex
+
+I need a blocking second opinion on the NEXT product/runtime slice to implement.
+
+Verified local evidence:
+- benchmark-merchant-live-full-path.report.json currently shows 17 line jobs, 14 auto_prepare, 3 human_review.
+- Residual review queue:
+  1. lineJob 9ea132e4-c039-4034-9842-dbdc83dcc211 blocked only by return_policy_unknown.
+  2. lineJob ea428a5c-4bd3-4ddd-be2e-c23d1a4605cf blocked only by return_policy_unknown.
+  3. lineJob fb810716-796e-46af-a82e-17df14ec0125 blocked by supplier_size_alias_match_ambiguous + return_policy_unknown + size_resolution_uncertain.
+- I inspected live API payloads for the 2 simple cases and returnPolicy is still null/unknown; current evidence does NOT prove there is untapped return-policy data to extract right now.
+- I inspected the mixed case deeply. Existing grouped image tie-break in variant-matcher already works synthetically, but on the real mixed case the best-vs-second non-size image distance margin is only about 0.48 while the current safety margin is 2. Lowering it blindly looks risky.
+- Existing size matcher already handles French child-age aliases like "7 ans" in dedicated smokes. The mixed case still fails because multiple non-size color groups survive upstream.
+- I also found a concrete persistence inconsistency: blocked_cases rows can lag behind the current line_fulfillment_jobs.payload. The control-surface read path partially masks this by rebuilding an effective blocked case from live line-job payload, but the persisted blocked_cases row itself can still contain stale reasons/candidate ids from an older run.
+- Server code already rebuilds a current blocked-case response for /api/control/blocked-cases?status=open and /api/control/line-jobs/:id, but runners like merchant-action-processor-runner and feedback-review-storage-runner still look up the stored blocked case record directly.
+
+Candidate next slice:
+1. Do NOT start with matcher loosening or return-policy extraction.
+2. Start with a runtime coherence fix: introduce a reusable blocked-case sync path so that whenever a line job is still review-blocked after a re-run, the persisted blocked_cases row is refreshed from the current line-job payload, not left stale from the first open.
+3. Add a focused smoke proving a stale stored blocked case gets refreshed after the line job evolves to a new blocking state/reason set.
+4. Re-run typecheck/build and the review/control-surface smokes.
+
+Questions:
+- Is this a better next slice than touching variant/size matching now?
+- What is the safest place to hook the sync: explicit helper in selected runners, blocked-case manager only, or another write-path?
+- What verification gap or failure mode should I cover so this does not become a cosmetic DB-sync patch only?
+' --output-format json`
+- Failure classification: `timeout`
+- Failure signature: `Timed out while waiting for command completion.`
+- Repaired path: `gemini -m auto -p 'Current repo: /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment
+Current engine: Codex
+
+I need a blocking second opinion on the NEXT product/runtime slice to implement.
+
+Verified local evidence:
+- benchmark-merchant-live-full-path.report.json currently shows 17 line jobs, 14 auto_prepare, 3 human_review.
+- Residual review queue:
+  1. lineJob 9ea132e4-c039-4034-9842-dbdc83dcc211 blocked only by return_policy_unknown.
+  2. lineJob ea428a5c-4bd3-4ddd-be2e-c23d1a4605cf blocked only by return_policy_unknown.
+  3. lineJob fb810716-796e-46af-a82e-17df14ec0125 blocked by supplier_size_alias_match_ambiguous + return_policy_unknown + size_resolution_uncertain.
+- I inspected live API payloads for the 2 simple cases and returnPolicy is still null/unknown; current evidence does NOT prove there is untapped return-policy data to extract right now.
+- I inspected the mixed case deeply. Existing grouped image tie-break in variant-matcher already works synthetically, but on the real mixed case the best-vs-second non-size image distance margin is only about 0.48 while the current safety margin is 2. Lowering it blindly looks risky.
+- Existing size matcher already handles French child-age aliases like "7 ans" in dedicated smokes. The mixed case still fails because multiple non-size color groups survive upstream.
+- I also found a concrete persistence inconsistency: blocked_cases rows can lag behind the current line_fulfillment_jobs.payload. The control-surface read path partially masks this by rebuilding an effective blocked case from live line-job payload, but the persisted blocked_cases row itself can still contain stale reasons/candidate ids from an older run.
+- Server code already rebuilds a current blocked-case response for /api/control/blocked-cases?status=open and /api/control/line-jobs/:id, but runners like merchant-action-processor-runner and feedback-review-storage-runner still look up the stored blocked case record directly.
+
+Candidate next slice:
+1. Do NOT start with matcher loosening or return-policy extraction.
+2. Start with a runtime coherence fix: introduce a reusable blocked-case sync path so that whenever a line job is still review-blocked after a re-run, the persisted blocked_cases row is refreshed from the current line-job payload, not left stale from the first open.
+3. Add a focused smoke proving a stale stored blocked case gets refreshed after the line job evolves to a new blocking state/reason set.
+4. Re-run typecheck/build and the review/control-surface smokes.
+
+Questions:
+- Is this a better next slice than touching variant/size matching now?
+- What is the safest place to hook the sync: explicit helper in selected runners, blocked-case manager only, or another write-path?
+- What verification gap or failure mode should I cover so this does not become a cosmetic DB-sync patch only?
+' --output-format json`
+- Repair strategy: `gemini-auto`
+- Verified models: `{"gemini-2.5-flash-lite": {"api": {"totalErrors": 0, "totalLatencyMs": 3791, "totalRequests": 1}, "roles": {"utility_router": {"tokens": {"cached": 0, "candidates": 93, "input": 4494, "prompt": 4494, "thoughts": 354, "tool": 0, "total": 4941}, "totalErrors": 0, "totalLatencyMs": 3791, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 93, "input": 4494, "prompt": 4494, "thoughts": 354, "tool": 0, "total": 4941}}, "gemini-3-flash-preview": {"api": {"totalErrors": 0, "totalLatencyMs": 84145, "totalRequests": 21}, "roles": {"main": {"tokens": {"cached": 887438, "candidates": 2308, "input": 159356, "prompt": 1046794, "thoughts": 4520, "tool": 0, "total": 1053622}, "totalErrors": 0, "totalLatencyMs": 84145, "totalRequests": 21}}, "tokens": {"cached": 887438, "candidates": 2308, "input": 159356, "prompt": 1046794, "thoughts": 4520, "tool": 0, "total": 1053622}}}`
+- Response preview: `The proposed next slice is fundamentally better than touching the matching logic or return policy extraction now. You've`
+
+
 ## 2026-04-20T06:18:54+00:00 — gemini
 
 - Current engine: `codex`
