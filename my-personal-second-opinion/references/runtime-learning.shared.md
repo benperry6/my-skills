@@ -2,6 +2,92 @@
 
 Derived from native runner incidents after they are accepted by the runner.
 
+## 2026-04-20T05:27:04+00:00 — gemini-invocation-repair
+
+- Summary: Runner repaired the gemini invocation path after a capacity failure.
+- Status: `repaired`
+- Confidence: `medium`
+- Failed path: `gemini -m pro -p 'Task: challenge this plan for the next tranche on the shopify-aliexpress-fulfillment subproject.
+
+Current verified state:
+- Product-proof package is green.
+- Broader live cohort is stable at 17 line jobs, 14 auto_prepare, 3 human_review.
+- Residual queue:
+  1. #1683 return_policy_unknown only
+  2. #1510 return_policy_unknown only
+  3. #1510 supplier_size_alias_match_ambiguous + return_policy_unknown + size_resolution_uncertain
+- Backend is already hardened:
+  - merchant actions are v2 with explicit policy.scope/resolutionMode
+  - approve_size_mapping now requires explicit supplierVariantId and does not force accept
+  - server now exposes merchantActionContext.actionPolicies and merchantActionContext.selectedCandidateEligibleSupplierVariants
+
+Current embedded admin UX issue:
+- embedded-admin/app.js currently only shows recommended actions and raw prefilled payload JSON.
+- It does not surface action policy metadata clearly.
+- It does not show selectable eligible supplier variants for approve_size_mapping.
+- For the mixed size case, the merchant still has to hand-edit payload JSON even though the backend now knows this action requires explicit supplierVariantId.
+
+Proposed plan:
+1. Improve embedded-admin merchant review UX only, without touching backend behavior unless a clear gap is found.
+2. In the case detail action context, surface:
+   - suggestedNextAction
+   - blockingReasons
+   - per-action policy metadata (scope/resolutionMode)
+   - selectedCandidateEligibleSupplierVariants when present
+3. Add guided form behavior for approve_size_mapping:
+   - show a supplier-variant picker derived from selectedCandidateEligibleSupplierVariants
+   - when a variant is chosen, populate payload JSON with candidateId/listingId/supplierVariantId/supplierSkuId/recommendedSupplierSize
+   - if no variant is chosen, warn before submit instead of letting the user discover the backend error only after submission
+4. Keep override_return_policy as a one-click prefill path for the 2 policy-only residual cases.
+5. Verify via existing control-surface smoke plus a new focused embedded-admin/UX smoke if needed.
+
+Question: what are the strongest objections, blind spots, or better alternatives? Prioritize concrete risks tied to the current code shape, not generic UI advice.
+' --output-format json`
+- Repaired path: `gemini -m auto -p 'Task: challenge this plan for the next tranche on the shopify-aliexpress-fulfillment subproject.
+
+Current verified state:
+- Product-proof package is green.
+- Broader live cohort is stable at 17 line jobs, 14 auto_prepare, 3 human_review.
+- Residual queue:
+  1. #1683 return_policy_unknown only
+  2. #1510 return_policy_unknown only
+  3. #1510 supplier_size_alias_match_ambiguous + return_policy_unknown + size_resolution_uncertain
+- Backend is already hardened:
+  - merchant actions are v2 with explicit policy.scope/resolutionMode
+  - approve_size_mapping now requires explicit supplierVariantId and does not force accept
+  - server now exposes merchantActionContext.actionPolicies and merchantActionContext.selectedCandidateEligibleSupplierVariants
+
+Current embedded admin UX issue:
+- embedded-admin/app.js currently only shows recommended actions and raw prefilled payload JSON.
+- It does not surface action policy metadata clearly.
+- It does not show selectable eligible supplier variants for approve_size_mapping.
+- For the mixed size case, the merchant still has to hand-edit payload JSON even though the backend now knows this action requires explicit supplierVariantId.
+
+Proposed plan:
+1. Improve embedded-admin merchant review UX only, without touching backend behavior unless a clear gap is found.
+2. In the case detail action context, surface:
+   - suggestedNextAction
+   - blockingReasons
+   - per-action policy metadata (scope/resolutionMode)
+   - selectedCandidateEligibleSupplierVariants when present
+3. Add guided form behavior for approve_size_mapping:
+   - show a supplier-variant picker derived from selectedCandidateEligibleSupplierVariants
+   - when a variant is chosen, populate payload JSON with candidateId/listingId/supplierVariantId/supplierSkuId/recommendedSupplierSize
+   - if no variant is chosen, warn before submit instead of letting the user discover the backend error only after submission
+4. Keep override_return_policy as a one-click prefill path for the 2 policy-only residual cases.
+5. Verify via existing control-surface smoke plus a new focused embedded-admin/UX smoke if needed.
+
+Question: what are the strongest objections, blind spots, or better alternatives? Prioritize concrete risks tied to the current code shape, not generic UI advice.
+' --output-format json`
+- Source skill: `my-personal-second-opinion`
+- Agent: `codex`
+- Target engine: `gemini`
+- Repair strategy: `gemini-auto`
+- Evidence: Runner accepted repaired path `gemini-auto` for target engine `gemini`.
+- Evidence: A repaired invocation returned a usable response.
+- Evidence: Response preview: The proposed plan to improve the merchant review UX is a necessary step to resolve the residual queue, but it contains s
+
+
 ## 2026-04-17T10:30:37+00:00 — claude-invocation-repair
 
 - Summary: Runner repaired the claude invocation path after a unknown failure.
