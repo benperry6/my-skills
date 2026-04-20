@@ -872,5 +872,109 @@
       "needs_web_research": false
     },
     "canonical_change_candidate": false
+  },
+  {
+    "timestamp": "2026-04-20T06:28:48+00:00",
+    "kind": "runtime",
+    "topic": "gemini-invocation-repair",
+    "summary": "Runner repaired the gemini invocation path after a timeout failure.",
+    "status": "repaired",
+    "confidence": "medium",
+    "failed_path": "gemini -m pro -p 'We need a second opinion on a governance change for a local knowledge-base repo that ingests SEO/GEO sources.\n\nCurrent system:\n- Each candidate from a source becomes exactly one of: reject / duplicate / enrich / new / conflict.\n- In practice, some items are too weak to become durable learnings but too useful to disappear as rejected candidates.\n- The operator wants a more just policy with an intermediate layer for hypotheses or items pending corroboration, and wants to know if retroactive application to already-processed sources is feasible.\n\nPlease answer these questions concisely:\n1. Is adding an intermediate layer a good idea here, or does it risk polluting the durable base?\n2. If yes, what is the minimum viable design? Be specific about status names, storage location, promotion criteria, and de-duplication.\n3. How should retroactive migration work on already-processed sources so the repo stays auditable and not bloated?\n4. What are the main failure modes to avoid?\n\nConstraints:\n- The durable base must stay strict.\n- We want to preserve rejected candidates in source records.\n- We do NOT want a giant vague parking lot.\n- Prefer the smallest design that solves the problem.\n' --output-format json",
+    "repaired_path": "gemini -m auto -p 'We need a second opinion on a governance change for a local knowledge-base repo that ingests SEO/GEO sources.\n\nCurrent system:\n- Each candidate from a source becomes exactly one of: reject / duplicate / enrich / new / conflict.\n- In practice, some items are too weak to become durable learnings but too useful to disappear as rejected candidates.\n- The operator wants a more just policy with an intermediate layer for hypotheses or items pending corroboration, and wants to know if retroactive application to already-processed sources is feasible.\n\nPlease answer these questions concisely:\n1. Is adding an intermediate layer a good idea here, or does it risk polluting the durable base?\n2. If yes, what is the minimum viable design? Be specific about status names, storage location, promotion criteria, and de-duplication.\n3. How should retroactive migration work on already-processed sources so the repo stays auditable and not bloated?\n4. What are the main failure modes to avoid?\n\nConstraints:\n- The durable base must stay strict.\n- We want to preserve rejected candidates in source records.\n- We do NOT want a giant vague parking lot.\n- Prefer the smallest design that solves the problem.\n' --output-format json",
+    "evidence": [
+      "Runner accepted repaired path `gemini-auto` for target engine `gemini`.",
+      "A repaired invocation returned a usable response.",
+      "Response preview: I have analyzed the current repository structure and ingestion logic to evaluate your proposed governance change. Adding"
+    ],
+    "notes": [
+      "Shared-compatible mirror generated from a native second-opinion runner incident."
+    ],
+    "source_skill": "my-personal-second-opinion",
+    "source_session": null,
+    "agent": "codex",
+    "target_files": [
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/references/runtime-learning.json",
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/references/runtime-learning.shared.json"
+    ],
+    "extensions": {
+      "native_record_id": "9ed2947a5fdda43e",
+      "target_engine": "gemini",
+      "working_directory": "/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/Second-brain ingest/SEO-GEO",
+      "failure_classification": "timeout",
+      "failure_signature": "Timed out while waiting for command completion.",
+      "repair_strategy": "gemini-auto",
+      "verified_models": {
+        "gemini-2.5-flash-lite": {
+          "api": {
+            "totalRequests": 1,
+            "totalErrors": 0,
+            "totalLatencyMs": 3257
+          },
+          "tokens": {
+            "input": 4467,
+            "prompt": 4467,
+            "candidates": 68,
+            "total": 4887,
+            "cached": 0,
+            "thoughts": 352,
+            "tool": 0
+          },
+          "roles": {
+            "utility_router": {
+              "totalRequests": 1,
+              "totalErrors": 0,
+              "totalLatencyMs": 3257,
+              "tokens": {
+                "input": 4467,
+                "prompt": 4467,
+                "candidates": 68,
+                "total": 4887,
+                "cached": 0,
+                "thoughts": 352,
+                "tool": 0
+              }
+            }
+          }
+        },
+        "gemini-3-flash-preview": {
+          "api": {
+            "totalRequests": 1,
+            "totalErrors": 0,
+            "totalLatencyMs": 7582
+          },
+          "tokens": {
+            "input": 26382,
+            "prompt": 26382,
+            "candidates": 652,
+            "total": 27335,
+            "cached": 0,
+            "thoughts": 301,
+            "tool": 0
+          },
+          "roles": {
+            "main": {
+              "totalRequests": 1,
+              "totalErrors": 0,
+              "totalLatencyMs": 7582,
+              "tokens": {
+                "input": 26382,
+                "prompt": 26382,
+                "candidates": 652,
+                "total": 27335,
+                "cached": 0,
+                "thoughts": 301,
+                "tool": 0
+              }
+            }
+          }
+        }
+      },
+      "response_preview": "I have analyzed the current repository structure and ingestion logic to evaluate your proposed governance change. Adding",
+      "hook": "on_repair_success",
+      "mode": "standard",
+      "needs_web_research": false
+    },
+    "canonical_change_candidate": false
   }
 ]

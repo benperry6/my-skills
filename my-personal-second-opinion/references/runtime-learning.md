@@ -2,6 +2,55 @@
 
 Auto-managed by `scripts/second_opinion_runner.py`.
 
+## 2026-04-20T06:28:48+00:00 — gemini
+
+- Current engine: `codex`
+- Working directory: `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/Second-brain ingest/SEO-GEO`
+- Failed path: `gemini -m pro -p 'We need a second opinion on a governance change for a local knowledge-base repo that ingests SEO/GEO sources.
+
+Current system:
+- Each candidate from a source becomes exactly one of: reject / duplicate / enrich / new / conflict.
+- In practice, some items are too weak to become durable learnings but too useful to disappear as rejected candidates.
+- The operator wants a more just policy with an intermediate layer for hypotheses or items pending corroboration, and wants to know if retroactive application to already-processed sources is feasible.
+
+Please answer these questions concisely:
+1. Is adding an intermediate layer a good idea here, or does it risk polluting the durable base?
+2. If yes, what is the minimum viable design? Be specific about status names, storage location, promotion criteria, and de-duplication.
+3. How should retroactive migration work on already-processed sources so the repo stays auditable and not bloated?
+4. What are the main failure modes to avoid?
+
+Constraints:
+- The durable base must stay strict.
+- We want to preserve rejected candidates in source records.
+- We do NOT want a giant vague parking lot.
+- Prefer the smallest design that solves the problem.
+' --output-format json`
+- Failure classification: `timeout`
+- Failure signature: `Timed out while waiting for command completion.`
+- Repaired path: `gemini -m auto -p 'We need a second opinion on a governance change for a local knowledge-base repo that ingests SEO/GEO sources.
+
+Current system:
+- Each candidate from a source becomes exactly one of: reject / duplicate / enrich / new / conflict.
+- In practice, some items are too weak to become durable learnings but too useful to disappear as rejected candidates.
+- The operator wants a more just policy with an intermediate layer for hypotheses or items pending corroboration, and wants to know if retroactive application to already-processed sources is feasible.
+
+Please answer these questions concisely:
+1. Is adding an intermediate layer a good idea here, or does it risk polluting the durable base?
+2. If yes, what is the minimum viable design? Be specific about status names, storage location, promotion criteria, and de-duplication.
+3. How should retroactive migration work on already-processed sources so the repo stays auditable and not bloated?
+4. What are the main failure modes to avoid?
+
+Constraints:
+- The durable base must stay strict.
+- We want to preserve rejected candidates in source records.
+- We do NOT want a giant vague parking lot.
+- Prefer the smallest design that solves the problem.
+' --output-format json`
+- Repair strategy: `gemini-auto`
+- Verified models: `{"gemini-2.5-flash-lite": {"api": {"totalErrors": 0, "totalLatencyMs": 3257, "totalRequests": 1}, "roles": {"utility_router": {"tokens": {"cached": 0, "candidates": 68, "input": 4467, "prompt": 4467, "thoughts": 352, "tool": 0, "total": 4887}, "totalErrors": 0, "totalLatencyMs": 3257, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 68, "input": 4467, "prompt": 4467, "thoughts": 352, "tool": 0, "total": 4887}}, "gemini-3-flash-preview": {"api": {"totalErrors": 0, "totalLatencyMs": 7582, "totalRequests": 1}, "roles": {"main": {"tokens": {"cached": 0, "candidates": 652, "input": 26382, "prompt": 26382, "thoughts": 301, "tool": 0, "total": 27335}, "totalErrors": 0, "totalLatencyMs": 7582, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 652, "input": 26382, "prompt": 26382, "thoughts": 301, "tool": 0, "total": 27335}}}`
+- Response preview: `I have analyzed the current repository structure and ingestion logic to evaluate your proposed governance change. Adding`
+
+
 ## 2026-04-20T06:28:38+00:00 — gemini
 
 - Current engine: `codex`

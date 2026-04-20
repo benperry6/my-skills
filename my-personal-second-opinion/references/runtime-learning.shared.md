@@ -2,6 +2,58 @@
 
 Derived from native runner incidents after they are accepted by the runner.
 
+## 2026-04-20T06:28:48+00:00 — gemini-invocation-repair
+
+- Summary: Runner repaired the gemini invocation path after a timeout failure.
+- Status: `repaired`
+- Confidence: `medium`
+- Failed path: `gemini -m pro -p 'We need a second opinion on a governance change for a local knowledge-base repo that ingests SEO/GEO sources.
+
+Current system:
+- Each candidate from a source becomes exactly one of: reject / duplicate / enrich / new / conflict.
+- In practice, some items are too weak to become durable learnings but too useful to disappear as rejected candidates.
+- The operator wants a more just policy with an intermediate layer for hypotheses or items pending corroboration, and wants to know if retroactive application to already-processed sources is feasible.
+
+Please answer these questions concisely:
+1. Is adding an intermediate layer a good idea here, or does it risk polluting the durable base?
+2. If yes, what is the minimum viable design? Be specific about status names, storage location, promotion criteria, and de-duplication.
+3. How should retroactive migration work on already-processed sources so the repo stays auditable and not bloated?
+4. What are the main failure modes to avoid?
+
+Constraints:
+- The durable base must stay strict.
+- We want to preserve rejected candidates in source records.
+- We do NOT want a giant vague parking lot.
+- Prefer the smallest design that solves the problem.
+' --output-format json`
+- Repaired path: `gemini -m auto -p 'We need a second opinion on a governance change for a local knowledge-base repo that ingests SEO/GEO sources.
+
+Current system:
+- Each candidate from a source becomes exactly one of: reject / duplicate / enrich / new / conflict.
+- In practice, some items are too weak to become durable learnings but too useful to disappear as rejected candidates.
+- The operator wants a more just policy with an intermediate layer for hypotheses or items pending corroboration, and wants to know if retroactive application to already-processed sources is feasible.
+
+Please answer these questions concisely:
+1. Is adding an intermediate layer a good idea here, or does it risk polluting the durable base?
+2. If yes, what is the minimum viable design? Be specific about status names, storage location, promotion criteria, and de-duplication.
+3. How should retroactive migration work on already-processed sources so the repo stays auditable and not bloated?
+4. What are the main failure modes to avoid?
+
+Constraints:
+- The durable base must stay strict.
+- We want to preserve rejected candidates in source records.
+- We do NOT want a giant vague parking lot.
+- Prefer the smallest design that solves the problem.
+' --output-format json`
+- Source skill: `my-personal-second-opinion`
+- Agent: `codex`
+- Target engine: `gemini`
+- Repair strategy: `gemini-auto`
+- Evidence: Runner accepted repaired path `gemini-auto` for target engine `gemini`.
+- Evidence: A repaired invocation returned a usable response.
+- Evidence: Response preview: I have analyzed the current repository structure and ingestion logic to evaluate your proposed governance change. Adding
+
+
 ## 2026-04-20T06:28:38+00:00 — gemini-invocation-repair
 
 - Summary: Runner repaired the gemini invocation path after a timeout failure.
