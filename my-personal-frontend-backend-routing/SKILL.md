@@ -116,16 +116,18 @@ claude -p "[context package prompt]" \
   --output-format json \
   --permission-mode acceptEdits \
   --max-turns 8 \
-  --allowedTools "Read,Edit,Write" \
+  --tools Read,Edit,Write \
   > /tmp/claude-delegate.txt 2>&1
 ```
 
 - Runs in the same working directory as the orchestrator
 - `-p` = headless/non-interactive mode (pipe mode, no TTY needed)
 - Prompt goes immediately after `-p`; do not put flags before supplying the prompt text incorrectly
-- Default safe recipe for frontend edits is `acceptEdits` + `Read,Edit,Write`
+- Default safe recipe for frontend edits is `acceptEdits` + `--tools Read,Edit,Write`
 - Use `--add-dir` when the target files are outside Claude's launch directory
 - Do not set `--max-turns` below `5` for file edits; Claude often needs an initial read before a successful write
+- For route debugging, prefer `--output-format stream-json --verbose` so the trace shows the actual tool sequence instead of failing silently
+- Do not rely on `--no-session-persistence` to suppress plugin/session bootstrap in the current environment; it only works with `--print`, and in practice the SessionStart hooks still fire here
 - Output is redirected to file — NEVER into the conversation context
 
 ### Important constraints
@@ -146,7 +148,7 @@ When delegating, the orchestrating tool MUST prepare a complete context package.
 ### Required sections
 
 1. **Project identity**: stack, framework, language, key conventions
-2. **File contents**: actual content of every file the delegate will need to read or modify (do NOT rely on the delegate reading files itself — include them in the prompt)
+2. **File contents**: actual content of every file the delegate will need to read or modify, or tightly scoped excerpts when a full file would be too large (do NOT rely on the delegate discovering the right section by itself)
 3. **Shared types/interfaces**: type definitions, schemas, or contracts used across frontend and backend
 4. **Design system** (if frontend delegation): colors (hex values), fonts (family + weight), spacing conventions, existing component patterns to follow
 5. **Task description**: precise instructions with clear acceptance criteria
@@ -166,13 +168,13 @@ CONVENTIONS:
 [e.g. "All API responses use {data, error, message} shape"]
 [e.g. "Components use shadcn/ui + Tailwind v3"]
 
-RELEVANT FILES (current content):
+RELEVANT FILES (current content or targeted excerpts):
 --- [file path 1] ---
-[full file content]
+[full file content OR the exact excerpt with line anchors]
 --- [file path 2] ---
-[full file content]
+[full file content OR the exact excerpt with line anchors]
 --- [file path 3] ---
-[full file content]
+[full file content OR the exact excerpt with line anchors]
 
 SHARED TYPES/INTERFACES:
 --- [types file path] ---
@@ -195,11 +197,12 @@ AFTER COMPLETING:
 
 ### Guidelines for preparing the context package
 
-- **Read before you delegate**: always read the files the delegate will need BEFORE constructing the prompt. Include their actual content.
+- **Read before you delegate**: always read the files the delegate will need BEFORE constructing the prompt. Include their actual content when they are reasonably sized; for large files, include only the exact excerpts and anchors needed for the edit.
 - **Be specific, not vague**: "Add a loading state to the UserTable component" is better than "improve the user table".
 - **Include neighboring files**: if the delegate needs to match patterns from similar files, include those files too.
 - **Over-include rather than under-include**: it is better to give the delegate too much context than too little. A delegate with incomplete context produces bad code.
 - **Shared contracts are critical**: if frontend and backend share types, API shapes, or validation rules, include them in BOTH delegations.
+- **For large frontend files, give search anchors**: include the exact function names, strings, selectors, or grep hits to edit. Otherwise Claude Code may waste turns on a full-file `Read` that exceeds the token cap before it narrows down.
 
 ---
 
@@ -262,7 +265,9 @@ If the delegate fails (process crash, timeout, non-zero exit, or produces clearl
 - Delegate cannot find files → context package was missing file contents
 - Claude Code cannot find target files → the target lived outside the launch directory and needed `--add-dir` or a repo-local path
 - Claude Code exits with `error_max_turns` on a trivial edit → the turn budget was too low for the normal `Write -> Read -> Write` sequence
+- Claude Code tries to `Read` a very large file and gets a token-cap error → the context package should have supplied exact excerpts/anchors instead of expecting a whole-file read
 - Claude Code appears to ignore the prompt in headless mode → the prompt placement after `-p` or the CLI invocation shape was wrong
+- Claude Code seems "stuck in bootstrap" even with `--no-session-persistence` → that flag is not a reliable way to suppress SessionStart hooks in this environment
 - Delegate introduces wrong patterns → conventions section was incomplete
 - Delegate times out → task was too large, split it into smaller sub-tasks
 - Delegate produces syntax errors → shared types/interfaces were missing
