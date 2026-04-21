@@ -163,3 +163,27 @@ Il sert maintenant aussi **apres implementation** quand on veut verifier:
 Le helper `scripts/claude_session_bundle.py` sert a retrouver la bonne session Claude, suivre la chaine de transcripts compactes, et remonter les plans references pour nourrir cet audit post-implementation.
 
 Si ce skill casse au moment ou on en a besoin, ce n'est pas un detail. C'est une panne d'infrastructure de raisonnement. La bonne reaction n'est donc pas de l'ignorer, mais de le reparer proprement, de memoriser la solution verifiee, puis de reprendre le travail.
+
+## Incident de surfacing du skill
+
+Un point important appris en conditions reelles:
+
+- le runner canonique peut fonctionner correctement
+- alors meme que le skill n'est pas remonte dans l'inventaire actif de la session
+
+Dans ce cas, il ne faut pas ignorer la regle "second opinion obligatoire".
+
+Il faut:
+
+1. traiter cela comme un incident d'infrastructure
+2. verifier la presence sur disque + les symlinks
+3. lancer le runner canonique directement
+4. garder une preuve du diagnostic et du resultat
+
+Helper de diagnostic:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/doctor.py \
+  --current-engine codex \
+  --working-directory "$PWD"
+```

@@ -60,12 +60,21 @@ Examples:
 - the skill says "browser-only" but programmatic path is now verified
 - the skill says "use command X" but only command Y works now
 
+### 6. Mandatory skill surfacing failed
+
+Examples:
+
+- a required skill is missing from the active tool inventory even though it exists on disk
+- the symlink/install surface is healthy, but the live session still cannot invoke the skill normally
+- a canonical runner had to be called directly because the skill itself was not surfaced to the agent
+
 ## Checkpoints
 
 Check for triggers at explicit moments:
 
 - immediately after a meaningful failure
 - immediately after a meaningful repair succeeds
+- immediately after discovering that a mandatory skill is not surfaced in the current live session
 - after a user correction changed the course of execution
 - at the end of a run if the final successful path differed from the starting doctrine
 - before closing the session if unresolved runtime incidents would otherwise be lost

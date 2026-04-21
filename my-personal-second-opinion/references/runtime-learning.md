@@ -2,6 +2,97 @@
 
 Auto-managed by `scripts/second_opinion_runner.py`.
 
+## 2026-04-20T16:36:13+00:00 — gemini
+
+- Current engine: `codex`
+- Working directory: `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment`
+- Failed path: `gemini -m pro -p 'Current repo: /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment
+Current engine: Codex
+
+I need a blocking second opinion on a correction plan for the holdout / matcher workflow.
+
+Verified evidence only:
+- H02, H03, H05, H06 in the regenerated holdout are still inconsistent to a human review.
+- H02 visual check: Shopify variant image clearly includes a unicorn bow clip; selected AliExpress supplier variant image is only pink wings, not the same product.
+- H03 visual check: Shopify ring and selected AliExpress ring are not the same ring.
+- H05 visual check: Shopify sold variant is black bag; selected AliExpress supplier variant image is pink/grey bag.
+- H06 visual check: Shopify sold variant is blue bag; selected AliExpress supplier variant image is pink/grey bag.
+- Shopify variant image retrieval works today. Verified live:
+  - H02 has a distinct Shopify variant image for Multicolore.
+  - H05 has a distinct Shopify variant image for Noir.
+  - H06 has a distinct Shopify variant image for Bleu.
+- The stored line-job payloads for these historical prepared cases do NOT contain matchingImageScope / variantPrimaryImage / matchingPrimaryImage. They are legacy payloads.
+- The holdout bootstrap selects already-prepared historical line jobs directly from DB, and the audit pack rebuilds the review surface from those stored payloads without re-running retrieval/product/variant matching.
+- When I re-run the current product matcher on H02 with the correct current Shopify variant image injected, the old selected candidate becomes same_physical_product_contradicted, not proven.
+- When I re-run the current product matcher on H03 with the current Shopify image, the old selected candidate becomes same_physical_product_not_proven, not proven.
+- For H02, when I re-run current image-search retrieval using the correct current Shopify variant image, the old bad listing 4000381105247 is no longer at the top; different, more plausible unicorn-bow listings rise to the top instead.
+- However, H05/H06 expose an active remaining bug: even when the current Shopify variant image is injected, the current variant matcher still returns variant_exact purely from color alias normalization, selecting AliExpress variants whose images are visibly wrong.
+- Code evidence:
+  - holdout bootstrap reads prepared auto_prepare jobs from DB directly
+  - audit pack reads those stored line-job payloads directly
+  - variant matcher still has a fast path where if one eligible variant remains after non-size selection filtering, it returns exact without a final visual confirmation gate.
+
+My proposed plan:
+1. Fix the holdout generation path first so the holdout is not a stale replay of old prepared payloads.
+2. Make the holdout/audit pack explicitly re-evaluate selected historical lines with the current matcher stack or mark them as legacy if not re-evaluated.
+3. Add a regression proving H02 old candidate is contradicted / not proven when re-evaluated with current variant image inputs.
+4. Fix the active variant matcher bug: when a Shopify variant image exists, a single remaining supplier variant after text filtering must still pass a visual confirmation gate before variant_exact is allowed.
+5. Add regressions for H05/H06-like cases where text color matches but supplier variant image is visibly wrong.
+6. Only after that, regenerate the holdout from freshly re-evaluated cases.
+
+Questions:
+- Is this the right order of operations, or is there a safer higher-leverage order?
+- What is the safest implementation shape for historical holdout freshness: full re-run of the whole pipeline, or targeted re-run of retrieval/product/variant on stored jobs with refreshed Shopify snapshot?
+- What failure mode am I most likely to miss when adding the visual confirmation gate to the single-eligible-variant path?
+- What concrete verification set would you require before trusting the regenerated holdout again?
+' --output-format json`
+- Failure classification: `timeout`
+- Failure signature: `Timed out while waiting for command completion.`
+- Repaired path: `gemini -m gemini-3-flash-preview -p 'Current repo: /Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment
+Current engine: Codex
+
+I need a blocking second opinion on a correction plan for the holdout / matcher workflow.
+
+Verified evidence only:
+- H02, H03, H05, H06 in the regenerated holdout are still inconsistent to a human review.
+- H02 visual check: Shopify variant image clearly includes a unicorn bow clip; selected AliExpress supplier variant image is only pink wings, not the same product.
+- H03 visual check: Shopify ring and selected AliExpress ring are not the same ring.
+- H05 visual check: Shopify sold variant is black bag; selected AliExpress supplier variant image is pink/grey bag.
+- H06 visual check: Shopify sold variant is blue bag; selected AliExpress supplier variant image is pink/grey bag.
+- Shopify variant image retrieval works today. Verified live:
+  - H02 has a distinct Shopify variant image for Multicolore.
+  - H05 has a distinct Shopify variant image for Noir.
+  - H06 has a distinct Shopify variant image for Bleu.
+- The stored line-job payloads for these historical prepared cases do NOT contain matchingImageScope / variantPrimaryImage / matchingPrimaryImage. They are legacy payloads.
+- The holdout bootstrap selects already-prepared historical line jobs directly from DB, and the audit pack rebuilds the review surface from those stored payloads without re-running retrieval/product/variant matching.
+- When I re-run the current product matcher on H02 with the correct current Shopify variant image injected, the old selected candidate becomes same_physical_product_contradicted, not proven.
+- When I re-run the current product matcher on H03 with the current Shopify image, the old selected candidate becomes same_physical_product_not_proven, not proven.
+- For H02, when I re-run current image-search retrieval using the correct current Shopify variant image, the old bad listing 4000381105247 is no longer at the top; different, more plausible unicorn-bow listings rise to the top instead.
+- However, H05/H06 expose an active remaining bug: even when the current Shopify variant image is injected, the current variant matcher still returns variant_exact purely from color alias normalization, selecting AliExpress variants whose images are visibly wrong.
+- Code evidence:
+  - holdout bootstrap reads prepared auto_prepare jobs from DB directly
+  - audit pack reads those stored line-job payloads directly
+  - variant matcher still has a fast path where if one eligible variant remains after non-size selection filtering, it returns exact without a final visual confirmation gate.
+
+My proposed plan:
+1. Fix the holdout generation path first so the holdout is not a stale replay of old prepared payloads.
+2. Make the holdout/audit pack explicitly re-evaluate selected historical lines with the current matcher stack or mark them as legacy if not re-evaluated.
+3. Add a regression proving H02 old candidate is contradicted / not proven when re-evaluated with current variant image inputs.
+4. Fix the active variant matcher bug: when a Shopify variant image exists, a single remaining supplier variant after text filtering must still pass a visual confirmation gate before variant_exact is allowed.
+5. Add regressions for H05/H06-like cases where text color matches but supplier variant image is visibly wrong.
+6. Only after that, regenerate the holdout from freshly re-evaluated cases.
+
+Questions:
+- Is this the right order of operations, or is there a safer higher-leverage order?
+- What is the safest implementation shape for historical holdout freshness: full re-run of the whole pipeline, or targeted re-run of retrieval/product/variant on stored jobs with refreshed Shopify snapshot?
+- What failure mode am I most likely to miss when adding the visual confirmation gate to the single-eligible-variant path?
+- What concrete verification set would you require before trusting the regenerated holdout again?
+' --output-format json`
+- Repair strategy: `gemini-3-flash-preview`
+- Verified models: `{"gemini-3-flash-preview": {"api": {"totalErrors": 0, "totalLatencyMs": 47737, "totalRequests": 7}, "roles": {"main": {"tokens": {"cached": 236638, "candidates": 1586, "input": 42050, "prompt": 278688, "thoughts": 3119, "tool": 0, "total": 283393}, "totalErrors": 0, "totalLatencyMs": 47737, "totalRequests": 7}}, "tokens": {"cached": 236638, "candidates": 1586, "input": 42050, "prompt": 278688, "thoughts": 3119, "tool": 0, "total": 283393}}}`
+- Response preview: `Based on my investigation of the holdout bootstrap, the audit pack tools, and the variant matcher implementation, here i`
+
+
 ## 2026-04-20T06:28:48+00:00 — gemini
 
 - Current engine: `codex`

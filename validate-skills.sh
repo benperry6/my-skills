@@ -7,10 +7,15 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-SKILLS_DIR="skills"
 ISSUES=0
 WARNINGS=0
 PASSED=0
+
+collect_skill_dirs() {
+    find . -mindepth 1 -maxdepth 1 -type d ! -name '.*' ! -name 'skills' \
+        -exec test -f "{}/SKILL.md" \; -print | sort
+    find skills -mindepth 1 -maxdepth 1 -type d -exec test -f "{}/SKILL.md" \; -print | sort
+}
 
 echo "🔍 Auditing Skills Against Agent Skills Specification"
 echo "======================================================"
@@ -26,7 +31,7 @@ echo ""
 # SKILL.md: under 500 lines
 # Optional dirs: references/, scripts/, assets/
 
-for skill_dir in "$SKILLS_DIR"/*/; do
+while IFS= read -r skill_dir; do
     skill_name=$(basename "$skill_dir")
     skill_file="$skill_dir/SKILL.md"
     skill_errors=()
@@ -41,7 +46,21 @@ for skill_dir in "$SKILLS_DIR"/*/; do
     fi
 
     # Extract frontmatter
-    frontmatter=$(sed -n '/^---$/,/^---$/p' "$skill_file" | head -n -1 | tail -n +2)
+    frontmatter=$(awk '
+        BEGIN { in_block = 0; block_count = 0 }
+        /^---$/ {
+            block_count++
+            if (block_count == 1) {
+                in_block = 1
+                next
+            }
+            if (block_count == 2) {
+                in_block = 0
+                exit
+            }
+        }
+        in_block { print }
+    ' "$skill_file")
 
     # Validate frontmatter exists
     if [[ -z "$frontmatter" ]]; then
@@ -113,7 +132,7 @@ for skill_dir in "$SKILLS_DIR"/*/; do
     # ===== FILE STRUCTURE VALIDATION =====
     line_count=$(wc -l < "$skill_file")
     if [[ $line_count -gt 500 ]]; then
-        skill_warnings+=("SKILL.md is $line_count lines (should be <500, move details to references/)")
+        skill_errors+=("SKILL.md is $line_count lines (must be <500, move details to references/)")
     fi
 
     # Check for optional directories
@@ -146,7 +165,7 @@ for skill_dir in "$SKILLS_DIR"/*/; do
         echo -e "${GREEN}✓ $skill_name${NC}"
         ((PASSED++))
     fi
-done
+done < <(collect_skill_dirs)
 
 echo ""
 echo "======================================================"

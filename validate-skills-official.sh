@@ -3,8 +3,13 @@
 # Validation script using official skills-ref library
 # https://github.com/agentskills/agentskills/tree/main/skills-ref
 
-SKILLS_DIR="skills"
 SKILLS_REF_DIR="/tmp/agentskills/skills-ref"
+
+collect_skill_dirs() {
+    find . -mindepth 1 -maxdepth 1 -type d ! -name '.*' ! -name 'skills' \
+        -exec test -f "{}/SKILL.md" \; -print | sort
+    find skills -mindepth 1 -maxdepth 1 -type d -exec test -f "{}/SKILL.md" \; -print | sort
+}
 
 echo "🔍 Validating Skills Using Official skills-ref Library"
 echo "========================================================"
@@ -50,7 +55,7 @@ echo "Running validation..."
 echo ""
 
 # Validate each skill
-for skill_dir in "$SKILLS_DIR"/*/; do
+while IFS= read -r skill_dir; do
     skill_name=$(basename "$skill_dir")
     printf "  %-30s" "$skill_name"
 
@@ -64,7 +69,7 @@ for skill_dir in "$SKILLS_DIR"/*/; do
         FAILED_SKILLS+=("$skill_name")
         echo "$output" | sed 's/^/    /'
     fi
-done
+done < <(collect_skill_dirs)
 
 echo ""
 echo "========================================================"

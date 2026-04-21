@@ -2,6 +2,42 @@
 
 Only record entries here after the command path was verified in real behavior on the current machine.
 
+## 2026-04-21 — skill surfacing incident does not excuse a skip
+
+Verified evidence:
+
+- `my-personal-second-opinion` existed on disk at `~/.agents/skills/my-personal-second-opinion`
+- the Codex and Claude symlink surfaces also existed:
+  - `~/.codex/skills/my-personal-second-opinion`
+  - `~/.claude/skills/my-personal-second-opinion`
+- the active Codex session still did not expose the skill in its live skill inventory
+- the canonical runner was then verified directly from Codex with a real smoke:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py \
+  --current-engine codex \
+  --working-directory "$PWD" \
+  --smoke-test \
+  --timeout-seconds 180 \
+  --output-json /tmp/second-opinion-smoke.json \
+  --no-persist-learning \
+  --no-git-persist
+```
+
+Observed behavior:
+
+- Claude returned `OK`
+- Gemini recovered through fallback:
+  - `gemini -m pro` timed out after 180s
+  - `gemini -m auto` then returned `OK`
+
+Implication:
+
+- a missing live skill surface is a blocking infrastructure incident, not permission to skip the rule
+- when the on-disk skill exists, the canonical runner must be invoked directly and proved
+- the incident must be surfaced explicitly and learned from
+- keep `SKILL.md` lean enough to reduce avoidable surfacing/debug friction
+
 ## 2026-03-27 — Detection markers
 
 - In Codex Desktop, `CODEX_CI=1` is present and is a valid positive marker for "running in Codex".
