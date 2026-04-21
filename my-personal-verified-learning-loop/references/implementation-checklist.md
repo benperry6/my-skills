@@ -4,6 +4,7 @@ Use this before claiming a skill has learned something durable.
 
 - [ ] the finding came from real behavior, not theory alone
 - [ ] an explicit learning trigger fired before the loop was invoked
+- [ ] if the user had to remind the agent to run the learning loop, that reminder itself was treated as evidence of a trigger miss
 - [ ] if the target skill defines an overlay, that overlay was applied instead of being ignored
 - [ ] the incident and repaired path are stated concretely
 - [ ] the evidence is inspectable
@@ -18,3 +19,4 @@ Use this before claiming a skill has learned something durable.
 - [ ] the write-back is small enough that a later session can audit why it happened
 - [ ] if multiple incidents were persisted, they were written in batch rather than one subprocess append per incident
 - [ ] if git persistence was required, the resulting artifacts were committed and pushed successfully
+- [ ] if a route, permissions path, skill inventory surface, or delegation path was repaired, the learning write-back happened before resuming the blocked primary task

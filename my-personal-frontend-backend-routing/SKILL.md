@@ -1,6 +1,6 @@
 ---
 name: my-personal-frontend-backend-routing
-description: "[My Personal Skill] Automatically routes frontend work to Claude Code and backend work to Codex CLI. Detects file type via heuristics, delegates to the specialized tool with a context package, and reviews the output. Use when a task spans both frontend and backend."
+description: "[My Personal Skill] Automatically routes frontend work to Claude Code and backend work to Codex CLI. Detects file type via heuristics, delegates to the specialized tool with a context package, and reviews the output. Use when a task spans both frontend and backend. For route-repair learnings, use my-personal-verified-learning-loop."
 ---
 
 # Frontend/Backend Routing
@@ -112,11 +112,20 @@ codex exec --dangerously-bypass-approvals-and-sandbox "[context package prompt]"
 
 ```bash
 # Bash tool params: run_in_background: true
-claude -p "[context package prompt]" > /tmp/claude-delegate.txt 2>&1
+claude -p "[context package prompt]" \
+  --output-format json \
+  --permission-mode acceptEdits \
+  --max-turns 8 \
+  --allowedTools "Read,Edit,Write" \
+  > /tmp/claude-delegate.txt 2>&1
 ```
 
 - Runs in the same working directory as the orchestrator
 - `-p` = headless/non-interactive mode (pipe mode, no TTY needed)
+- Prompt goes immediately after `-p`; do not put flags before supplying the prompt text incorrectly
+- Default safe recipe for frontend edits is `acceptEdits` + `Read,Edit,Write`
+- Use `--add-dir` when the target files are outside Claude's launch directory
+- Do not set `--max-turns` below `5` for file edits; Claude often needs an initial read before a successful write
 - Output is redirected to file — NEVER into the conversation context
 
 ### Important constraints
@@ -126,6 +135,7 @@ claude -p "[context package prompt]" > /tmp/claude-delegate.txt 2>&1
 - NEVER truncate output: no `| head`, no `| tail`, no `| grep`
 - NEVER pipe output through anything — raw redirect only
 - One delegation at a time (do not launch both Codex and Claude Code simultaneously for the same task)
+- If the Claude Code route itself had to be debugged or repaired, invoke `my-personal-verified-learning-loop` and persist the learning before resuming the user task
 
 ---
 
@@ -250,9 +260,20 @@ If the delegate fails (process crash, timeout, non-zero exit, or produces clearl
 
 **Common failure modes**:
 - Delegate cannot find files → context package was missing file contents
+- Claude Code cannot find target files → the target lived outside the launch directory and needed `--add-dir` or a repo-local path
+- Claude Code exits with `error_max_turns` on a trivial edit → the turn budget was too low for the normal `Write -> Read -> Write` sequence
+- Claude Code appears to ignore the prompt in headless mode → the prompt placement after `-p` or the CLI invocation shape was wrong
 - Delegate introduces wrong patterns → conventions section was incomplete
 - Delegate times out → task was too large, split it into smaller sub-tasks
 - Delegate produces syntax errors → shared types/interfaces were missing
+
+If the route itself was repaired during debugging:
+
+1. stop treating it as a one-off local fix
+2. invoke `my-personal-verified-learning-loop`
+3. record the repaired path and evidence
+4. patch this skill if the canonical delegation recipe changed
+5. only then retry or resume the original delegated task
 
 ---
 

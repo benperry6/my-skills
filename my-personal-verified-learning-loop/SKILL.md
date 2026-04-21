@@ -18,6 +18,8 @@ Use it when:
 - a fix worked in real behavior and should become reusable
 - an unresolved incident should be recorded without being promoted to canonical doctrine yet
 - a run hit an explicit learning trigger and should checkpoint that finding instead of letting it disappear
+- a route, hook, permission mode, inventory surface, or delegation path had to be debugged to unblock the real task
+- the primary task is about to resume after a repair, and the repaired path differs from the starting doctrine
 
 This skill is about operational learning.
 
@@ -39,6 +41,7 @@ It is not:
 7. Preserve specialization. Shared learning doctrine should not erase the business-specific logic of downstream skills.
 8. Learning should be triggered by explicit runtime checkpoints, not by hoping the model spontaneously self-reports something important from hidden chain-of-thought.
 9. Runtime incidents should be stored in a structured machine-readable format, with Markdown as a human-friendly mirror rather than the only source of truth.
+10. If a route or infrastructure incident was repaired to unblock the main task, the learning write-back happens before resuming the main task. User reminder is not required.
 
 ## What "Self-Modification" Means Here
 
@@ -110,6 +113,8 @@ Run the learning loop when at least one explicit trigger fired, for example:
 - the user corrected the agent's prior approach
 - a non-trivial multi-step workflow was discovered
 - a provider, auth mode, wrapper, or environment behavior drifted in a way that changed the real execution path
+- the agent had to debug its own route, hook, permissions, skill inventory, or delegation surface before it could continue the user task
+- the user had to remind the agent to persist the learning instead of the agent doing it proactively
 
 If no trigger fired, do nothing.
 
@@ -155,6 +160,18 @@ Typical overlay responsibilities:
 The shared loop owns the base doctrine.
 The target skill owns its domain-specific overlay.
 
+### 5b. Close the incident before resuming the primary task
+
+If the repaired path unblocks a larger user task, do not jump back into execution first.
+
+Before resuming the primary task:
+
+- persist the runtime incident
+- promote to verified guidance if the repaired path is already proven enough
+- patch the smallest canonical surface that would otherwise mislead the next run
+
+The incident is not operationally complete until this checkpoint is handled or explicitly left unresolved.
+
 ### 6. Pick the smallest correct write target
 
 Default order:
@@ -197,3 +214,4 @@ A correct learning loop should leave behind:
 - a machine-readable runtime incident contract that later adapters or validators can target
 - the smallest updated target surface
 - no contamination from project-specific or speculative content
+- no repaired infrastructure or routing path that was "fixed this time" but left undocumented for the next run

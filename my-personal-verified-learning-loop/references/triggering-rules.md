@@ -68,6 +68,15 @@ Examples:
 - the symlink/install surface is healthy, but the live session still cannot invoke the skill normally
 - a canonical runner had to be called directly because the skill itself was not surfaced to the agent
 
+### 7. Agent route or execution surface had to be repaired
+
+Examples:
+
+- a Claude Code or Codex delegation route looked broken but the real cause was the invocation shape
+- a path failed because the file lived outside the current working directory or missing `--add-dir`
+- the prompt ordering, output mode, allowed tools, or max-turn budget made the route look dead
+- the user had to remind the agent to invoke the learning loop after the repair
+
 ## Checkpoints
 
 Check for triggers at explicit moments:
@@ -78,6 +87,8 @@ Check for triggers at explicit moments:
 - after a user correction changed the course of execution
 - at the end of a run if the final successful path differed from the starting doctrine
 - before closing the session if unresolved runtime incidents would otherwise be lost
+- immediately before resuming the original blocked task after a route or infrastructure repair
+- immediately when the user points out that the learning loop should already have fired
 
 ## Non-triggers
 
