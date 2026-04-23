@@ -86,7 +86,7 @@ Read only what the current task needs:
 - `references/implementation-checklist.md`
   - Practical checklist before claiming a skill has learned something durable.
 - `scripts/record_learning.py`
-  - Shared helper to append runtime or verified learning entries to a target skill, including structured runtime JSON incidents, extension-schema validation, stable runtime de-duplication, producer-grade batch append behavior, and optional git persist semantics.
+  - Shared helper to append runtime or verified learning entries to a target skill, including structured runtime JSON incidents, extension-schema validation, stable runtime de-duplication, producer-grade batch append behavior, optional git persist semantics, and explicit runtime path overrides for skills that keep a native runtime store plus a separate shared-compatible mirror.
 
 ## Workflow
 

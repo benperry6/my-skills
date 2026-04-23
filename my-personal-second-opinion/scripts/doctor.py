@@ -101,6 +101,50 @@ def run_smoke(current_engine: str, working_directory: Path, timeout_seconds: int
         }
 
 
+def build_diagnosis(report: dict[str, Any], skip_smoke: bool) -> dict[str, Any]:
+    surface_health_ok = (
+        report["source_skill"]["exists"]
+        and report["skill_md"]["within_500_line_budget"]
+        and report["runner"]["exists"]
+        and report["surfaces"]["claude"]["points_to_expected"]
+        and report["surfaces"]["codex"]["points_to_expected"]
+        and report["surfaces"]["gemini_global_skills"]["points_to_expected"]
+        and report["runner_help"]["ok"]
+    )
+    smoke = report.get("smoke")
+    runner_health_ok = smoke["ok"] if isinstance(smoke, dict) else None
+
+    if not surface_health_ok:
+        recommended_next_step = (
+            "Repair the on-disk skill surface first. Do not trust a live-session "
+            "inventory omission until the source skill, symlinks, and runner --help are healthy."
+        )
+    elif skip_smoke:
+        recommended_next_step = (
+            "Surface preflight passed. If the live skill inventory still omits the skill, "
+            "treat it as a surfacing-layer incident and run the canonical runner directly. "
+            "Only run the full smoke if runner health is still uncertain."
+        )
+    elif runner_health_ok:
+        recommended_next_step = (
+            "Runner health is verified. If the live skill inventory still omits the skill, "
+            "treat it as a surfacing-layer omission rather than a broken skill, and invoke "
+            "the canonical runner directly."
+        )
+    else:
+        recommended_next_step = (
+            "Runner health is not proven. Inspect the smoke result and per-engine logs, "
+            "repair the failing engine path, then rerun the smoke before resuming the main task."
+        )
+
+    return {
+        "surface_health_ok": surface_health_ok,
+        "runner_health_ok": runner_health_ok,
+        "skip_smoke_used": skip_smoke,
+        "recommended_next_step": recommended_next_step,
+    }
+
+
 def build_report(args: argparse.Namespace) -> dict[str, Any]:
     skill_md = SOURCE_SKILL / "SKILL.md"
     report: dict[str, Any] = {
@@ -132,6 +176,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             working_directory=Path(args.working_directory).resolve(),
             timeout_seconds=args.timeout_seconds,
         )
+    report["diagnosis"] = build_diagnosis(report, skip_smoke=args.skip_smoke)
     return report
 
 
@@ -156,6 +201,11 @@ def text_report(report: dict[str, Any]) -> str:
                 lines.append(
                     f"  - {engine_result.get('engine')}: success={engine_result.get('success')}"
                 )
+    diagnosis = report.get("diagnosis") or {}
+    if isinstance(diagnosis, dict):
+        lines.append(f"- surface health OK: {diagnosis.get('surface_health_ok')}")
+        lines.append(f"- runner health OK: {diagnosis.get('runner_health_ok')}")
+        lines.append(f"- recommended next step: {diagnosis.get('recommended_next_step')}")
     return "\n".join(lines)
 
 
@@ -178,16 +228,11 @@ def main() -> int:
     else:
         print(text_report(report))
 
+    diagnosis = report.get("diagnosis") or {}
     smoke = report.get("smoke")
-    ok = (
-        report["source_skill"]["exists"]
-        and report["skill_md"]["within_500_line_budget"]
-        and report["runner"]["exists"]
-        and report["surfaces"]["claude"]["points_to_expected"]
-        and report["surfaces"]["codex"]["points_to_expected"]
-        and report["surfaces"]["gemini_global_skills"]["points_to_expected"]
-        and report["runner_help"]["ok"]
-        and (smoke is None or smoke["ok"])
+    ok = bool(
+        diagnosis.get("surface_health_ok")
+        and (smoke is None or diagnosis.get("runner_health_ok"))
     )
     return 0 if ok else 1
 

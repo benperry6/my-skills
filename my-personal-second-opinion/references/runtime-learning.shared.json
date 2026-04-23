@@ -115,7 +115,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "a57e92904c3182f2"
   },
   {
     "timestamp": "2026-04-15T07:50:02+00:00",
@@ -219,7 +220,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "48e6c3339a7051de"
   },
   {
     "timestamp": "2026-04-16T14:30:50+00:00",
@@ -323,7 +325,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "3a137e3a229daccb"
   },
   {
     "timestamp": "2026-04-17T09:36:11+00:00",
@@ -395,7 +398,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "ab5d81552d9e521f"
   },
   {
     "timestamp": "2026-04-17T09:38:26+00:00",
@@ -499,7 +503,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "4cd7b62e85a69da0"
   },
   {
     "timestamp": "2026-04-17T09:54:05+00:00",
@@ -538,7 +543,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "ed2d78f31457c17c"
   },
   {
     "timestamp": "2026-04-17T10:30:37+00:00",
@@ -577,7 +583,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "dd5d399a69b29ee0"
   },
   {
     "timestamp": "2026-04-20T05:27:04+00:00",
@@ -681,7 +688,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "6ea56f7bd5d62dde"
   },
   {
     "timestamp": "2026-04-20T06:18:54+00:00",
@@ -767,7 +775,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "dc5d6dc469af49a5"
   },
   {
     "timestamp": "2026-04-20T06:28:38+00:00",
@@ -871,7 +880,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "5f46c6537f2d731d"
   },
   {
     "timestamp": "2026-04-20T06:28:48+00:00",
@@ -975,7 +985,8 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "cf8cbf3cd6921a83"
   },
   {
     "timestamp": "2026-04-20T16:36:13+00:00",
@@ -1047,6 +1058,44 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "88b5f46ed237f909"
+  },
+  {
+    "record_id": "ebafa9683aa748fc",
+    "timestamp": "2026-04-23T18:05:30Z",
+    "kind": "runtime",
+    "topic": "inventory-surface-omission",
+    "summary": "Live inventory omitted the skill even though the on-disk surface and canonical runner were healthy.",
+    "status": "repaired",
+    "confidence": "high",
+    "failed_path": "Treating a missing live skill inventory entry as proof that my-personal-second-opinion itself is broken.",
+    "repaired_path": "Run doctor.py --skip-smoke to verify the on-disk surface, then invoke second_opinion_runner.py directly; use a full smoke only if runner health is uncertain.",
+    "evidence": [
+      "Active Codex session omitted my-personal-second-opinion from the visible live skill inventory.",
+      "doctor.py --skip-smoke passed with source skill, symlinks, and runner --help all healthy.",
+      "Canonical runner smoke then succeeded in real behavior with targets claude + gemini and both returned OK."
+    ],
+    "notes": [
+      "This is a surfacing-layer incident, not proof that the skill implementation itself is broken."
+    ],
+    "source_skill": "my-personal-second-opinion",
+    "source_session": "2026-04-24-second-opinion-surfacing",
+    "agent": "codex",
+    "target_files": [
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/SKILL.md",
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/README.md",
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/scripts/doctor.py"
+    ],
+    "extensions": {
+      "hook": "on_run_end",
+      "mode": "standard",
+      "needs_web_research": false,
+      "repair_strategy": "doctor-skip-smoke-then-direct-runner",
+      "failure_classification": "skill-surfacing",
+      "target_engine": "multi",
+      "learning_fingerprint": "second-opinion-inventory-surface-omission-doctor-skip-smoke"
+    },
+    "canonical_change_candidate": true
   }
 ]

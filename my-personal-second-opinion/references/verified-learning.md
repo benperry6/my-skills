@@ -626,3 +626,17 @@ When a future invocation path breaks:
    - verification notes
 
 Do not add speculative or unverified findings.
+## 2026-04-23T18:05:42+00:00 - surfacing-preflight-recovery
+
+- Summary: When the live inventory omits the skill but doctor --skip-smoke and the canonical runner both pass, treat it as a surfacing-layer omission and run the runner directly.
+- Failed path: `Burning time trying to repair the skill itself before separating surfacing health from runner health.`
+- Repaired path: `Use doctor.py --skip-smoke as the fast surfacing preflight, then run second_opinion_runner.py directly; reserve full smoke for runner-health uncertainty.`
+- Source skill: `my-personal-second-opinion`
+- Source session: `2026-04-24-second-opinion-surfacing`
+- Agent: `codex`
+- Target file: `/Users/benjaminperry/.agents/skills/my-personal-second-opinion/SKILL.md`
+- Target file: `/Users/benjaminperry/.agents/skills/my-personal-second-opinion/README.md`
+- Target file: `/Users/benjaminperry/.agents/skills/my-personal-second-opinion/scripts/doctor.py`
+- Evidence: doctor.py --skip-smoke now emits an explicit recommended_next_step for surfacing-only incidents.
+- Evidence: Canonical runner smoke succeeded with claude=OK and gemini=OK in the current environment.
+- Evidence: The corrected playbook is now written into SKILL.md and README.md.

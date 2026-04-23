@@ -470,6 +470,14 @@ def main() -> int:
     parser.add_argument("--batch-json", help="JSON array or object-with-records payload for batch append.")
     parser.add_argument("--batch-json-file", help="Path to a JSON batch payload.")
     parser.add_argument(
+        "--runtime-json-path",
+        help="Optional explicit runtime JSON target. Use when a skill keeps a native runtime store and a separate shared-compatible mirror.",
+    )
+    parser.add_argument(
+        "--runtime-md-path",
+        help="Optional explicit runtime Markdown mirror target. Use with --runtime-json-path when the shared runtime sink is not references/runtime-learning.*.",
+    )
+    parser.add_argument(
         "--git-persist",
         action=argparse.BooleanOptionalAction,
         default=False,
@@ -486,8 +494,17 @@ def main() -> int:
 
     skill_dir = Path(args.skill_dir).expanduser().resolve()
     references_dir = skill_dir / "references"
-    target = references_dir / ("runtime-learning.md" if args.kind == "runtime" else "verified-learning.md")
-    runtime_json = references_dir / "runtime-learning.json"
+    runtime_md = (
+        Path(args.runtime_md_path).expanduser().resolve()
+        if args.runtime_md_path
+        else references_dir / "runtime-learning.md"
+    )
+    target = runtime_md if args.kind == "runtime" else references_dir / "verified-learning.md"
+    runtime_json = (
+        Path(args.runtime_json_path).expanduser().resolve()
+        if args.runtime_json_path
+        else references_dir / "runtime-learning.json"
+    )
 
     entries = load_batch_entries(args)
 

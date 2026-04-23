@@ -40,10 +40,12 @@ Do not silently skip the second opinion.
 If the skill is missing from the live skill inventory but exists on disk at `~/.agents/skills/my-personal-second-opinion`:
 
 1. say explicitly that the surfacing layer is broken
-2. verify the on-disk skill and symlink surface
-3. run the canonical runner directly
-4. keep proof of the diagnosis and the runner result
-5. record the learning instead of pretending the rule was satisfied
+2. verify the on-disk skill and symlink surface first
+3. if you only need a fast surfacing preflight, run the doctor with `--skip-smoke`
+4. if that preflight passes, treat this as a surfacing-layer omission, not proof that the skill itself is broken
+5. run the canonical runner directly
+6. keep proof of the diagnosis and the runner result
+7. record the learning instead of pretending the rule was satisfied
 
 Use the doctor helper when needed:
 
@@ -52,6 +54,17 @@ python3 ~/.agents/skills/my-personal-second-opinion/scripts/doctor.py \
   --current-engine codex \
   --working-directory "$PWD"
 ```
+
+For a fast surfacing-only preflight:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/doctor.py \
+  --current-engine codex \
+  --working-directory "$PWD" \
+  --skip-smoke
+```
+
+Use the full smoke only when runner health itself is uncertain.
 
 ## Core doctrine
 
@@ -172,7 +185,7 @@ At minimum, prove:
 1. the on-disk skill exists
 2. the Claude and Codex symlink surfaces are correct
 3. `second_opinion_runner.py --help` works
-4. a smoke test succeeds in real behavior
+4. if runner health is in doubt, a smoke test succeeds in real behavior
 
 The doctor helper performs that preflight.
 

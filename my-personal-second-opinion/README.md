@@ -55,6 +55,37 @@ Pour ce mode post-implementation:
 - le helper ignore les sessions d'audit generees par ce skill lui-meme et les transcripts sous `subagents/`, pour eviter les boucles
 - l'audit utilise maintenant une grille explicite: `Plan coverage`, `Scope drift`, `Correctness risk`, `Runtime confidence`, `Test adequacy`
 
+## Incident de surfacing : recuperation courte vs verification complete
+
+Quand le skill n'apparait pas dans l'inventaire actif mais existe bien sur disque, il faut distinguer 2 questions:
+
+1. est-ce que la **surface locale** est saine ?
+2. est-ce que le **runner** est vraiment casse ?
+
+La recuperation courte a privilegier pour une panne de surfacing est:
+
+```bash
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/doctor.py \
+  --current-engine codex \
+  --working-directory "$PWD" \
+  --skip-smoke
+```
+
+Si ce preflight passe:
+
+- la presence disque est bonne
+- les symlinks Claude/Codex sont bons
+- `second_opinion_runner.py --help` marche
+
+Dans ce cas, il faut traiter l'absence du skill dans l'inventaire actif comme un **incident de surfacing**, pas comme la preuve que le skill lui-meme est casse.
+
+La bonne suite est alors:
+
+1. annoncer explicitement l'incident de surfacing
+2. lancer le runner canonique directement
+3. ne lancer un smoke complet que si la sante du runner est encore douteuse
+4. consigner le learning avant de reprendre la tache metier
+
 ## Doctrine
 
 Les principes sont les suivants:
@@ -176,9 +207,10 @@ Dans ce cas, il ne faut pas ignorer la regle "second opinion obligatoire".
 Il faut:
 
 1. traiter cela comme un incident d'infrastructure
-2. verifier la presence sur disque + les symlinks
-3. lancer le runner canonique directement
-4. garder une preuve du diagnostic et du resultat
+2. verifier d'abord la presence sur disque + les symlinks
+3. utiliser `doctor.py --skip-smoke` pour un preflight rapide si on veut juste trancher la couche de surfacing
+4. si ce preflight passe, lancer le runner canonique directement
+5. garder une preuve du diagnostic et du resultat
 
 Helper de diagnostic:
 
