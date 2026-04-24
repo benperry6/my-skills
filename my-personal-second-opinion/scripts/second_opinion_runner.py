@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import signal
 import shlex
 import shutil
 import subprocess
@@ -130,6 +131,65 @@ def git_output(workdir: Path, arguments: list[str], pathspecs: list[str] | None 
     if completed.returncode != 0:
         return ""
     return completed.stdout.strip()
+
+
+def terminate_process_group(process: subprocess.Popen[Any]) -> None:
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        return
+    except Exception:
+        process.terminate()
+    try:
+        process.wait(timeout=5)
+        return
+    except subprocess.TimeoutExpired:
+        pass
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        return
+    except Exception:
+        process.kill()
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        pass
+
+
+def run_command_to_logs(
+    command: list[str],
+    *,
+    cwd: Path,
+    stdout_path: Path,
+    stderr_path: Path | None,
+    timeout_seconds: int,
+) -> tuple[int, bool]:
+    with stdout_path.open("w", encoding="utf-8") as stdout_file:
+        stderr_target: Any
+        stderr_file = None
+        if stderr_path is None:
+            stderr_target = subprocess.STDOUT
+        else:
+            stderr_file = stderr_path.open("w", encoding="utf-8")
+            stderr_target = stderr_file
+        try:
+            process = subprocess.Popen(
+                command,
+                cwd=str(cwd),
+                stdout=stdout_file,
+                stderr=stderr_target,
+                text=True,
+                start_new_session=True,
+            )
+            try:
+                return process.wait(timeout=timeout_seconds), False
+            except subprocess.TimeoutExpired:
+                terminate_process_group(process)
+                return 124, True
+        finally:
+            if stderr_file is not None:
+                stderr_file.close()
 
 
 def collect_git_evidence(workdir: Path, pathspecs: list[str] | None = None) -> dict[str, Any]:
@@ -983,18 +1043,14 @@ def execute_attempt(
 
     if engine == "codex":
         log_path = attempt_dir / "combined.log"
-        try:
-            with log_path.open("w", encoding="utf-8") as log_file:
-                completed = subprocess.run(
-                    command,
-                    cwd=str(workdir),
-                    stdout=log_file,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    check=False,
-                    timeout=timeout_seconds,
-                )
-        except subprocess.TimeoutExpired:
+        returncode, timed_out = run_command_to_logs(
+            command,
+            cwd=workdir,
+            stdout_path=log_path,
+            stderr_path=None,
+            timeout_seconds=timeout_seconds,
+        )
+        if timed_out:
             return {
                 "strategy": strategy["name"],
                 "command": shlex.join(command),
@@ -1008,38 +1064,32 @@ def execute_attempt(
                 "models": {},
             }
         answer_text = read_text(strategy["answer_file"]).strip()
-        success = completed.returncode == 0 and bool(answer_text)
+        success = returncode == 0 and bool(answer_text)
         output_text = read_text(log_path)
         return {
             "strategy": strategy["name"],
             "command": shlex.join(command),
             "success": success,
-            "returncode": completed.returncode,
+            "returncode": returncode,
             "response": answer_text,
             "duration_ms": int((time.time() - started_at) * 1000),
             "stdout_path": str(log_path),
             "stderr_path": "",
             "models": {},
-            "classification": "" if success else classify_failure(output_text, completed.returncode),
+            "classification": "" if success else classify_failure(output_text, returncode),
             "failure_signature": "" if success else failure_signature(output_text),
         }
 
     stdout_path = attempt_dir / "stdout.log"
     stderr_path = attempt_dir / "stderr.log"
-    try:
-        with stdout_path.open("w", encoding="utf-8") as stdout_file, stderr_path.open(
-            "w", encoding="utf-8"
-        ) as stderr_file:
-            completed = subprocess.run(
-                command,
-                cwd=str(workdir),
-                stdout=stdout_file,
-                stderr=stderr_file,
-                text=True,
-                check=False,
-                timeout=timeout_seconds,
-            )
-    except subprocess.TimeoutExpired:
+    returncode, timed_out = run_command_to_logs(
+        command,
+        cwd=workdir,
+        stdout_path=stdout_path,
+        stderr_path=stderr_path,
+        timeout_seconds=timeout_seconds,
+    )
+    if timed_out:
         return {
             "strategy": strategy["name"],
             "command": shlex.join(command),
@@ -1059,19 +1109,19 @@ def execute_attempt(
     payload = extract_json(stdout_text if strategy.get("parse_json", False) else "")
     response = extract_response_text(payload) if payload is not None else stdout_text.strip()
     models = prompt_models(payload) if payload is not None else {}
-    success = completed.returncode == 0 and bool(response)
+    success = returncode == 0 and bool(response)
 
     return {
         "strategy": strategy["name"],
         "command": shlex.join(command),
         "success": success,
-        "returncode": completed.returncode,
+        "returncode": returncode,
         "response": response,
         "duration_ms": int((time.time() - started_at) * 1000),
         "stdout_path": str(stdout_path),
         "stderr_path": str(stderr_path),
         "models": models,
-        "classification": "" if success else classify_failure(combined, completed.returncode),
+        "classification": "" if success else classify_failure(combined, returncode),
         "failure_signature": "" if success else failure_signature(combined),
     }
 

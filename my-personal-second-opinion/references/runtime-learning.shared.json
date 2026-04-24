@@ -1200,6 +1200,34 @@
       "mode": "standard",
       "needs_web_research": false
     },
-    "canonical_change_candidate": false
+    "canonical_change_candidate": false,
+    "record_id": "9cb110ceb5f4c909"
+  },
+  {
+    "record_id": "8f40cfac29cae340",
+    "timestamp": "2026-04-24T17:18:00+00:00",
+    "kind": "runtime",
+    "topic": "gemini subprocess timeout hardening",
+    "summary": "The second-opinion runner can hang when Gemini's child process ignores the runner timeout; the runner was hardened to launch attempts in a process group and terminate the group on timeout.",
+    "status": "repaired",
+    "confidence": "high",
+    "failed_path": "second_opinion_runner.py --targets gemini --timeout-seconds 180 hung on gemini -m pro without producing /tmp/second-opinion-v3-h01-plan-result.json",
+    "repaired_path": "second_opinion_runner.py uses Popen(start_new_session=True) plus process-group SIGTERM/SIGKILL timeout handling; smoke passed with --targets gemini --smoke-test --timeout-seconds 30",
+    "evidence": [
+      "Hung process observed: PIDs 48834 second_opinion_runner.py and 54343/54378 gemini -m pro remained active after configured timeout.",
+      "Repair verification: python3 -m py_compile second_opinion_runner.py succeeded.",
+      "Repair verification: runner smoke with --targets gemini --smoke-test --timeout-seconds 30 exited 0 and wrote /tmp/second-opinion-gemini-timeout-fallback-smoke.json."
+    ],
+    "notes": [
+      "This is a runner infrastructure repair, not a project-specific product learning."
+    ],
+    "source_skill": "my-personal-second-opinion",
+    "source_session": null,
+    "agent": "codex",
+    "target_files": [
+      "/Users/benjaminperry/.agents/skills/my-personal-second-opinion/scripts/second_opinion_runner.py"
+    ],
+    "extensions": {},
+    "canonical_change_candidate": true
   }
 ]
