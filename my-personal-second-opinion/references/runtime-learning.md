@@ -2,6 +2,1337 @@
 
 Auto-managed by `scripts/second_opinion_runner.py`.
 
+## 2026-04-24T09:39:35+00:00 — gemini
+
+- Current engine: `codex`
+- Working directory: `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex`
+- Failed path: `gemini -m pro -p '# Second Opinion Review Task
+
+You are reviewing this draft integration design for a Shopify -> AliExpress fulfillment AI agent.
+
+Current engine: Codex. You are an independent reviewer, not the author.
+
+Project context:
+
+- The product is a Shopify app that fulfills paid Shopify order lines from AliExpress.
+- The core product goal is to automate a human AliExpress sourcing methodology.
+- The current chantier is product/variant/blocking validation, not live auto-order.
+- Gemini is the authorized API provider for this test phase. Paid OpenAI API usage is forbidden.
+- AliExpress Open Platform deep research is intentionally deferred until product/variant/blocking validation is solid.
+
+Review task:
+
+1. Check whether the draft correctly integrates the Deep Research findings into the full agent: memory resolver, retrieval, Pass A, Pass B, deterministic Pass C, blocked cases, renderer, merchant overrides, and evals.
+2. Identify any blocking contradiction with the human sourcing methodology.
+3. Identify any over-engineering or premature scope, especially anything that should remain deferred during product/variant/blocking validation.
+4. Check provider policy: Gemini-first, stable model lanes, no paid OpenAI API.
+5. Check if the stage-local JSON schema approach is coherent and implementable in this repo.
+6. Check if the implementation order is safe.
+7. Return concrete required edits before the draft is saved as a repo design doc.
+
+Output:
+
+- Verdict: approve / approve with required edits / reject
+- Blocking issues
+- Required edits
+- Optional improvements
+- Any risks to test first
+
+---
+
+# Deep Research Integration Design
+
+Status: draft for second opinion
+
+Source roadmap: `apps/shopify-aliexpress-fulfillment/docs/plans/2026-04-24-deep-research-integration-roadmap.md`
+
+Source matrix: `apps/shopify-aliexpress-fulfillment/docs/plans/2026-04-24-deep-research-findings-matrix.md`
+
+## Purpose
+
+This document turns the Deep Research findings into the target integration design for the Shopify -> AliExpress fulfillment agent.
+
+It covers the complete agent surface:
+
+- memory resolver
+- candidate retrieval and normalization
+- visual/product proof
+- commandable variant proof
+- size resolution
+- deterministic business decision engine
+- blocked cases
+- merchant overrides
+- review renderer
+- evals and rollout gates
+
+It is not yet a code diff. The next phase will update the canonical docs and then the implementation/tests according to this design.
+
+## Verified Assumptions
+
+All assumptions needed to produce this design are verified.
+
+| Assumption | Status | Source |
+|---|---|---|
+| The canonical business method is human sourcing, not abstract scoring. | verified | `docs/HUMAN_SOURCING_METHODOLOGY.md` sections 0-8 |
+| The canonical shortlist is not fixed top-N; it scans the relevance frontier until drift. | verified | `docs/HUMAN_SOURCING_METHODOLOGY.md` section 8 |
+| Variant image wins over product image when present. | verified | `docs/HUMAN_SOURCING_METHODOLOGY.md` section 8 and `docs/HOLDOUT_ALIGNMENT_ACCEPTANCE_H01_H06.md` |
+| The current V3 prototype already has Pass A / Pass B, a review pack, and Gemini Vertex runner. | verified | `src/contracts/v3-prototype.ts`, `src/services/v3-prototype.ts`, `src/services/google-vertex-v3-visual-reasoner.ts`, `src/contracts/v3-review-pack.ts` |
+| The Deep Research recommendation is cascaded evidence engine + deterministic boundaries. | verified | `/Users/benjaminperry/Downloads/deep-research-report.md`, SHA-256 recorded in roadmap |
+| Paid OpenAI API is forbidden during the current test phase; Gemini API is the authorized API provider. | verified | repo-root `PRODUCT_MEMORY.md` and `docs/PROJECT_BRIEF.md` |
+| AliExpress Open Platform deeper research is intentionally deferred. | verified | repo-root `PRODUCT_MEMORY.md` and roadmap risk register |
+| Current auto-order remains out of scope; current posture is prepare-only / eval. | verified | `docs/PROJECT_BRIEF.md`, `docs/EVAL_V1.md`, `docs/V3_IMPLEMENTATION_SPEC.md` |
+
+No blocking assumption is unverified.
+
+## Core Design Decision
+
+The agent must be modeled as a cascaded evidence engine:
+
+1. deterministic ingestion and normalization
+2. deterministic memory resolution and cached-match validation
+3. deterministic candidate retrieval/windowing
+4. AI Pass A visual shortlist
+5. AI Pass B commandable variant proof
+6. optional AI/structured size matcher only for size reasoning
+7. deterministic Pass C business gating and seller arbitration
+8. deterministic blocked-case, override, and review rendering surfaces
+
+The model may judge perceptual ambiguity and structured matching evidence. It must not own final policy, arithmetic, override scope, supplier payload creation, or order execution.
+
+## Target Pipeline
+
+### Stage 0 — Shopify Truth Builder
+
+Owner: deterministic code.
+
+Inputs:
+
+- Shopify order line
+- selected Shopify variant/options
+- Shopify variant image if available
+- Shopify product image fallback
+- product title and relevant visible promises
+- price paid by customer
+- minimum shipping-location abstraction needed for logistics
+
+Rules:
+
+- If `variantPrimaryImage` exists, it is the target image.
+- If not, fallback to product-primary image and record the fallback explicitly.
+- Preserve selected options as secondary proof context.
+- Do not send customer name, email, phone, or unnecessary address data to the model.
+
+Output:
+
+- `shopify_truth`
+- `target_image_ref`
+- `target_image_scope`
+- `target_image_fallback_reason`
+- `selected_options`
+- `visible_promises`
+
+### Stage 1 — Memory Resolver
+
+Owner: deterministic code.
+
+Authority:
+
+- May propose exact merchant overrides and prior validated listing/variant mappings.
+- May accelerate retrieval and review.
+- Must not bypass drift-prone validation.
+
+Required validation before reuse:
+
+- listing still accessible
+- exact supplier variant still orderable
+- shipping still viable for destination abstraction
+- return policy still satisfies merchant setting or override
+- margin still passes
+- account/checkout path still usable enough for prepare-only
+
+If any required validation fails, the system rematches instead of silently reusing memory.
+
+### Stage 2 — Candidate Retrieval And Normalization
+
+Owner: deterministic code.
+
+Retrieval remains image-first:
+
+- query by Shopify target image
+- preserve retrieval rank
+- treat bounded windows as implementation budget, not semantic shortlist cap
+- continue windows while same-product frontier may still be active
+
+Normalization must create finite candidate universes:
+
+- `candidate_id`
+- `listing_id`
+- `variant_key`
+- `sku_id`
+- `image_ref`
+- trusted extracted fields
+- untrusted seller text fields
+
+Seller text, option labels, specs, titles, image overlays, and HTML are evidence data only. They are never instructions.
+
+### Stage 3 — Pass A Visual Shortlist
+
+Owner: AI model for visual judgment, deterministic orchestrator for windowing and validation.
+
+Model task:
+
+- destructive listing-level visual verification
+- keep every candidate in the current window that still plausibly belongs to the same physical product family
+- reject clear different products
+- request continuation only when the same-product frontier is not exhausted
+
+Model must not:
+
+- choose a final winner
+- inspect seller metrics as proof
+- compute business viability
+- approve commandable variant
+
+Stage-local output schema:
+
+```ts
+type PassAResult = {
+  schemaVersion: "pass_a_v1";
+  window: {
+    attemptIndex: number;
+    attemptKind: "initial_window" | "continuation_window" | "retry_same_window";
+    rankStart: number;
+    rankEnd: number;
+    hasMoreCandidatesAfterWindow: boolean;
+  };
+  candidateJudgments: Array<{
+    candidateId: string;
+    listingId: string;
+    verdict: "keep_for_pass_b" | "reject_different_product" | "uncertain_needs_more_evidence";
+    supportEvidenceRefs: string[];
+    rejectEvidenceRefs: string[];
+    reasonCode:
+      | "VIS_SAME"
+      | "VIS_NEAR_MISS"
+      | "VIS_DIFF_PRODUCT"
+      | "VIS_INSUFFICIENT";
+  }>;
+  continuation: {
+    recommended: boolean;
+    reason:
+      | "same_product_frontier_may_continue"
+      | "frontier_exhausted"
+      | "no_candidates"
+      | "window_evidence_insufficient";
+  };
+};
+```
+
+Validation:
+
+- `candidateId` and `listingId` must come from supplied candidates.
+- Unknown IDs fail closed.
+- A Pass A kept candidate is not proven commandable.
+
+### Stage 4 — Pass B Commandable Variant Proof
+
+Owner: AI model for product/variant proof, deterministic orchestrator for complete shortlist scan.
+
+Model task:
+
+- verify same physical product and exact commandable supplier variant
+- use variant images as strongest supplier-side proof when present
+- use option text and size/quantity/bundle facts as supporting or disqualifying evidence
+- explicitly reject listings where only a general listing image matches but no orderable variant matches
+
+Pass B must run over the full Pass A provisional shortlist, chunked only as needed for cost/context.
+
+Model must not:
+
+- choose between multiple valid sellers
+- use seller reputation as identity proof
+- ignore missing accessory/count/material promise/size mismatch
+- approve on closest size unless the size stage explicitly permits that fallback
+
+Stage-local output schema:
+
+```ts
+type PassBResult = {
+  schemaVersion: "pass_b_v1";
+  candidateProofs: Array<{
+    candidateId: string;
+    listingId: string;
+    productVerdict: "proven" | "not_proven" | "ambiguous";
+    commandableVariantVerdict: "proven" | "not_proven" | "ambiguous";
+    survivingVariant:
+      | {
+          variantKey: string;
+          skuId: string | null;
+          selectionsSummary: string;
+          variantImageRefs: string[];
+        }
+      | null;
+    supportEvidenceRefs: string[];
+    counterEvidenceRefs: string[];
+    reasonCodes: Array<
+      | "VAR_ORDERABLE_PROVEN"
+      | "VAR_NO_ORDERABLE"
+      | "VAR_TEXT_AMBIGUOUS"
+      | "VAR_COUNT_MISMATCH"
+      | "VAR_ACCESSORY_MISSING"
+      | "VAR_MATERIAL_PROMISE_MISMATCH"
+      | "VAR_SIZE_NEEDS_SIZE_STAGE"
+    >;
+  }>;
+  passBStatus: "no_commandable_match" | "one_commandable_match" | "multiple_commandable_matches" | "ambiguous";
+};
+```
+
+Validation:
+
+- `survivingVariant.variantKey` must exist in the supplied candidate variant universe.
+- `skuId` must match the supplied variant when available.
+- `productVerdict=proven` alone is insufficient; `commandableVariantVerdict=proven` is required for Pass C eligibility.
+
+### Stage 5 — Size Resolution
+
+Owner: dedicated size matcher plus deterministic validation.
+
+Use only when the Shopify ordered variant or supplier variant makes size relevant.
+
+Rules:
+
+- compare guides if available
+- prefer measurements over labels
+- distinguish confirmed measurement match, logical progression, and fallback
+- block only after full attempt fails
+
+Stage-local output:
+
+```ts
+type SizeResult = {
+  schemaVersion: "size_v1";
+  required: boolean;
+  status: "not_required" | "unique_match" | "ambiguous" | "no_match";
+  chosenSupplierVariantKey: string | null;
+  chosenSupplierSkuId: string | null;
+  basis: "measurements" | "progression" | "fallback" | "not_required" | "insufficient_data";
+  evidenceRefs: string[];
+  reasonCodes: Array<"SIZE_UNIQUE_MATCH" | "SIZE_NO_MATCH" | "SIZE_AMBIGUOUS" | "SIZE_CHART_MISSING">;
+};
+```
+
+### Stage 6 — Pass C Deterministic Business Gate And Seller Arbitration
+
+Owner: deterministic code only.
+
+Input set:
+
+- candidates with Pass B commandable variant proven
+- size result if required
+- business facts
+- merchant policy settings
+- account/orderability facts
+
+Pass C contains two deterministic substeps:
+
+- hard gate: margin, shipping, return policy, account/checkout, destination
+- arbitration: choose best seller among hard-gate survivors
+
+Seller metrics may be used only here.
+
+Ordering rule:
+
+1. exact commandable variant proof
+2. hard business gate
+3. seller/listing arbitration
+4. supplier payload preview
+
+Output:
+
+```ts
+type PassCResult = {
+  schemaVersion: "pass_c_v1";
+  eligibleCandidateIds: string[];
+  rejectedCandidates: Array<{
+    candidateId: string;
+    reasonCodes: Array<
+      | "BIZ_MARGIN_FAIL"
+      | "BIZ_SHIP_UNAVAILABLE"
+      | "BIZ_RETURN_POLICY_FAIL"
+      | "BIZ_DESTINATION_RESTRICTED"
+      | "SELLER_RISK_TOO_HIGH"
+      | "CHECKOUT_NOT_USABLE"
+    >;
+  }>;
+  selectedCandidateId: string | null;
+  selectedVariantKey: string | null;
+  selectedSkuId: string | null;
+  businessOutcome: "pass" | "blocked" | "not_run";
+  blockedStage: "pass_a" | "pass_b" | "size" | "business_gate" | "seller_arbitration" | null;
+  winnerReasons: string[];
+};
+```
+
+### Stage 7 — Canonical Case Trace
+
+Owner: deterministic code.
+
+The canonical trace is assembled by code from stage outputs.
+
+Required shape:
+
+```ts
+type FulfillmentCaseTrace = {
+  schemaVersion: "case_trace_v1";
+  caseId: string;
+  lineJobId: string;
+  taskMode: "replay" | "prepare_only" | "assist" | "auto_order_disabled";
+  runMetadata: {
+    providerRoute: "vertex_ai" | "codex_cli_quota" | "mock";
+    modelId: string;
+    promptVersion: string;
+    schemaVersions: string[];
+    normalizerVersion: string;
+    policyBundleVersion: string;
+    evidenceBundleHash: string;
+    createdAt: string;
+  };
+  shopifyTruth: unknown;
+  retrieval: unknown;
+  stages: {
+    memory: unknown;
+    passA: PassAResult[];
+    passB: PassBResult[];
+    size: SizeResult | null;
+    passC: PassCResult;
+  };
+  evidence: EvidenceRef[];
+  counterEvidence: EvidenceRef[];
+  finalOutcome: {
+    sameProductVerdict: "proven" | "not_proven" | "ambiguous";
+    commandableVariantVerdict: "proven" | "not_proven" | "ambiguous";
+    exactMatch: boolean;
+    businessOutcome: "pass" | "blocked" | "not_run";
+    blockedStage: string | null;
+    reasonCodes: string[];
+    chosenListingId: string | null;
+    chosenVariantKey: string | null;
+    chosenSupplierPayloadRef: string | null;
+  };
+};
+```
+
+Evidence item:
+
+```ts
+type EvidenceRef = {
+  evidenceId: string;
+  sourceType:
+    | "shopify_image"
+    | "shopify_text"
+    | "shopify_variant_option"
+    | "ae_listing_image"
+    | "ae_variant_image"
+    | "ae_variant_option"
+    | "ae_size_chart"
+    | "ae_shipping_offer"
+    | "ae_return_policy"
+    | "merchant_setting"
+    | "override_record";
+  sourceRef: string;
+  candidateId: string | null;
+  variantKey: string | null;
+  claimType: string;
+  polarity: "supports" | "rejects" | "uncertain";
+  weight: "strong" | "moderate" | "weak";
+  noteCode: string;
+};
+```
+
+## Provider And Prompt Architecture
+
+### Provider Policy
+
+Target default:
+
+- Pass A: `gemini-2.5-flash` via Vertex AI when available.
+- Pass B and size-sensitive proof: `gemini-2.5-pro` via Vertex AI.
+- Gemini 3 preview: eval-only later, never production default.
+
+Current test-phase constraint:
+
+- Gemini API is authorized.
+- Paid OpenAI API is forbidden.
+- Codex CLI quota may be used only as a non-paid dev fallback; if quota is unavailable, stop rather than switching to paid OpenAI API.
+
+Required implementation response:
+
+- prevent `OPENAI_API_KEY + https://api.openai.com/v1` from being used by V3 replay/holdout paths
+- keep the OpenAI-compatible transport only as a compatibility adapter for Vertex endpoint
+- rename or wrap `openai-v3-visual-reasoner` so runtime semantics are not confused with paid OpenAI usage
+
+### Prompt Modules
+
+Use separate prompt modules:
+
+- visual judge prompt for Pass A
+- variant proof prompt for Pass B
+- size matcher prompt for size stage
+- optional read-only reviewer summary prompt only after final decision, if deterministic templates are insufficient
+
+Prompt requirements:
+
+- system/developer instructions in English
+- business/source evidence may remain in French where source text is French
+- strict JSON output only
+- evidence refs required for every factual proof/rejection
+- no raw hidden chain-of-thought request
+- final reminder repeats non-negotiables: finite IDs, block on weak proof, no seller metrics before Pass C, no business decisions in AI stage
+
+## Review Renderer Contract
+
+The renderer consumes `FulfillmentCaseTrace`, not model prose.
+
+Primary order:
+
+1. Shopify truth
+2. Pass A visual shortlist
+3. Pass B orderable shortlist
+4. Final arbitration
+5. Final outcome
+6. Debug collapsible
+
+Required renderer behavior:
+
+- top verdict separates visual/product/variant truth from business outcome
+- exact Shopify image used for search is always visible
+- fallback from variant image to product image is explicit
+- Pass A shows candidate image, retrieval rank, kept/rejected, short reason
+- Pass B shows only commandable-variant proof candidates and rejected variant reasons
+- final arbitration appears only when more than one commandable candidate survives
+- debug includes raw facts, timings, retries, costs, prompt/schema/model versions
+- counter-evidence is first-class in blocked/review cases
+
+`gptCurrent` / provider-comparison panels must not imply paid OpenAI use. If retained, they must be renamed to generic `challengerProvider` and remain null unless an explicitly authorized non-paid challenger is configured.
+
+## Merchant Overrides And Blocked Cases
+
+Override scopes:
+
+- line override: exact order line only
+- product-family override: future matches for a durable product fingerprint and merchant scope
+- policy override: merchant-level tolerance change
+
+Override record must contain:
+
+- actor
+- timestamp
+- scope
+- reason code
+- evidence refs
+- expiry or review policy when applicable
+
+Overrides do not auto-train the model, mutate prompts, or bypass unrelated gates.
+
+Blocked cases must say:
+
+- stage where the case stopped
+- candidates inspected
+- why they were rejected
+- whether override is available
+- whether the issue is product, variant, size, business, return policy, shipping, account/checkout, or address
+
+## Evals And Release Gates
+
+Immediate eval scope:
+
+- H01-H06 frozen holdouts
+- current frozen compare/review-pack baseline hashes from roadmap
+- current product-proof benchmark package
+
+Metrics:
+
+- wrong product false positive
+- wrong variant false positive
+- unnecessary block
+- business-gate accuracy
+- seller-arbitration regret
+- review rate
+- cost per line
+- p95 latency
+- schema/semantic validation failures
+
+Gate for prompt/schema/model changes:
+
+- no regression on wrong-product or wrong-variant false positives
+- no business-gate regression
+- review-rate increase accepted only with precision gain
+- cost/latency within declared budget
+- no silent schema/semantic validation failure
+- H01-H06 review renderer remains structurally aligned
+
+## Required Code And Doc Changes
+
+### Docs
+
+Update:
+
+- `PROJECT_BRIEF.md`: Gemini-first provider policy and paid OpenAI prohibition.
+- `ARCHITECTURE.md`: explicit Pass C and stage-local schema doctrine.
+- `V3_IMPLEMENTATION_SPEC.md`: replace single broad visual decision contract with stage-local contracts.
+- `EVAL_V1.md`: add asymmetric Deep Research gates and provider/model metadata.
+- `HOLDOUT_ALIGNMENT_ACCEPTANCE_H01_H06.md`: add evidence/counter-evidence and provider-label requirements if missing.
+
+### Contracts
+
+Modify or add:
+
+- `src/contracts/v3-prototype.ts`: introduce Pass A, Pass B, Size, Pass C, Case Trace schemas.
+- `src/contracts/v3-review-pack.ts`: consume case trace shape and generic provider summaries.
+- validators for finite-universe IDs and semantic consistency.
+
+### Provider Layer
+
+Modify:
+
+- `src/services/google-vertex-v3-visual-reasoner.ts`: support stage-specific model lanes.
+- `src/services/openai-v3-visual-reasoner.ts`: rename/wrap as OpenAI-compatible chat transport, block paid OpenAI endpoint in this project.
+- `src/app/env.ts`: add Pass A / Pass B Gemini model env vars and remove misleading production defaults.
+
+### Engine
+
+Modify:
+
+- `src/services/v3-prototype.ts`: emit stage-local results, assemble case trace, keep Pass C deterministic.
+- deterministic decision engine tests: assert seller metrics only appear after Pass B proof.
+- memory resolver/cached validator tests: assert memory cannot bypass proof/validation.
+
+### Renderer
+
+Modify:
+
+- `src/services/v3-review-pack.ts`: render from trace, add evidence/counter-evidence panels, generic provider labels.
+- H01-H06 review-pack smoke: assert rendering order and required truth fields.
+
+### Evals
+
+Modify/add:
+
+- H01-H06 replay compare to record model lane, prompt version, schema version, evidence hash, cost, latency.
+- add schema/semantic validation failure smokes.
+- add provider-forbidden smoke proving paid OpenAI API path cannot run.
+
+## Implementation Order
+
+1. Align docs.
+2. Add stage-local schemas and validators.
+3. Add provider guard and model-lane config.
+4. Split prompt builders by Pass A / Pass B / size.
+5. Refactor V3 prototype to assemble canonical case trace.
+6. Refactor review pack to consume case trace.
+7. Add/adjust smokes.
+8. Regenerate H01-H06 compare and review pack.
+9. Compare against baseline hashes and acceptance docs.
+
+## Explicit Non-Goals For This Chanter
+
+- no AliExpress Open Platform deep research yet
+- no embedding retrieval implementation yet
+- no Gemini 3 preview promotion
+- no real auto-order enablement
+- no full GDPR/GPSR/AI Act compliance program
+- no hosted Vertex prompt registry dependency before source-controlled prompt versioning works
+- no automatic learning from merchant overrides
+
+## Open Risks
+
+| Risk | Mitigation |
+|---|---|
+| Stage-local schemas increase implementation churn. | Keep v1 schemas shallow and enum-light. |
+| Pass A Flash vs Pass B Pro changes behavior vs current Pro-only H01-H06 baseline. | Add model-lane eval; allow Pro-only validation lane until Flash is benchmarked. |
+| Existing OpenAI-named transport creates billing/confusion risk. | Rename/wrap and hard-block paid OpenAI endpoint. |
+| Renderer becomes too dense. | Keep trace complete in JSON, compact visible UI with debug collapse. |
+| Cost/latency unknown for wider windows. | Record per-stage usage and set budget before widening. |
+
+## Acceptance For This Design
+
+This design is accepted only if:
+
+- second opinion does not identify a blocking contradiction
+- roadmap Step 2 is marked completed
+- source docs are updated to reference this design
+- implementation starts from schemas/evals before prompts are changed
+- no paid OpenAI API path is used during validation
+' --output-format json`
+- Failure classification: `timeout`
+- Failure signature: `Timed out while waiting for command completion.`
+- Repaired path: `gemini -m auto -p '# Second Opinion Review Task
+
+You are reviewing this draft integration design for a Shopify -> AliExpress fulfillment AI agent.
+
+Current engine: Codex. You are an independent reviewer, not the author.
+
+Project context:
+
+- The product is a Shopify app that fulfills paid Shopify order lines from AliExpress.
+- The core product goal is to automate a human AliExpress sourcing methodology.
+- The current chantier is product/variant/blocking validation, not live auto-order.
+- Gemini is the authorized API provider for this test phase. Paid OpenAI API usage is forbidden.
+- AliExpress Open Platform deep research is intentionally deferred until product/variant/blocking validation is solid.
+
+Review task:
+
+1. Check whether the draft correctly integrates the Deep Research findings into the full agent: memory resolver, retrieval, Pass A, Pass B, deterministic Pass C, blocked cases, renderer, merchant overrides, and evals.
+2. Identify any blocking contradiction with the human sourcing methodology.
+3. Identify any over-engineering or premature scope, especially anything that should remain deferred during product/variant/blocking validation.
+4. Check provider policy: Gemini-first, stable model lanes, no paid OpenAI API.
+5. Check if the stage-local JSON schema approach is coherent and implementable in this repo.
+6. Check if the implementation order is safe.
+7. Return concrete required edits before the draft is saved as a repo design doc.
+
+Output:
+
+- Verdict: approve / approve with required edits / reject
+- Blocking issues
+- Required edits
+- Optional improvements
+- Any risks to test first
+
+---
+
+# Deep Research Integration Design
+
+Status: draft for second opinion
+
+Source roadmap: `apps/shopify-aliexpress-fulfillment/docs/plans/2026-04-24-deep-research-integration-roadmap.md`
+
+Source matrix: `apps/shopify-aliexpress-fulfillment/docs/plans/2026-04-24-deep-research-findings-matrix.md`
+
+## Purpose
+
+This document turns the Deep Research findings into the target integration design for the Shopify -> AliExpress fulfillment agent.
+
+It covers the complete agent surface:
+
+- memory resolver
+- candidate retrieval and normalization
+- visual/product proof
+- commandable variant proof
+- size resolution
+- deterministic business decision engine
+- blocked cases
+- merchant overrides
+- review renderer
+- evals and rollout gates
+
+It is not yet a code diff. The next phase will update the canonical docs and then the implementation/tests according to this design.
+
+## Verified Assumptions
+
+All assumptions needed to produce this design are verified.
+
+| Assumption | Status | Source |
+|---|---|---|
+| The canonical business method is human sourcing, not abstract scoring. | verified | `docs/HUMAN_SOURCING_METHODOLOGY.md` sections 0-8 |
+| The canonical shortlist is not fixed top-N; it scans the relevance frontier until drift. | verified | `docs/HUMAN_SOURCING_METHODOLOGY.md` section 8 |
+| Variant image wins over product image when present. | verified | `docs/HUMAN_SOURCING_METHODOLOGY.md` section 8 and `docs/HOLDOUT_ALIGNMENT_ACCEPTANCE_H01_H06.md` |
+| The current V3 prototype already has Pass A / Pass B, a review pack, and Gemini Vertex runner. | verified | `src/contracts/v3-prototype.ts`, `src/services/v3-prototype.ts`, `src/services/google-vertex-v3-visual-reasoner.ts`, `src/contracts/v3-review-pack.ts` |
+| The Deep Research recommendation is cascaded evidence engine + deterministic boundaries. | verified | `/Users/benjaminperry/Downloads/deep-research-report.md`, SHA-256 recorded in roadmap |
+| Paid OpenAI API is forbidden during the current test phase; Gemini API is the authorized API provider. | verified | repo-root `PRODUCT_MEMORY.md` and `docs/PROJECT_BRIEF.md` |
+| AliExpress Open Platform deeper research is intentionally deferred. | verified | repo-root `PRODUCT_MEMORY.md` and roadmap risk register |
+| Current auto-order remains out of scope; current posture is prepare-only / eval. | verified | `docs/PROJECT_BRIEF.md`, `docs/EVAL_V1.md`, `docs/V3_IMPLEMENTATION_SPEC.md` |
+
+No blocking assumption is unverified.
+
+## Core Design Decision
+
+The agent must be modeled as a cascaded evidence engine:
+
+1. deterministic ingestion and normalization
+2. deterministic memory resolution and cached-match validation
+3. deterministic candidate retrieval/windowing
+4. AI Pass A visual shortlist
+5. AI Pass B commandable variant proof
+6. optional AI/structured size matcher only for size reasoning
+7. deterministic Pass C business gating and seller arbitration
+8. deterministic blocked-case, override, and review rendering surfaces
+
+The model may judge perceptual ambiguity and structured matching evidence. It must not own final policy, arithmetic, override scope, supplier payload creation, or order execution.
+
+## Target Pipeline
+
+### Stage 0 — Shopify Truth Builder
+
+Owner: deterministic code.
+
+Inputs:
+
+- Shopify order line
+- selected Shopify variant/options
+- Shopify variant image if available
+- Shopify product image fallback
+- product title and relevant visible promises
+- price paid by customer
+- minimum shipping-location abstraction needed for logistics
+
+Rules:
+
+- If `variantPrimaryImage` exists, it is the target image.
+- If not, fallback to product-primary image and record the fallback explicitly.
+- Preserve selected options as secondary proof context.
+- Do not send customer name, email, phone, or unnecessary address data to the model.
+
+Output:
+
+- `shopify_truth`
+- `target_image_ref`
+- `target_image_scope`
+- `target_image_fallback_reason`
+- `selected_options`
+- `visible_promises`
+
+### Stage 1 — Memory Resolver
+
+Owner: deterministic code.
+
+Authority:
+
+- May propose exact merchant overrides and prior validated listing/variant mappings.
+- May accelerate retrieval and review.
+- Must not bypass drift-prone validation.
+
+Required validation before reuse:
+
+- listing still accessible
+- exact supplier variant still orderable
+- shipping still viable for destination abstraction
+- return policy still satisfies merchant setting or override
+- margin still passes
+- account/checkout path still usable enough for prepare-only
+
+If any required validation fails, the system rematches instead of silently reusing memory.
+
+### Stage 2 — Candidate Retrieval And Normalization
+
+Owner: deterministic code.
+
+Retrieval remains image-first:
+
+- query by Shopify target image
+- preserve retrieval rank
+- treat bounded windows as implementation budget, not semantic shortlist cap
+- continue windows while same-product frontier may still be active
+
+Normalization must create finite candidate universes:
+
+- `candidate_id`
+- `listing_id`
+- `variant_key`
+- `sku_id`
+- `image_ref`
+- trusted extracted fields
+- untrusted seller text fields
+
+Seller text, option labels, specs, titles, image overlays, and HTML are evidence data only. They are never instructions.
+
+### Stage 3 — Pass A Visual Shortlist
+
+Owner: AI model for visual judgment, deterministic orchestrator for windowing and validation.
+
+Model task:
+
+- destructive listing-level visual verification
+- keep every candidate in the current window that still plausibly belongs to the same physical product family
+- reject clear different products
+- request continuation only when the same-product frontier is not exhausted
+
+Model must not:
+
+- choose a final winner
+- inspect seller metrics as proof
+- compute business viability
+- approve commandable variant
+
+Stage-local output schema:
+
+```ts
+type PassAResult = {
+  schemaVersion: "pass_a_v1";
+  window: {
+    attemptIndex: number;
+    attemptKind: "initial_window" | "continuation_window" | "retry_same_window";
+    rankStart: number;
+    rankEnd: number;
+    hasMoreCandidatesAfterWindow: boolean;
+  };
+  candidateJudgments: Array<{
+    candidateId: string;
+    listingId: string;
+    verdict: "keep_for_pass_b" | "reject_different_product" | "uncertain_needs_more_evidence";
+    supportEvidenceRefs: string[];
+    rejectEvidenceRefs: string[];
+    reasonCode:
+      | "VIS_SAME"
+      | "VIS_NEAR_MISS"
+      | "VIS_DIFF_PRODUCT"
+      | "VIS_INSUFFICIENT";
+  }>;
+  continuation: {
+    recommended: boolean;
+    reason:
+      | "same_product_frontier_may_continue"
+      | "frontier_exhausted"
+      | "no_candidates"
+      | "window_evidence_insufficient";
+  };
+};
+```
+
+Validation:
+
+- `candidateId` and `listingId` must come from supplied candidates.
+- Unknown IDs fail closed.
+- A Pass A kept candidate is not proven commandable.
+
+### Stage 4 — Pass B Commandable Variant Proof
+
+Owner: AI model for product/variant proof, deterministic orchestrator for complete shortlist scan.
+
+Model task:
+
+- verify same physical product and exact commandable supplier variant
+- use variant images as strongest supplier-side proof when present
+- use option text and size/quantity/bundle facts as supporting or disqualifying evidence
+- explicitly reject listings where only a general listing image matches but no orderable variant matches
+
+Pass B must run over the full Pass A provisional shortlist, chunked only as needed for cost/context.
+
+Model must not:
+
+- choose between multiple valid sellers
+- use seller reputation as identity proof
+- ignore missing accessory/count/material promise/size mismatch
+- approve on closest size unless the size stage explicitly permits that fallback
+
+Stage-local output schema:
+
+```ts
+type PassBResult = {
+  schemaVersion: "pass_b_v1";
+  candidateProofs: Array<{
+    candidateId: string;
+    listingId: string;
+    productVerdict: "proven" | "not_proven" | "ambiguous";
+    commandableVariantVerdict: "proven" | "not_proven" | "ambiguous";
+    survivingVariant:
+      | {
+          variantKey: string;
+          skuId: string | null;
+          selectionsSummary: string;
+          variantImageRefs: string[];
+        }
+      | null;
+    supportEvidenceRefs: string[];
+    counterEvidenceRefs: string[];
+    reasonCodes: Array<
+      | "VAR_ORDERABLE_PROVEN"
+      | "VAR_NO_ORDERABLE"
+      | "VAR_TEXT_AMBIGUOUS"
+      | "VAR_COUNT_MISMATCH"
+      | "VAR_ACCESSORY_MISSING"
+      | "VAR_MATERIAL_PROMISE_MISMATCH"
+      | "VAR_SIZE_NEEDS_SIZE_STAGE"
+    >;
+  }>;
+  passBStatus: "no_commandable_match" | "one_commandable_match" | "multiple_commandable_matches" | "ambiguous";
+};
+```
+
+Validation:
+
+- `survivingVariant.variantKey` must exist in the supplied candidate variant universe.
+- `skuId` must match the supplied variant when available.
+- `productVerdict=proven` alone is insufficient; `commandableVariantVerdict=proven` is required for Pass C eligibility.
+
+### Stage 5 — Size Resolution
+
+Owner: dedicated size matcher plus deterministic validation.
+
+Use only when the Shopify ordered variant or supplier variant makes size relevant.
+
+Rules:
+
+- compare guides if available
+- prefer measurements over labels
+- distinguish confirmed measurement match, logical progression, and fallback
+- block only after full attempt fails
+
+Stage-local output:
+
+```ts
+type SizeResult = {
+  schemaVersion: "size_v1";
+  required: boolean;
+  status: "not_required" | "unique_match" | "ambiguous" | "no_match";
+  chosenSupplierVariantKey: string | null;
+  chosenSupplierSkuId: string | null;
+  basis: "measurements" | "progression" | "fallback" | "not_required" | "insufficient_data";
+  evidenceRefs: string[];
+  reasonCodes: Array<"SIZE_UNIQUE_MATCH" | "SIZE_NO_MATCH" | "SIZE_AMBIGUOUS" | "SIZE_CHART_MISSING">;
+};
+```
+
+### Stage 6 — Pass C Deterministic Business Gate And Seller Arbitration
+
+Owner: deterministic code only.
+
+Input set:
+
+- candidates with Pass B commandable variant proven
+- size result if required
+- business facts
+- merchant policy settings
+- account/orderability facts
+
+Pass C contains two deterministic substeps:
+
+- hard gate: margin, shipping, return policy, account/checkout, destination
+- arbitration: choose best seller among hard-gate survivors
+
+Seller metrics may be used only here.
+
+Ordering rule:
+
+1. exact commandable variant proof
+2. hard business gate
+3. seller/listing arbitration
+4. supplier payload preview
+
+Output:
+
+```ts
+type PassCResult = {
+  schemaVersion: "pass_c_v1";
+  eligibleCandidateIds: string[];
+  rejectedCandidates: Array<{
+    candidateId: string;
+    reasonCodes: Array<
+      | "BIZ_MARGIN_FAIL"
+      | "BIZ_SHIP_UNAVAILABLE"
+      | "BIZ_RETURN_POLICY_FAIL"
+      | "BIZ_DESTINATION_RESTRICTED"
+      | "SELLER_RISK_TOO_HIGH"
+      | "CHECKOUT_NOT_USABLE"
+    >;
+  }>;
+  selectedCandidateId: string | null;
+  selectedVariantKey: string | null;
+  selectedSkuId: string | null;
+  businessOutcome: "pass" | "blocked" | "not_run";
+  blockedStage: "pass_a" | "pass_b" | "size" | "business_gate" | "seller_arbitration" | null;
+  winnerReasons: string[];
+};
+```
+
+### Stage 7 — Canonical Case Trace
+
+Owner: deterministic code.
+
+The canonical trace is assembled by code from stage outputs.
+
+Required shape:
+
+```ts
+type FulfillmentCaseTrace = {
+  schemaVersion: "case_trace_v1";
+  caseId: string;
+  lineJobId: string;
+  taskMode: "replay" | "prepare_only" | "assist" | "auto_order_disabled";
+  runMetadata: {
+    providerRoute: "vertex_ai" | "codex_cli_quota" | "mock";
+    modelId: string;
+    promptVersion: string;
+    schemaVersions: string[];
+    normalizerVersion: string;
+    policyBundleVersion: string;
+    evidenceBundleHash: string;
+    createdAt: string;
+  };
+  shopifyTruth: unknown;
+  retrieval: unknown;
+  stages: {
+    memory: unknown;
+    passA: PassAResult[];
+    passB: PassBResult[];
+    size: SizeResult | null;
+    passC: PassCResult;
+  };
+  evidence: EvidenceRef[];
+  counterEvidence: EvidenceRef[];
+  finalOutcome: {
+    sameProductVerdict: "proven" | "not_proven" | "ambiguous";
+    commandableVariantVerdict: "proven" | "not_proven" | "ambiguous";
+    exactMatch: boolean;
+    businessOutcome: "pass" | "blocked" | "not_run";
+    blockedStage: string | null;
+    reasonCodes: string[];
+    chosenListingId: string | null;
+    chosenVariantKey: string | null;
+    chosenSupplierPayloadRef: string | null;
+  };
+};
+```
+
+Evidence item:
+
+```ts
+type EvidenceRef = {
+  evidenceId: string;
+  sourceType:
+    | "shopify_image"
+    | "shopify_text"
+    | "shopify_variant_option"
+    | "ae_listing_image"
+    | "ae_variant_image"
+    | "ae_variant_option"
+    | "ae_size_chart"
+    | "ae_shipping_offer"
+    | "ae_return_policy"
+    | "merchant_setting"
+    | "override_record";
+  sourceRef: string;
+  candidateId: string | null;
+  variantKey: string | null;
+  claimType: string;
+  polarity: "supports" | "rejects" | "uncertain";
+  weight: "strong" | "moderate" | "weak";
+  noteCode: string;
+};
+```
+
+## Provider And Prompt Architecture
+
+### Provider Policy
+
+Target default:
+
+- Pass A: `gemini-2.5-flash` via Vertex AI when available.
+- Pass B and size-sensitive proof: `gemini-2.5-pro` via Vertex AI.
+- Gemini 3 preview: eval-only later, never production default.
+
+Current test-phase constraint:
+
+- Gemini API is authorized.
+- Paid OpenAI API is forbidden.
+- Codex CLI quota may be used only as a non-paid dev fallback; if quota is unavailable, stop rather than switching to paid OpenAI API.
+
+Required implementation response:
+
+- prevent `OPENAI_API_KEY + https://api.openai.com/v1` from being used by V3 replay/holdout paths
+- keep the OpenAI-compatible transport only as a compatibility adapter for Vertex endpoint
+- rename or wrap `openai-v3-visual-reasoner` so runtime semantics are not confused with paid OpenAI usage
+
+### Prompt Modules
+
+Use separate prompt modules:
+
+- visual judge prompt for Pass A
+- variant proof prompt for Pass B
+- size matcher prompt for size stage
+- optional read-only reviewer summary prompt only after final decision, if deterministic templates are insufficient
+
+Prompt requirements:
+
+- system/developer instructions in English
+- business/source evidence may remain in French where source text is French
+- strict JSON output only
+- evidence refs required for every factual proof/rejection
+- no raw hidden chain-of-thought request
+- final reminder repeats non-negotiables: finite IDs, block on weak proof, no seller metrics before Pass C, no business decisions in AI stage
+
+## Review Renderer Contract
+
+The renderer consumes `FulfillmentCaseTrace`, not model prose.
+
+Primary order:
+
+1. Shopify truth
+2. Pass A visual shortlist
+3. Pass B orderable shortlist
+4. Final arbitration
+5. Final outcome
+6. Debug collapsible
+
+Required renderer behavior:
+
+- top verdict separates visual/product/variant truth from business outcome
+- exact Shopify image used for search is always visible
+- fallback from variant image to product image is explicit
+- Pass A shows candidate image, retrieval rank, kept/rejected, short reason
+- Pass B shows only commandable-variant proof candidates and rejected variant reasons
+- final arbitration appears only when more than one commandable candidate survives
+- debug includes raw facts, timings, retries, costs, prompt/schema/model versions
+- counter-evidence is first-class in blocked/review cases
+
+`gptCurrent` / provider-comparison panels must not imply paid OpenAI use. If retained, they must be renamed to generic `challengerProvider` and remain null unless an explicitly authorized non-paid challenger is configured.
+
+## Merchant Overrides And Blocked Cases
+
+Override scopes:
+
+- line override: exact order line only
+- product-family override: future matches for a durable product fingerprint and merchant scope
+- policy override: merchant-level tolerance change
+
+Override record must contain:
+
+- actor
+- timestamp
+- scope
+- reason code
+- evidence refs
+- expiry or review policy when applicable
+
+Overrides do not auto-train the model, mutate prompts, or bypass unrelated gates.
+
+Blocked cases must say:
+
+- stage where the case stopped
+- candidates inspected
+- why they were rejected
+- whether override is available
+- whether the issue is product, variant, size, business, return policy, shipping, account/checkout, or address
+
+## Evals And Release Gates
+
+Immediate eval scope:
+
+- H01-H06 frozen holdouts
+- current frozen compare/review-pack baseline hashes from roadmap
+- current product-proof benchmark package
+
+Metrics:
+
+- wrong product false positive
+- wrong variant false positive
+- unnecessary block
+- business-gate accuracy
+- seller-arbitration regret
+- review rate
+- cost per line
+- p95 latency
+- schema/semantic validation failures
+
+Gate for prompt/schema/model changes:
+
+- no regression on wrong-product or wrong-variant false positives
+- no business-gate regression
+- review-rate increase accepted only with precision gain
+- cost/latency within declared budget
+- no silent schema/semantic validation failure
+- H01-H06 review renderer remains structurally aligned
+
+## Required Code And Doc Changes
+
+### Docs
+
+Update:
+
+- `PROJECT_BRIEF.md`: Gemini-first provider policy and paid OpenAI prohibition.
+- `ARCHITECTURE.md`: explicit Pass C and stage-local schema doctrine.
+- `V3_IMPLEMENTATION_SPEC.md`: replace single broad visual decision contract with stage-local contracts.
+- `EVAL_V1.md`: add asymmetric Deep Research gates and provider/model metadata.
+- `HOLDOUT_ALIGNMENT_ACCEPTANCE_H01_H06.md`: add evidence/counter-evidence and provider-label requirements if missing.
+
+### Contracts
+
+Modify or add:
+
+- `src/contracts/v3-prototype.ts`: introduce Pass A, Pass B, Size, Pass C, Case Trace schemas.
+- `src/contracts/v3-review-pack.ts`: consume case trace shape and generic provider summaries.
+- validators for finite-universe IDs and semantic consistency.
+
+### Provider Layer
+
+Modify:
+
+- `src/services/google-vertex-v3-visual-reasoner.ts`: support stage-specific model lanes.
+- `src/services/openai-v3-visual-reasoner.ts`: rename/wrap as OpenAI-compatible chat transport, block paid OpenAI endpoint in this project.
+- `src/app/env.ts`: add Pass A / Pass B Gemini model env vars and remove misleading production defaults.
+
+### Engine
+
+Modify:
+
+- `src/services/v3-prototype.ts`: emit stage-local results, assemble case trace, keep Pass C deterministic.
+- deterministic decision engine tests: assert seller metrics only appear after Pass B proof.
+- memory resolver/cached validator tests: assert memory cannot bypass proof/validation.
+
+### Renderer
+
+Modify:
+
+- `src/services/v3-review-pack.ts`: render from trace, add evidence/counter-evidence panels, generic provider labels.
+- H01-H06 review-pack smoke: assert rendering order and required truth fields.
+
+### Evals
+
+Modify/add:
+
+- H01-H06 replay compare to record model lane, prompt version, schema version, evidence hash, cost, latency.
+- add schema/semantic validation failure smokes.
+- add provider-forbidden smoke proving paid OpenAI API path cannot run.
+
+## Implementation Order
+
+1. Align docs.
+2. Add stage-local schemas and validators.
+3. Add provider guard and model-lane config.
+4. Split prompt builders by Pass A / Pass B / size.
+5. Refactor V3 prototype to assemble canonical case trace.
+6. Refactor review pack to consume case trace.
+7. Add/adjust smokes.
+8. Regenerate H01-H06 compare and review pack.
+9. Compare against baseline hashes and acceptance docs.
+
+## Explicit Non-Goals For This Chanter
+
+- no AliExpress Open Platform deep research yet
+- no embedding retrieval implementation yet
+- no Gemini 3 preview promotion
+- no real auto-order enablement
+- no full GDPR/GPSR/AI Act compliance program
+- no hosted Vertex prompt registry dependency before source-controlled prompt versioning works
+- no automatic learning from merchant overrides
+
+## Open Risks
+
+| Risk | Mitigation |
+|---|---|
+| Stage-local schemas increase implementation churn. | Keep v1 schemas shallow and enum-light. |
+| Pass A Flash vs Pass B Pro changes behavior vs current Pro-only H01-H06 baseline. | Add model-lane eval; allow Pro-only validation lane until Flash is benchmarked. |
+| Existing OpenAI-named transport creates billing/confusion risk. | Rename/wrap and hard-block paid OpenAI endpoint. |
+| Renderer becomes too dense. | Keep trace complete in JSON, compact visible UI with debug collapse. |
+| Cost/latency unknown for wider windows. | Record per-stage usage and set budget before widening. |
+
+## Acceptance For This Design
+
+This design is accepted only if:
+
+- second opinion does not identify a blocking contradiction
+- roadmap Step 2 is marked completed
+- source docs are updated to reference this design
+- implementation starts from schemas/evals before prompts are changed
+- no paid OpenAI API path is used during validation
+' --output-format json`
+- Repair strategy: `gemini-auto`
+- Verified models: `{"gemini-2.5-flash-lite": {"api": {"totalErrors": 0, "totalLatencyMs": 2469, "totalRequests": 1}, "roles": {"utility_router": {"tokens": {"cached": 0, "candidates": 76, "input": 9016, "prompt": 9016, "thoughts": 333, "tool": 0, "total": 9425}, "totalErrors": 0, "totalLatencyMs": 2469, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 76, "input": 9016, "prompt": 9016, "thoughts": 333, "tool": 0, "total": 9425}}, "gemini-3-flash-preview": {"api": {"totalErrors": 0, "totalLatencyMs": 13128, "totalRequests": 1}, "roles": {"main": {"tokens": {"cached": 0, "candidates": 804, "input": 31413, "prompt": 31413, "thoughts": 1079, "tool": 0, "total": 33296}, "totalErrors": 0, "totalLatencyMs": 13128, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 804, "input": 31413, "prompt": 31413, "thoughts": 1079, "tool": 0, "total": 33296}}}`
+- Response preview: `I have reviewed the draft integration design for the Shopify -> AliExpress fulfillment agent.
+
+### Verdict: **Approve wi`
+
+
 ## 2026-04-20T16:36:13+00:00 — gemini
 
 - Current engine: `codex`
