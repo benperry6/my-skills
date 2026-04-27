@@ -354,13 +354,14 @@ else
     warn "Chrome AI-safe session mirror does not appear to sync session artifacts back to the real profile"
 fi
 
-if rg -q 'sync_auth_artifacts_once' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
-   rg -q '"Cookies"' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
-   rg -q '"Local Storage"' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
-   rg -q '"Service Worker"' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh; then
-    ok "Chrome AI-safe mirror syncs auth/storage artifacts back to the real profile"
+if rg -q 'sync_durable_profile_once' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   rg -q 'rsync -a --delete' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   rg -q 'sync_sqlite_files_once' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   rg -q 'SQLite format 3' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   rg -q 'sync_root_durable_artifacts_once' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh; then
+    ok "Chrome AI-safe mirror syncs the full durable active profile with SQLite-safe copies"
 else
-    warn "Chrome AI-safe mirror does not appear to persist auth/storage artifacts"
+    warn "Chrome AI-safe mirror does not appear to sync the full durable active profile safely"
 fi
 
 if rg -q 'ANTIGRAVITY_PROFILE_DIR' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
