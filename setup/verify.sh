@@ -225,10 +225,106 @@ else
     warn "LaunchAgent com.codex.browser-parasite-guard not currently loaded"
 fi
 
+if rg -q -- '--watch' ~/Library/LaunchAgents/com.codex.browser-parasite-guard.plist && \
+   rg -q 'KeepAlive' ~/Library/LaunchAgents/com.codex.browser-parasite-guard.plist && \
+   rg -q -- '--watch' ~/.codex/browser-control/cleanup-browser-parasites.sh; then
+    ok "Browser parasite guard runs in continuous lightweight watch mode"
+else
+    warn "Browser parasite guard is not configured for continuous watch mode"
+fi
+
 if rg -q 'BROWSER_LABEL="Chrome"' ~/.codex/mcp/chrome-devtools-wrapper.sh && rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/chrome-devtools-wrapper.sh; then
     ok "chrome-devtools wrapper uses the explicit-identity local browser MCP server"
 else
     warn "chrome-devtools wrapper does not appear to use the explicit-identity local browser MCP server"
+fi
+
+if [ -x ~/.agents/skills/setup/browser-control/configure-antigravity-browser.sh ]; then
+    ok "Antigravity browser isolation script installed"
+else
+    warn "Antigravity browser isolation script missing"
+fi
+
+antigravity_browser_check="$(python3 - <<'PY' 2>/dev/null
+import base64, sqlite3, sys
+from pathlib import Path
+
+db_path = Path.home() / "Library/Application Support/Antigravity/User/globalStorage/state.vscdb"
+if not db_path.exists():
+    print("missing-db")
+    sys.exit(0)
+
+def read_varint(data, idx):
+    shift = 0
+    value = 0
+    while True:
+        byte = data[idx]
+        idx += 1
+        value |= (byte & 0x7F) << shift
+        if not byte & 0x80:
+            return value, idx
+        shift += 7
+
+def parse_msg(data):
+    fields = {}
+    idx = 0
+    while idx < len(data):
+        tag, idx = read_varint(data, idx)
+        field = tag >> 3
+        wire = tag & 7
+        if wire == 2:
+            length, idx = read_varint(data, idx)
+            fields.setdefault(field, []).append(data[idx:idx + length])
+            idx += length
+        elif wire == 0:
+            value, idx = read_varint(data, idx)
+            fields.setdefault(field, []).append(value)
+        else:
+            raise ValueError(wire)
+    return fields
+
+def setting_value(row_msg):
+    row = parse_msg(row_msg)
+    return base64.b64decode(row[1][0])
+
+with sqlite3.connect(db_path) as db:
+    row = db.execute("select value from ItemTable where key='antigravityUnifiedStateSync.browserPreferences'").fetchone()
+if not row:
+    print("missing-topic")
+    sys.exit(0)
+
+topic = parse_msg(base64.b64decode(row[0]))
+values = {}
+wanted = {
+    "browser_cdp_port_sentinel_key",
+    "browser_user_profile_path_sentinel_key",
+    "browser_chrome_binary_path_sentinel_key",
+}
+for entry_msg in topic.get(1, []):
+    entry = parse_msg(entry_msg)
+    key = entry[1][0].decode()
+    if key in wanted and 2 in entry:
+        values[key] = setting_value(entry[2][0])
+
+def int_field(data):
+    msg = parse_msg(data)
+    return msg.get(1, [0])[0]
+
+def str_field(data):
+    msg = parse_msg(data)
+    return msg.get(1, [b""])[0].decode()
+
+port = int_field(values.get("browser_cdp_port_sentinel_key", b""))
+profile = str_field(values.get("browser_user_profile_path_sentinel_key", b""))
+binary = str_field(values.get("browser_chrome_binary_path_sentinel_key", b""))
+print(f"{port}|{profile}|{binary}")
+PY
+)"
+
+if [ "$antigravity_browser_check" = "9322|$HOME/.gemini/antigravity-browser-profile|/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ]; then
+    ok "Antigravity browser launcher is isolated from Brave/Chrome live sessions"
+else
+    warn "Antigravity browser launcher isolation not verified ($antigravity_browser_check)"
 fi
 
 if rg -q "Sessions/\\*\\*\\*" ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh && \
@@ -258,6 +354,22 @@ else
     warn "Chrome AI-safe session mirror does not appear to sync session artifacts back to the real profile"
 fi
 
+if rg -q 'sync_auth_artifacts_once' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   rg -q '"Cookies"' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   rg -q '"Local Storage"' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   rg -q '"Service Worker"' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh; then
+    ok "Chrome AI-safe mirror syncs auth/storage artifacts back to the real profile"
+else
+    warn "Chrome AI-safe mirror does not appear to persist auth/storage artifacts"
+fi
+
+if rg -q 'ANTIGRAVITY_PROFILE_DIR' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   rg -q -- '--remote-debugging-port=9322' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh; then
+    ok "Chrome AI-safe mirror ignores the isolated Antigravity browser when detecting real Chrome"
+else
+    warn "Chrome AI-safe mirror may confuse isolated Antigravity Chrome with real Chrome"
+fi
+
 if rg -q 'BROWSER_LABEL="Brave"' ~/.codex/mcp/brave-devtools-wrapper.sh && rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/brave-devtools-wrapper.sh; then
     ok "brave-devtools wrapper uses the explicit-identity local browser MCP server"
 else
@@ -275,8 +387,9 @@ fi
 
 if rg -q 'executable-path /Applications/Brave Browser.app/Contents/MacOS/Brave Browser' ~/.codex/browser-control/cleanup-browser-parasites.sh && \
    rg -q 'executable-path /Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ~/.codex/browser-control/cleanup-browser-parasites.sh && \
-   rg -q 'chrome-headless-shell' ~/.codex/browser-control/cleanup-browser-parasites.sh; then
-    ok "Browser parasite guard targets attached-browser Playwright and stale temporary headless browsers"
+   rg -q 'chrome-headless-shell' ~/.codex/browser-control/cleanup-browser-parasites.sh && \
+   rg -q 'is_playwright_launched_real_browser' ~/.codex/browser-control/cleanup-browser-parasites.sh; then
+    ok "Browser parasite guard targets attached-browser Playwright, direct real-browser Playwright children, and stale temporary headless browsers"
 else
     warn "Browser parasite guard does not appear to target the expected parasite browser patterns"
 fi

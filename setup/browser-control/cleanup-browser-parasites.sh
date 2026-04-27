@@ -5,10 +5,18 @@ LOCK_ROOT="$HOME/.codex/browser-locks"
 LOCK_DIR="$LOCK_ROOT/browser-parasite-guard.lock"
 LOG_PATH="$HOME/.codex/browser-control/cleanup.log"
 HEADLESS_TTL_SECONDS="${HEADLESS_TTL_SECONDS:-900}"
+WATCH_INTERVAL_SECONDS="${WATCH_INTERVAL_SECONDS:-2}"
 LOCK_HELD=0
 HANDLED_FILE=""
 
 mkdir -p "$LOCK_ROOT" "$(dirname "$LOG_PATH")"
+
+if [ "${1:-}" = "--watch" ]; then
+  while true; do
+    "$0" --once
+    sleep "$WATCH_INTERVAL_SECONDS"
+  done
+fi
 
 log() {
   printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" >> "$LOG_PATH"
@@ -120,6 +128,20 @@ is_attached_browser_playwright() {
     || "$cmd" == *"--executable-path /Applications/Google Chrome.app/Contents/MacOS/Google Chrome"* ]]
 }
 
+is_playwright_launched_real_browser() {
+  local cmd="$1"
+
+  [[ "$cmd" == "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"* \
+    || "$cmd" == "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"* ]] || return 1
+
+  [[ "$cmd" != *"--user-data-dir=$HOME/.codex/browser-profiles/"* ]] || return 1
+
+  [[ "$cmd" == *"--remote-debugging-pipe"* \
+    || "$cmd" == *"/ms-playwright/"* \
+    || "$cmd" == *"mcp-chrome-for-testing"* \
+    || "$cmd" == *"playwright"* ]]
+}
+
 is_stale_temp_headless() {
   local elapsed_seconds="$1"
   local cmd="$2"
@@ -176,6 +198,15 @@ while IFS= read -r line; do
       log "killing attached-browser Playwright stack pid=$root_pid cmd=$(cmd_for_pid "$root_pid")"
       kill_tree "$root_pid"
       mark_handled "$root_pid"
+    fi
+    continue
+  fi
+
+  if is_playwright_launched_real_browser "$local_cmd"; then
+    if ! is_handled "$local_pid"; then
+      log "killing Playwright-launched real browser pid=$local_pid cmd=$local_cmd"
+      kill_tree "$local_pid"
+      mark_handled "$local_pid"
     fi
     continue
   fi
