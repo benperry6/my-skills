@@ -1,8 +1,8 @@
 ---
 name: experiential-offer-design
-description: "Use when the user wants to sell a product or service as a lived experience rather than a commodity. Also use when they mention experience economy, experiential marketing, unboxing design, onboarding rituals, physical delivery, product differentiation through experience, lifestyle branding, micro-experiences (quizzes, challenges, progress tracking), or funnels that should feel like journeys. Applies to physical products, digital services, and hybrids without relying on retail stores. For final page copy, see copywriting; for email flows, see email-sequence; for pricing mechanics, see pricing-strategy."
+description: "Use when the user wants to sell a product or service as a lived experience rather than a commodity, or needs to classify an offer across consumption types before designing the offer. Also use when they mention experience economy, experiential vs material purchases, goods vs services, unboxing design, onboarding rituals, physical delivery, lifestyle branding, micro-experiences, or funnels that should feel like journeys. Applies to physical products, digital services, services, and hybrids without relying on retail stores. For final page copy, see copywriting; for email flows, see email-sequence; for pricing mechanics, see pricing-strategy."
 metadata:
-  version: 1.2.0
+  version: 1.3.0
 ---
 
 # Experiential Offer Design (Digital + Product + Delivery)
@@ -15,6 +15,7 @@ You do NOT rely on physical stores as a lever. You can propose offline experienc
 - If the user asks for evidence, propose a proof plan (pilot, reviews, interviews, instrumentation).
 - Use concrete language. Make outputs copy-pastable.
 - Always segment: constrained vs mainstream vs affluent (even if briefly).
+- Do not force every offer into the same "experience" shape. First classify the consumption type, then choose the right experiential layer for that category.
 
 ## Before Starting
 1. Check for product marketing context first:
@@ -29,12 +30,13 @@ You do NOT rely on physical stores as a lever. You can propose offline experienc
 
 ## What this skill produces
 Pick the deliverables that match the request:
-1) **Experience Blueprint** (before / during / after)
-2) **Product + Delivery Experientialization Plan** (unboxing, onboarding, rituals, inserts)
-3) **Digital Assets** (landing structure + copy, emails, scripts, UGC prompts, visuals prompts)
-4) **Packaging and Pricing Tiers** (entry / core / premium with clear inclusions)
-5) **Proof Plan** (what to verify, how to measure, what to collect)
-6) **Bonus Offline Concepts** (2 to 3 plug-and-play experiences, no store dependency)
+1) **Consumption Classification** (what kind of purchase/offer this is)
+2) **Experience Blueprint** (before / during / after)
+3) **Product + Delivery Experientialization Plan** (unboxing, onboarding, rituals, inserts)
+4) **Digital Assets** (landing structure + copy, emails, scripts, UGC prompts, visuals prompts)
+5) **Packaging and Pricing Tiers** (entry / core / premium with clear inclusions)
+6) **Proof Plan** (what to verify, how to measure, what to collect)
+7) **Bonus Offline Concepts** (2 to 3 plug-and-play experiences, no store dependency)
 
 ## Intake (ask only what's missing)
 A) Offer
@@ -55,9 +57,23 @@ C) Usage reality
 D) Constraints
 - What can NOT change? (packaging budget, shipping, manufacturing, compliance)
 
-## The 4-step pipeline (always follow)
+## The 5-step pipeline (always follow)
 
-### Step 1: Experience Diagnosis
+### Step 1: Consumption Classification
+Classify the offer before designing the experience:
+- Purchase intent: experiential / material / hybrid
+- Delivery form: good / service / digital product / hybrid
+- Durability and use: durable / semi-durable / non-durable / consumable / one-off / recurring
+- Evaluation mode: search / experience / credence
+- Experiential potential: ritual, identity, social, sensory, progression, living product
+
+Important terminology guardrail:
+- "Experiential purchase" means the buyer mainly pays to live an event or series of events.
+- "Experience good" means quality is judged mainly after purchase. It is a different taxonomy.
+
+Use [references/consumption-taxonomy.md](references/consumption-taxonomy.md) when the offer type is unclear or when the user's request depends on the distinction between material, experiential, service, durable, consumable, search, experience, or credence categories.
+
+### Step 2: Experience Diagnosis
 Output a short "experience profile":
 - Moment of life targeted (when, where)
 - Transformation (before -> after)
@@ -65,7 +81,7 @@ Output a short "experience profile":
 - Social job (belonging/status/connection) or control job (reassurance/predictability)
 - Main constraints (budget, time, risk)
 
-### Step 2: Design Product + Delivery (no store)
+### Step 3: Design Product + Delivery (no store)
 Design by touchpoints:
 1) **Unboxing ritual** (first 60 seconds)
 2) **First-use onboarding** (first 1 to 3 sessions)
@@ -76,7 +92,7 @@ Design by touchpoints:
 Use the Product Experientialization Checklist (below) to generate ideas.
 For product-specific inspiration, load [references/pattern-library.md](references/pattern-library.md) when the user asks for examples, concrete mechanics, or help adapting a physical/hybrid product.
 
-### Step 3: Generate digital assets aligned with the experience
+### Step 4: Generate digital assets aligned with the experience
 Choose what's relevant:
 - Landing page as a journey (problem scene -> turning point -> new life -> proof -> ritual -> CTA)
 - Micro-experiences: quiz/diagnostic, simulator, configurator, challenge, checklist
@@ -85,7 +101,7 @@ Choose what's relevant:
 - UGC prompts: "tell the story", not "review the product"
 - Visual prompts: scenes of use, before/after, rituals
 
-### Step 4: Bonus offline (optional, no store)
+### Step 5: Bonus offline (optional, no store)
 Propose 2 to 3 concepts:
 - Home-friendly (invite a friend, "challenge kit", shared ritual)
 - Third places (coworking, cafes, gyms, clubs)
@@ -147,21 +163,29 @@ Always answer these as concrete design moves:
 - Assumptions:
 - Missing evidence:
 
-### 1) Experience Profile
+### 1) Consumption Classification
+- Purchase intent:
+- Delivery form:
+- Durability/use:
+- Evaluation mode:
+- Experiential potential:
+- Design implication:
+
+### 2) Experience Profile
 - Moment:
 - Transformation:
 - Emotions:
 - Social/control job:
 - Constraints:
 
-### 2) Product + Delivery Plan (touchpoints)
+### 3) Product + Delivery Plan (touchpoints)
 - Unboxing (60s):
 - First use (1 to 3 sessions):
 - Recurring ritual (daily/weekly):
 - Physical inserts:
 - Optional living product:
 
-### 3) Digital Assets
+### 4) Digital Assets
 - Landing (sections + copy bullets):
 - Micro-experience concept (quiz/simulator/challenge):
 - Post-purchase onboarding sequence (subjects + bullets):
@@ -169,23 +193,24 @@ Always answer these as concrete design moves:
 - UGC prompts:
 - Visual directions:
 
-### 4) Packaging and Pricing (3 tiers)
+### 5) Packaging and Pricing (3 tiers)
 - Entry: price, inclusions
 - Core: price, inclusions
 - Premium: price, inclusions
 
-### 5) Proof Plan
+### 6) Proof Plan
 - What we can prove now:
 - What needs a pilot:
 - What to measure:
 - What to collect:
 
-### 6) Bonus offline (optional)
+### 7) Bonus offline (optional)
 - Concept 1: goal, 3 to 5 steps, invite copy, follow-up copy
 - Concept 2: ...
 - Concept 3: ...
 
 ## References
+For the consumption-type diagnostic, see [references/consumption-taxonomy.md](references/consumption-taxonomy.md).
 For pattern inspiration and concrete mechanics, see [references/pattern-library.md](references/pattern-library.md).
 For detailed worksheets and fill-in templates, see [references/worksheets.md](references/worksheets.md).
 

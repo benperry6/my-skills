@@ -58,6 +58,34 @@
         "Includes ROI and predictability messaging"
       ],
       "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "What's the difference between experiential purchases, material purchases, goods vs services, and experience goods? I need to classify our offer before redesigning it.",
+      "expected_output": "Should distinguish experiential purchases from material purchases, goods/services as delivery forms, durability/use patterns, and search/experience/credence goods as quality-evaluation taxonomy. Should explicitly warn that 'experience good' is not the same thing as 'experiential purchase'. Should connect the classification to design implications for the offer.",
+      "assertions": [
+        "Distinguishes experiential purchases from material purchases",
+        "Distinguishes goods/services from purchase intent",
+        "Explains durability/use patterns",
+        "Explains search/experience/credence goods",
+        "Warns that experience good is not experiential purchase",
+        "Connects classification to design implications"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "We sell a wearable accessory. People buy it to wear and express identity, not to attend an event. How should the experiential layer differ from a true experience product?",
+      "expected_output": "Should classify the offer as a material, likely semi-durable good with identity/self-expression and social visibility levers. Should not treat it like a one-off experiential purchase. Should recommend fit confidence, first-wear ritual, styling guidance, care ritual, UGC/story prompts, and potentially community or drops. Should include proof and assumptions.",
+      "assertions": [
+        "Classifies as material/semi-durable rather than experiential purchase",
+        "Uses identity and social visibility levers",
+        "Does not design it like a one-off event",
+        "Suggests first-wear or styling ritual",
+        "Suggests care or ownership ritual",
+        "Includes proof and assumptions"
+      ],
+      "files": []
     }
   ]
 }

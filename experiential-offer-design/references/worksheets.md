@@ -16,6 +16,12 @@ Missing evidence:
 -
 
 ## 1) Experience Profile
+Purchase intent (experiential / material / hybrid):
+Delivery form (good / service / digital product / hybrid):
+Durability/use (durable / semi-durable / non-durable / consumable / one-off / recurring):
+Evaluation mode (search / experience / credence):
+Physical mode (worn / displayed / stored / consumed / used privately / used socially):
+Main design implication from taxonomy:
 Moment of life:
 Before state:
 After state:
