@@ -1,6 +1,8 @@
 ---
 name: experiential-offer-design
-description: "Use when the user wants to sell a product or service as an experience rather than a commodity. Also use when the user mentions: experience economy, experiential marketing, unboxing design, onboarding rituals, product differentiation through experience, lifestyle branding, micro-experiences (quizzes, challenges, progress tracking), or needs to design funnels that feel like journeys. Applies to physical products, digital services, and hybrids."
+description: "Use when the user wants to sell a product or service as a lived experience rather than a commodity. Also use when they mention experience economy, experiential marketing, unboxing design, onboarding rituals, physical delivery, product differentiation through experience, lifestyle branding, micro-experiences (quizzes, challenges, progress tracking), or funnels that should feel like journeys. Applies to physical products, digital services, and hybrids without relying on retail stores. For final page copy, see copywriting; for email flows, see email-sequence; for pricing mechanics, see pricing-strategy."
+metadata:
+  version: 1.2.0
 ---
 
 # Experiential Offer Design (Digital + Product + Delivery)
@@ -13,6 +15,17 @@ You do NOT rely on physical stores as a lever. You can propose offline experienc
 - If the user asks for evidence, propose a proof plan (pilot, reviews, interviews, instrumentation).
 - Use concrete language. Make outputs copy-pastable.
 - Always segment: constrained vs mainstream vs affluent (even if briefly).
+
+## Before Starting
+1. Check for product marketing context first:
+   - If `.agents/product-marketing-context.md` exists, read it before asking questions.
+   - If only `.claude/product-marketing-context.md` exists, use it as fallback.
+2. Treat user-provided research as task input:
+   - Use it to inform the framework.
+   - Do not repeat statistics or case details as facts unless the user supplied them or you have verified them.
+3. Ask only for missing blockers:
+   - If target segment, offer, usage context, or constraints are missing and the output would be generic, ask first.
+   - If proceeding with partial information, label assumptions explicitly.
 
 ## What this skill produces
 Pick the deliverables that match the request:
@@ -61,6 +74,7 @@ Design by touchpoints:
 5) **Optional "living product"** (updates, new modules, content drops, accessories)
 
 Use the Product Experientialization Checklist (below) to generate ideas.
+For product-specific inspiration, load [references/pattern-library.md](references/pattern-library.md) when the user asks for examples, concrete mechanics, or help adapting a physical/hybrid product.
 
 ### Step 3: Generate digital assets aligned with the experience
 Choose what's relevant:
@@ -128,6 +142,11 @@ Always answer these as concrete design moves:
 
 ## Output format (use this exact structure)
 
+### 0) Assumptions and Evidence
+- Verified inputs:
+- Assumptions:
+- Missing evidence:
+
 ### 1) Experience Profile
 - Moment:
 - Transformation:
@@ -166,14 +185,16 @@ Always answer these as concrete design moves:
 - Concept 2: ...
 - Concept 3: ...
 
-## Examples (pattern inspiration, do not claim results)
-Use these as pattern references only:
-- Product invites action and storytelling (action camera pattern)
-- Product is a stage for content + progression (connected fitness pattern)
-- Product is a structured ritual with chapters and "aha moments" (build kits pattern)
-- Unboxing and micro-gestures as experience (premium device pattern)
-- Daily ritual choice + accessories to stage the scene (capsule ritual pattern)
-- Product evolves over time + "delight" features (living product pattern)
-
 ## References
+For pattern inspiration and concrete mechanics, see [references/pattern-library.md](references/pattern-library.md).
 For detailed worksheets and fill-in templates, see [references/worksheets.md](references/worksheets.md).
+
+## Related Skills
+- `product-marketing-context` for foundational positioning and audience context.
+- `copywriting` for landing pages and offer copy.
+- `email-sequence` for lifecycle and post-purchase onboarding emails.
+- `page-cro` for conversion-focused page review.
+- `pricing-strategy` for tiering, value metrics, and monetization.
+- `marketing-psychology` for behavioral mechanisms and ethical persuasion.
+- `customer-research` for interview plans and voice-of-customer proof.
+- `launch-strategy` for turning the experience into a campaign.

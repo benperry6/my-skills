@@ -2,13 +2,27 @@
 
 These are templates. Use them when you want stable "fill-in" sheets.
 
-## 1) Experience Profile (fill-in)
+## 0) Assumptions and Evidence
+Verified inputs:
+- Offer:
+- Segment:
+- Usage context:
+- Constraints:
+
+Assumptions:
+-
+
+Missing evidence:
+-
+
+## 1) Experience Profile
 Moment of life:
 Before state:
 After state:
 Top 3 emotions:
 Social job (belonging/status/connection) OR Control job (reassurance/predictability):
 Main constraints (budget/time/risk):
+Experience archetype (behavior catalyst / product as stage / sequenced ritual / premium micro-gesture / ritualized choice / living product / community passport):
 
 ## 2) Touchpoint Map (no store)
 Unboxing (first 60s):
@@ -65,7 +79,7 @@ UGC prompts:
 2)
 3)
 
-## 4) Segment packaging
+## 4) Segment Packaging
 Constrained:
 - Entry offer:
 - Risk reducers:
@@ -81,8 +95,21 @@ Affluent:
 - Personalization:
 - Real exclusivity mechanism:
 
-## 5) Proof plan
+## 5) Proof Plan
 What can be verified now:
 What needs a pilot:
 Metrics:
 Assets to collect (photos, videos, testimonials):
+
+## 6) Implementation Sprint
+Week 1 assets:
+-
+
+Week 2 assets:
+-
+
+Minimum viable experiment:
+-
+
+Decision threshold:
+-

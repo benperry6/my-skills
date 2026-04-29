@@ -1,0 +1,63 @@
+{
+  "skill_name": "experiential-offer-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We sell a $35 physical journal for freelancers. Help me make it feel less like a notebook and more like an experience from landing page to unboxing to first week of use.",
+      "expected_output": "Should check for product-marketing-context first. Should produce an experience profile, product + delivery plan, digital assets, packaging/pricing ideas, and proof plan. Should include assumptions and missing evidence. Should focus on unboxing, first-use onboarding, recurring ritual, physical inserts, and a post-purchase email sequence. Should not rely on retail store ideas.",
+      "assertions": [
+        "Checks for product-marketing-context",
+        "Includes assumptions and missing evidence",
+        "Creates an experience profile",
+        "Designs unboxing and first-use onboarding",
+        "Defines a recurring ritual",
+        "Includes physical inserts",
+        "Generates digital assets aligned with the experience",
+        "Includes a proof plan",
+        "Does not rely on a physical store"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our product is a commodity kitchen accessory. How can we experientialize the product itself, not just run events around it?",
+      "expected_output": "Should trigger on experientialize/product differentiation language. Should load or apply product pattern inspiration: behavior catalyst, ritualized choice, premium micro-gesture, sequenced ritual, living product, and risk-control layer as relevant. Should produce concrete product design moves, not vague marketing advice. Should separate verified inputs from assumptions.",
+      "assertions": [
+        "Triggers on experientialize language",
+        "Focuses on product and delivery mechanics",
+        "Uses concrete pattern inspiration",
+        "Provides specific design moves",
+        "Separates verified inputs from assumptions",
+        "Avoids vague marketing advice"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We want our sales funnel to feel like a journey. We sell a digital course and need landing page sections, a quiz idea, and onboarding emails.",
+      "expected_output": "Should apply the digital experience layer. Should structure the landing page as problem scene, turning point, new life, proof, ritual, and CTA. Should propose a micro-experience such as a quiz or diagnostic. Should include post-purchase onboarding emails for day 0, day 3, day 7, and day 30. Should cross-reference copywriting or email-sequence if the user needs final copy.",
+      "assertions": [
+        "Applies digital experience layer",
+        "Structures landing page as a journey",
+        "Proposes a quiz or diagnostic",
+        "Includes day 0/day 3/day 7/day 30 onboarding",
+        "Cross-references copywriting or email-sequence for final copy"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Our audience is budget-constrained. We still want an experience-led offer, but we don't want it to feel risky or frivolous.",
+      "expected_output": "Should apply constrained buyer rules. Should prioritize control, transparency, modularity, tangible lasting value, clear outcomes, risk reducers, and proof requirements. Should avoid overusing scarcity or luxury framing. Should include specific messaging guidance around ROI and predictability.",
+      "assertions": [
+        "Applies constrained buyer rules",
+        "Prioritizes control and transparency",
+        "Suggests modular entry points",
+        "Adds tangible lasting value",
+        "Avoids inappropriate scarcity or luxury framing",
+        "Includes ROI and predictability messaging"
+      ],
+      "files": []
+    }
+  ]
+}
