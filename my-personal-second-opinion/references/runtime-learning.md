@@ -2,6 +2,83 @@
 
 Auto-managed by `scripts/second_opinion_runner.py`.
 
+## 2026-04-29T15:21:00+00:00 — gemini
+
+- Current engine: `codex`
+- Working directory: `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/ShopifyMCP_Codex/apps/shopify-aliexpress-fulfillment`
+- Failed path: `gemini -m pro -p 'Context:
+We are in a Shopify -> AliExpress fulfillment agent. The agent compares the exact Shopify item sold with AliExpress candidates. The user explicitly rejected product-specific prompt hardcoding. The visual matching logic must stay universal, compact, and human-methodology aligned.
+
+Observed bug:
+On holdout H01, two AliExpress listings visually differ from the Shopify target, but Gemini still labels them "visual match" and rejects only as `variant_missing`. Even after adding a generic `visual_identity_audit` Pass B retry, Gemini kept the wrong `variant_missing` reason. The overall final block is safe (`variant_gate`, no chosen SKU), but the trace reason is wrong, which matters because the user reviews the renderer.
+
+Constraints:
+- No paid OpenAI API. Gemini/Vertex only.
+- Do not add product-specific rules like "gigoteuse/sleep sack rounded bottom".
+- Renderer must remain 1:1 with artifact.
+- Seller/business/size evidence must not promote visually unproven candidates.
+- Prompts should remain compact and universal per Deep Research guidance.
+- H01 should become an eval/fixture, not prompt hardcoding.
+
+Proposed plan:
+1. Remove the failed `visual_identity_audit` extra model call if it does not improve behavior reliably, or keep only if second opinion sees value after schema changes.
+2. Change Pass B output contract from a single free-form rejection reason into a compact structured physical-identity proof for every `variant_missing` candidate.
+3. Add universal fields such as:
+   - `physicalIdentityVerdict`: `same_physical_product | visual_near_miss | different_product | insufficient_evidence`
+   - `physicalIdentityChecks`: small enum list for `overall_shape`, `proportions`, `construction`, `openings_or_closures`, `visible_parts_or_accessories`, `motif_or_color`, `count_or_bundle`
+   - each check has `same | different | uncertain`
+4. Deterministic validator rule:
+   - A candidate may be rejected as `variant_missing` only if `physicalIdentityVerdict === same_physical_product` and no critical check is `different`.
+   - If any critical physical check is `different`, normalize final reason to `visual_near_miss` or `different_product`.
+   - If checks are uncertain, normalize to `insufficient_visual_evidence` or review, not `variant_missing`.
+5. Add H01 as a negative regression fixture: the two known bad listings must not appear as `variant_missing` in final Pass B trace.
+6. Renderer displays the structured physical checks in collapsible debug; the visible reason remains the normalized artifact reason.
+
+Question for second opinion:
+Is this the right non-hardcoded direction? If not, what is the better minimal architecture change to stop false `variant_missing` visual approvals while keeping prompts universal and compact?
+' --output-format json`
+- Failure classification: `unknown`
+- Failure signature: `Skill "skill-creator" from "/Users/benjaminperry/.agents/skills/skill-creator/SKILL.md" is overriding the built-in skill.`
+- Repaired path: `gemini -m auto -p 'Context:
+We are in a Shopify -> AliExpress fulfillment agent. The agent compares the exact Shopify item sold with AliExpress candidates. The user explicitly rejected product-specific prompt hardcoding. The visual matching logic must stay universal, compact, and human-methodology aligned.
+
+Observed bug:
+On holdout H01, two AliExpress listings visually differ from the Shopify target, but Gemini still labels them "visual match" and rejects only as `variant_missing`. Even after adding a generic `visual_identity_audit` Pass B retry, Gemini kept the wrong `variant_missing` reason. The overall final block is safe (`variant_gate`, no chosen SKU), but the trace reason is wrong, which matters because the user reviews the renderer.
+
+Constraints:
+- No paid OpenAI API. Gemini/Vertex only.
+- Do not add product-specific rules like "gigoteuse/sleep sack rounded bottom".
+- Renderer must remain 1:1 with artifact.
+- Seller/business/size evidence must not promote visually unproven candidates.
+- Prompts should remain compact and universal per Deep Research guidance.
+- H01 should become an eval/fixture, not prompt hardcoding.
+
+Proposed plan:
+1. Remove the failed `visual_identity_audit` extra model call if it does not improve behavior reliably, or keep only if second opinion sees value after schema changes.
+2. Change Pass B output contract from a single free-form rejection reason into a compact structured physical-identity proof for every `variant_missing` candidate.
+3. Add universal fields such as:
+   - `physicalIdentityVerdict`: `same_physical_product | visual_near_miss | different_product | insufficient_evidence`
+   - `physicalIdentityChecks`: small enum list for `overall_shape`, `proportions`, `construction`, `openings_or_closures`, `visible_parts_or_accessories`, `motif_or_color`, `count_or_bundle`
+   - each check has `same | different | uncertain`
+4. Deterministic validator rule:
+   - A candidate may be rejected as `variant_missing` only if `physicalIdentityVerdict === same_physical_product` and no critical check is `different`.
+   - If any critical physical check is `different`, normalize final reason to `visual_near_miss` or `different_product`.
+   - If checks are uncertain, normalize to `insufficient_visual_evidence` or review, not `variant_missing`.
+5. Add H01 as a negative regression fixture: the two known bad listings must not appear as `variant_missing` in final Pass B trace.
+6. Renderer displays the structured physical checks in collapsible debug; the visible reason remains the normalized artifact reason.
+
+Question for second opinion:
+Is this the right non-hardcoded direction? If not, what is the better minimal architecture change to stop false `variant_missing` visual approvals while keeping prompts universal and compact?
+' --output-format json`
+- Repair strategy: `gemini-auto`
+- Verified models: `{"gemini-2.5-flash-lite": {"api": {"totalErrors": 0, "totalLatencyMs": 2101, "totalRequests": 1}, "roles": {"utility_router": {"tokens": {"cached": 0, "candidates": 83, "input": 5266, "prompt": 5266, "thoughts": 380, "tool": 0, "total": 5729}, "totalErrors": 0, "totalLatencyMs": 2101, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 83, "input": 5266, "prompt": 5266, "thoughts": 380, "tool": 0, "total": 5729}}, "gemini-3-flash-preview": {"api": {"totalErrors": 0, "totalLatencyMs": 73215, "totalRequests": 5}, "roles": {"main": {"tokens": {"cached": 88917, "candidates": 1075, "input": 95350, "prompt": 184267, "thoughts": 1422, "tool": 0, "total": 186764}, "totalErrors": 0, "totalLatencyMs": 73215, "totalRequests": 5}}, "tokens": {"cached": 88917, "candidates": 1075, "input": 95350, "prompt": 184267, "thoughts": 1422, "tool": 0, "total": 186764}}}`
+- Response preview: `I will now provide the second opinion as requested.
+
+### Second Opinion: Structured Physical Identity Proof
+
+The propose`
+
+
 ## 2026-04-24T09:39:35+00:00 — gemini
 
 - Current engine: `codex`
