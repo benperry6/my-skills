@@ -70,7 +70,8 @@ The shared skills repo is itself a versioned repo and should also follow the loc
 
 ### Prerequisites
 
-- macOS (uses Keychain for secrets, AppleScript for browser automation)
+- macOS or Linux (1Password for secrets via `op` CLI ; AppleScript on macOS for browser automation)
+- 1Password CLI (`op`) installed and authenticated (`op signin` or Touch ID)
 - Python 3.11+ (for MCP sync script — ships with Xcode Command Line Tools)
 - Node.js 18+
 - Claude Code CLI installed (`npm install -g @anthropic-ai/claude-code`)
@@ -162,17 +163,16 @@ python3 ~/.agents/skills/setup/sync-skills.py
 
 ### Step 4 — Set up MCP wrapper scripts
 
-MCP servers need API keys. Instead of hardcoding them, we use macOS Keychain + wrapper scripts.
+MCP servers need API keys. Instead of hardcoding them, we use 1Password (vault `Employee`) + wrapper scripts.
 
-**Add API keys to Keychain:**
+**Add API keys to 1Password:**
 
 ```bash
-security add-generic-password -a "$USER" -s HALOSCAN_API_KEY -w "your-key"
-security add-generic-password -a "$USER" -s FIRECRAWL_API_KEY -w "your-key"
-security add-generic-password -a "$USER" -s PAGESPEED_API_KEY -w "your-key"
-security add-generic-password -a "$USER" -s DATAFORSEO_USERNAME -w "your-username"
-security add-generic-password -a "$USER" -s DATAFORSEO_PASSWORD -w "your-password"
-security add-generic-password -a "$USER" -s GEMINI_DESIGN_API_KEY -w "your-key"
+op item create --category "API Credential" --title "Haloscan"      --vault Employee api_key[concealed]="your-key"
+op item create --category "API Credential" --title "Firecrawl"     --vault Employee api_key[concealed]="your-key"
+op item create --category "API Credential" --title "PageSpeed"     --vault Employee api_key[concealed]="your-key"
+op item create --category "API Credential" --title "DataForSEO"    --vault Employee username[text]="your-login" api_password[concealed]="your-password"
+op item create --category "API Credential" --title "Gemini Design" --vault Employee api_key[concealed]="your-key"
 ```
 
 **Create wrapper scripts in `~/.codex/mcp/`:**
@@ -182,16 +182,14 @@ Each wrapper follows this pattern:
 ```bash
 #!/bin/bash
 set -eo pipefail
-KEY=$(security find-generic-password -a "${USER:-$(whoami)}" -s KEY_NAME -w 2>/dev/null || true)
+KEY=$(op read "op://Employee/ItemTitle/api_key" 2>/dev/null || true)
 if [ -z "${KEY:-}" ]; then
-  echo "KEY_NAME not found in Keychain." >&2
+  echo "ItemTitle api_key introuvable dans 1Password (vault Employee). Vérifie que 'op' est signé." >&2
   exit 1
 fi
 export ENV_VAR_NAME="$KEY"
 exec npx -y package-name "$@"
 ```
-
-Avoid `set -u` in shared wrappers. Some tools launch MCP processes with a minimal environment, and `$USER` is not always populated.
 
 Then `chmod +x ~/.codex/mcp/*.sh`.
 
@@ -204,7 +202,7 @@ Then `chmod +x ~/.codex/mcp/*.sh`.
 | Codex | `~/.codex/config.toml` → `[mcp_servers.xxx]` | TOML: `command = "/path/to/wrapper.sh"` |
 | Gemini | `~/.gemini/settings.json` → `mcpServers` | JSON |
 
-**Why wrapper scripts?** API keys stay in the Keychain (not in config files that could leak). The same wrapper is referenced by all tools — change the wrapper once, all tools pick it up.
+**Why wrapper scripts?** API keys stay in 1Password (not in config files that could leak). The same wrapper is referenced by all tools — change the wrapper once, all tools pick it up. Cross-platform: works on macOS and Linux as long as `op` is installed and signed in.
 
 **Don't register servers manually.** Use the sync script instead (Step 4b below).
 
@@ -468,7 +466,7 @@ Connected boutiques:
 | Gemini settings (non-MCP) | `~/.gemini/settings.json` | Copy file (hooks, security) |
 | MCP wrappers | `~/.codex/mcp/*.sh` | Copy directory |
 | Browser CDP clients | `~/.codex/brave-cdp-client/`, `~/.codex/chrome-cdp-client/` | Copy directories |
-| API keys | macOS Keychain | Re-enter or export/import |
+| API keys | 1Password (vault `Employee`) | Already cloud-synced — just `op signin` on the new machine |
 | Gmail tokens | `.gmail_tokens.json` per repo | Copy file |
 | Shopify tokens | `.shopify_tokens.json` per repo | Copy file |
 | Project repos | Google Drive | Automatic sync |
@@ -522,7 +520,7 @@ These skills are opinionated (specific frameworks, personas, conventions) and so
 We evaluated these community tools (April 2026). None fits our setup:
 
 - **`@agents-dev/cli`**: project-scoped (not global), no Claude Desktop/Cowork support, full-overwrites Codex config, solo maintainer at v0.8.
-- **`vsync`**: picks one tool as source of truth and syncs to others — doesn't support a separate master file or Keychain-based wrapper scripts.
+- **`vsync`**: picks one tool as source of truth and syncs to others — doesn't support a separate master file or 1Password-based wrapper scripts.
 - **`mcpx-cli`**: similar limitations, and authored by the same person driving the (still-open) RFC for a standard config format.
 
 All three add an npm dependency that could break or be abandoned. Our sync script is ~150 lines of stdlib Python, reads a JSON master file, and writes each tool's native format. If a tool changes its config format, one function in the script is updated — no upstream dependency to wait on.

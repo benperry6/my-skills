@@ -2,14 +2,14 @@
 set -eo pipefail
 
 TARGET_PATH="${1:-$HOME/.config/gcloud/paid-media-vendor-m2m-api-access-oauth-client.json}"
-KEYCHAIN_ITEM="${GOOGLE_TRACKING_OAUTH_KEYCHAIN_ITEM:-Google Paid Media Vendor M2M API Access OAuth Client JSON}"
+OP_REF="${GOOGLE_TRACKING_OAUTH_OP_REF:-op://Employee/Google Paid Media Vendor M2M OAuth Client/client_json}"
 
 mkdir -p "$(dirname "$TARGET_PATH")"
 
-JSON_VALUE="$(security find-generic-password -a "${USER:-$(whoami)}" -s "$KEYCHAIN_ITEM" -w 2>/dev/null || true)"
+JSON_VALUE="$(op read "$OP_REF" 2>/dev/null || true)"
 
 if [ -z "${JSON_VALUE:-}" ]; then
-  echo "Keychain item '$KEYCHAIN_ITEM' introuvable." >&2
+  echo "1Password item '$OP_REF' introuvable. Vérifie que 'op' est signé." >&2
   exit 1
 fi
 

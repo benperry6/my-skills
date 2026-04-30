@@ -20,7 +20,7 @@ Do not treat providers already named in the skill as a whitelist.
 - Existing local wrapper scripts
 - Existing MCP integrations
 - Existing CLI login state
-- Keychain items or secure local secret stores
+- 1Password vault `Employee` (queryable via `op item list` / `op read`)
 - Live account, business, project, or zone listing APIs
 - Local config files that point to reusable access
 
@@ -82,6 +82,6 @@ If a real bootstrap gap forces browser fallback:
 ## Storage Convention
 
 - reusable non-sensitive access state may live in machine-global storage
-- secrets should live in a secure local secret store such as the macOS Keychain
+- secrets must live in 1Password (vault `Employee`) and be accessed via `op read "op://Employee/<item>/<field>"`
 - files that tooling requires on disk may stay in the standard config paths that tooling expects, with restrictive permissions
 - skill references should document the path, not store live credentials

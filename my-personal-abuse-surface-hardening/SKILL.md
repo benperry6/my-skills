@@ -233,7 +233,7 @@ Use `references/programmatic-bootstrap.md`.
 Before suggesting browser work:
 
 1. Check the current official docs and API surface.
-2. Check the local machine for reusable wrappers, scripts, CLIs, MCPs, keychain items, or auth state.
+2. Check the local machine for reusable wrappers, scripts, CLIs, MCPs, 1Password items (vault `Employee`), or auth state.
 3. Verify the best read-only path first.
 4. Only then decide whether browser fallback is genuinely necessary.
 

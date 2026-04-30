@@ -15,7 +15,7 @@ Promote entries here only after the behavior is verified locally or in the real 
 
 - Provider: `Cloudflare`
 - Local path: `~/.codex/mcp/cloudflare-wrapper.sh`
-- Auth source: macOS Keychain item `CLOUDFLARE_API_TOKEN`
+- Auth source: 1Password item `Cloudflare` in vault `Employee` (field `api_token`), accessed via `op read "op://Employee/Cloudflare/api_token"`
 - Verified behavior:
   - `GET /user/tokens/verify` returned an active token
   - `GET "/zones?per_page=3"` returned a successful zone listing

@@ -203,13 +203,13 @@ All three tools read the same instructions. One file to maintain.
 
 ### MCP sharing
 
-MCPs are configured separately in each tool's config file but share the same wrapper scripts in `~/.codex/mcp/`. The wrappers read API keys from the macOS Keychain at runtime.
+MCPs are configured separately in each tool's config file but share the same wrapper scripts in `~/.codex/mcp/`. The wrappers read API keys from 1Password (vault `Employee`) via `op read` at runtime. Prerequisite: `op` CLI installed and signed in (Touch ID or `op signin`).
 
 | Tool | Config file | Wrapper type |
 |------|-------------|-------------|
-| Claude Code | `~/.claude.json` → `mcpServers` | Keychain wrappers |
-| Codex CLI | `~/.codex/config.toml` → `[mcp_servers]` | Hardcoded wrappers (no Keychain access) |
-| Gemini CLI | `~/.gemini/settings.json` → `mcpServers` | Keychain wrappers (verified: preserves $USER) |
+| Claude Code | `~/.claude.json` → `mcpServers` | 1Password wrappers (`op read`) |
+| Codex CLI | `~/.codex/config.toml` → `[mcp_servers]` | 1Password wrappers (`op read`) |
+| Gemini CLI | `~/.gemini/settings.json` → `mcpServers` | 1Password wrappers (`op read`) |
 
 ## Repo layout
 
