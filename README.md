@@ -171,9 +171,9 @@ So this skill was built as a foundational layer: it creates the durable memory t
 
 ## Cross-tool setup
 
-This repo also contains the documentation for the cross-tool AI infrastructure that makes Claude Code, Codex CLI, and any future tool share the same rules, memory, and configuration.
+This repo also contains the documentation for the cross-tool AI infrastructure that makes Claude Code, Codex CLI, Gemini CLI, Hermes VPS, and any future tool share the same rules, memory, and configuration.
 
-See [`setup/README.md`](./setup/README.md) for the full guide — including how to reproduce the entire setup on a new machine from scratch.
+See [`setup/README.md`](./setup/README.md) for the full guide — including how to reproduce the entire setup on a new machine from scratch and how to verify the Hermes VPS variant.
 
 ### Symlink architecture
 
