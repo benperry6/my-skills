@@ -626,6 +626,50 @@ When a future invocation path breaks:
    - verification notes
 
 Do not add speculative or unverified findings.
+
+## 2026-04-30 — VPS surfacing symlink repair
+
+Verified evidence on the Hermes VPS:
+
+- `my-personal-second-opinion` existed on disk at `~/.agents/skills/my-personal-second-opinion`
+- `second_opinion_runner.py --help` worked
+- initial doctor preflight failed only on expected surfacing links:
+  - Claude surface was not pointing to the source skill
+  - Codex surface was not pointing to the source skill
+  - Gemini global skills surface was not pointing to the imported skills directory
+
+Verified repair path:
+
+```bash
+mkdir -p ~/.claude/skills ~/.codex/skills ~/.gemini/antigravity
+ln -sfn ~/.agents/skills/my-personal-second-opinion ~/.claude/skills/my-personal-second-opinion
+ln -sfn ~/.agents/skills/my-personal-second-opinion ~/.codex/skills/my-personal-second-opinion
+ln -sfn ~/.agents/skills ~/.gemini/antigravity/global_skills
+python3 ~/.agents/skills/my-personal-second-opinion/scripts/doctor.py \
+  --current-engine codex \
+  --working-directory /home/hermes \
+  --skip-smoke
+```
+
+Observed behavior:
+
+- after the repair, doctor reported:
+  - `claude surface OK: True`
+  - `codex surface OK: True`
+  - `gemini global_skills OK: True`
+  - `runner --help OK: True`
+  - `surface health OK: True`
+
+Important boundary:
+
+- a later full smoke on this VPS had `claude: success=True` and `gemini: success=False`
+- do not claim the full Second Opinion runner is healthy on the VPS until the Gemini runner invocation is inspected, repaired, and re-smoked successfully
+- Gemini CLI itself was separately verified to work with `gemini --skip-trust -p ...`, but that is not yet a verified runner repair
+
+Implication:
+
+- on this VPS, missing Claude/Codex/Gemini skill surfaces can be repaired with the symlink commands above
+- after surface repair, still run the full doctor smoke before declaring Second Opinion operational
 ## 2026-04-23T18:05:42+00:00 - surfacing-preflight-recovery
 
 - Summary: When the live inventory omits the skill but doctor --skip-smoke and the canonical runner both pass, treat it as a surfacing-layer omission and run the runner directly.
