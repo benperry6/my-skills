@@ -2,6 +2,55 @@
 
 Derived from native runner incidents after they are accepted by the runner.
 
+## 2026-04-30T08:12:32+00:00 — gemini-invocation-repair
+
+- Summary: Runner repaired the gemini invocation path after a capacity failure.
+- Status: `repaired`
+- Confidence: `medium`
+- Failed path: `gemini -m pro -p 'Plan de rétroaction SEO-GEO à auditer:
+
+Objectif: relire rétroactivement le stock existant pour appliquer deux nouvelles règles: (1) bounded salvage: quand une tactique hacky est rejetée, sauver la version visible/réelle/conforme/testable si elle existe; (2) consensus signal-family: traiter les signaux utilisateurs/clicks/NavBoost/Chrome-like comme une famille de signaux opérationnellement forte avec incertitude sur les détails exacts.
+
+Méthode proposée:
+- Scanner tous les processed sources, learnings et hypothèses avec rg sur deux familles: schema/rating/Product/AggregateRating/stars/rich result/review et user signals/Chrome/NavBoost/click/CTR/engagement/dwell/pogo/traffic burst.
+- Identifier seulement les records où la nouvelle règle change réellement la décision.
+- Éviter une réécriture de tout le corpus; patcher les records concernés avec des enrichissements ciblés, nouvelles hypothèses seulement si la version bornée n’existe pas déjà.
+- Vérifier les doublons d’IDs et les références après patch.
+
+Risques à auditer:
+- Manquer des sources pertinentes à cause de termes de recherche trop étroits.
+- Créer des doublons au lieu d’enrichir les hypothèses existantes.
+- Sur-canoniser des hacks encore non prouvés.
+- Trop éditer le corpus au lieu de corriger les décisions impactées.
+' --output-format json`
+- Repaired path: `gemini -m auto -p 'Plan de rétroaction SEO-GEO à auditer:
+
+Objectif: relire rétroactivement le stock existant pour appliquer deux nouvelles règles: (1) bounded salvage: quand une tactique hacky est rejetée, sauver la version visible/réelle/conforme/testable si elle existe; (2) consensus signal-family: traiter les signaux utilisateurs/clicks/NavBoost/Chrome-like comme une famille de signaux opérationnellement forte avec incertitude sur les détails exacts.
+
+Méthode proposée:
+- Scanner tous les processed sources, learnings et hypothèses avec rg sur deux familles: schema/rating/Product/AggregateRating/stars/rich result/review et user signals/Chrome/NavBoost/click/CTR/engagement/dwell/pogo/traffic burst.
+- Identifier seulement les records où la nouvelle règle change réellement la décision.
+- Éviter une réécriture de tout le corpus; patcher les records concernés avec des enrichissements ciblés, nouvelles hypothèses seulement si la version bornée n’existe pas déjà.
+- Vérifier les doublons d’IDs et les références après patch.
+
+Risques à auditer:
+- Manquer des sources pertinentes à cause de termes de recherche trop étroits.
+- Créer des doublons au lieu d’enrichir les hypothèses existantes.
+- Sur-canoniser des hacks encore non prouvés.
+- Trop éditer le corpus au lieu de corriger les décisions impactées.
+' --output-format json`
+- Source skill: `my-personal-second-opinion`
+- Agent: `codex`
+- Target engine: `gemini`
+- Repair strategy: `gemini-auto`
+- Evidence: Runner accepted repaired path `gemini-auto` for target engine `gemini`.
+- Evidence: A repaired invocation returned a usable response.
+- Evidence: Response preview: Voici l'audit final du plan de rétroaction SEO-GEO.
+
+### 1. Diagnostic de l'existant (IDs & Stock)
+*   **Bornes actuelle
+
+
 ## 2026-04-29T15:21:00+00:00 — gemini-invocation-repair
 
 - Summary: Runner repaired the gemini invocation path after a unknown failure.

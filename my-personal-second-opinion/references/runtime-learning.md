@@ -2,6 +2,52 @@
 
 Auto-managed by `scripts/second_opinion_runner.py`.
 
+## 2026-04-30T08:12:32+00:00 — gemini
+
+- Current engine: `codex`
+- Working directory: `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/Second-brain ingest/SEO-GEO`
+- Failed path: `gemini -m pro -p 'Plan de rétroaction SEO-GEO à auditer:
+
+Objectif: relire rétroactivement le stock existant pour appliquer deux nouvelles règles: (1) bounded salvage: quand une tactique hacky est rejetée, sauver la version visible/réelle/conforme/testable si elle existe; (2) consensus signal-family: traiter les signaux utilisateurs/clicks/NavBoost/Chrome-like comme une famille de signaux opérationnellement forte avec incertitude sur les détails exacts.
+
+Méthode proposée:
+- Scanner tous les processed sources, learnings et hypothèses avec rg sur deux familles: schema/rating/Product/AggregateRating/stars/rich result/review et user signals/Chrome/NavBoost/click/CTR/engagement/dwell/pogo/traffic burst.
+- Identifier seulement les records où la nouvelle règle change réellement la décision.
+- Éviter une réécriture de tout le corpus; patcher les records concernés avec des enrichissements ciblés, nouvelles hypothèses seulement si la version bornée n’existe pas déjà.
+- Vérifier les doublons d’IDs et les références après patch.
+
+Risques à auditer:
+- Manquer des sources pertinentes à cause de termes de recherche trop étroits.
+- Créer des doublons au lieu d’enrichir les hypothèses existantes.
+- Sur-canoniser des hacks encore non prouvés.
+- Trop éditer le corpus au lieu de corriger les décisions impactées.
+' --output-format json`
+- Failure classification: `capacity`
+- Failure signature: `"status": "RESOURCE_EXHAUSTED",`
+- Repaired path: `gemini -m auto -p 'Plan de rétroaction SEO-GEO à auditer:
+
+Objectif: relire rétroactivement le stock existant pour appliquer deux nouvelles règles: (1) bounded salvage: quand une tactique hacky est rejetée, sauver la version visible/réelle/conforme/testable si elle existe; (2) consensus signal-family: traiter les signaux utilisateurs/clicks/NavBoost/Chrome-like comme une famille de signaux opérationnellement forte avec incertitude sur les détails exacts.
+
+Méthode proposée:
+- Scanner tous les processed sources, learnings et hypothèses avec rg sur deux familles: schema/rating/Product/AggregateRating/stars/rich result/review et user signals/Chrome/NavBoost/click/CTR/engagement/dwell/pogo/traffic burst.
+- Identifier seulement les records où la nouvelle règle change réellement la décision.
+- Éviter une réécriture de tout le corpus; patcher les records concernés avec des enrichissements ciblés, nouvelles hypothèses seulement si la version bornée n’existe pas déjà.
+- Vérifier les doublons d’IDs et les références après patch.
+
+Risques à auditer:
+- Manquer des sources pertinentes à cause de termes de recherche trop étroits.
+- Créer des doublons au lieu d’enrichir les hypothèses existantes.
+- Sur-canoniser des hacks encore non prouvés.
+- Trop éditer le corpus au lieu de corriger les décisions impactées.
+' --output-format json`
+- Repair strategy: `gemini-auto`
+- Verified models: `{"gemini-2.5-flash-lite": {"api": {"totalErrors": 0, "totalLatencyMs": 2150, "totalRequests": 1}, "roles": {"utility_router": {"tokens": {"cached": 0, "candidates": 96, "input": 7403, "prompt": 7403, "thoughts": 355, "tool": 0, "total": 7854}, "totalErrors": 0, "totalLatencyMs": 2150, "totalRequests": 1}}, "tokens": {"cached": 0, "candidates": 96, "input": 7403, "prompt": 7403, "thoughts": 355, "tool": 0, "total": 7854}}, "gemini-3-flash-preview": {"api": {"totalErrors": 0, "totalLatencyMs": 105832, "totalRequests": 4}, "roles": {"main": {"tokens": {"cached": 48672, "candidates": 2295, "input": 154423, "prompt": 203095, "thoughts": 862, "tool": 0, "total": 206252}, "totalErrors": 0, "totalLatencyMs": 105832, "totalRequests": 4}}, "tokens": {"cached": 48672, "candidates": 2295, "input": 154423, "prompt": 203095, "thoughts": 862, "tool": 0, "total": 206252}}}`
+- Response preview: `Voici l'audit final du plan de rétroaction SEO-GEO.
+
+### 1. Diagnostic de l'existant (IDs & Stock)
+*   **Bornes actuelle`
+
+
 ## 2026-04-29T15:21:00+00:00 — gemini
 
 - Current engine: `codex`
