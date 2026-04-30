@@ -138,6 +138,10 @@ The audit rubric is:
 
 ## Failure handling
 
+### Gemini CLI trusted-directory pitfall
+
+For headless/non-interactive Gemini CLI calls, include `--skip-trust` in runner commands. Without it, Gemini can fail with return code 55: “Gemini CLI is not running in a trusted directory,” even when Gemini auth itself is healthy.
+
 ### Expected categories
 
 - `cli-missing`

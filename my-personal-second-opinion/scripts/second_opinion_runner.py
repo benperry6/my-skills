@@ -931,17 +931,24 @@ def claude_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
     ]
 
 
+def gemini_command(*args: str) -> list[str]:
+    # Gemini CLI refuses non-interactive runs in untrusted directories unless
+    # explicitly told to skip the trust prompt. The second-opinion runner is a
+    # headless automation path, so always include --skip-trust for Gemini.
+    return ["gemini", "--skip-trust", *args]
+
+
 def gemini_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
     auth_mode = gemini_auth_mode()
     attempts = [
         {
             "name": "gemini-pro",
-            "command": ["gemini", "-m", "pro", "-p", prompt, "--output-format", "json"],
+            "command": gemini_command("-m", "pro", "-p", prompt, "--output-format", "json"),
             "parse_json": True,
         },
         {
             "name": "gemini-auto",
-            "command": ["gemini", "-m", "auto", "-p", prompt, "--output-format", "json"],
+            "command": gemini_command("-m", "auto", "-p", prompt, "--output-format", "json"),
             "parse_json": True,
         },
     ]
@@ -951,25 +958,24 @@ def gemini_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
             [
                 {
                     "name": "gemini-3-flash-preview",
-                    "command": [
-                        "gemini",
+                    "command": gemini_command(
                         "-m",
                         "gemini-3-flash-preview",
                         "-p",
                         prompt,
                         "--output-format",
                         "json",
-                    ],
+                    ),
                     "parse_json": True,
                 },
                 {
                     "name": "gemini-2.5-flash",
-                    "command": ["gemini", "-m", "gemini-2.5-flash", "-p", prompt, "--output-format", "json"],
+                    "command": gemini_command("-m", "gemini-2.5-flash", "-p", prompt, "--output-format", "json"),
                     "parse_json": True,
                 },
                 {
                     "name": "gemini-2.5-pro",
-                    "command": ["gemini", "-m", "gemini-2.5-pro", "-p", prompt, "--output-format", "json"],
+                    "command": gemini_command("-m", "gemini-2.5-pro", "-p", prompt, "--output-format", "json"),
                     "parse_json": True,
                 },
             ]
@@ -979,28 +985,26 @@ def gemini_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
             [
                 {
                     "name": "gemini-3.1-pro-preview",
-                    "command": [
-                        "gemini",
+                    "command": gemini_command(
                         "-m",
                         "gemini-3.1-pro-preview",
                         "-p",
                         prompt,
                         "--output-format",
                         "json",
-                    ],
+                    ),
                     "parse_json": True,
                 },
                 {
                     "name": "gemini-3-flash-preview",
-                    "command": [
-                        "gemini",
+                    "command": gemini_command(
                         "-m",
                         "gemini-3-flash-preview",
                         "-p",
                         prompt,
                         "--output-format",
                         "json",
-                    ],
+                    ),
                     "parse_json": True,
                 },
             ]
