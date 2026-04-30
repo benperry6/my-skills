@@ -105,7 +105,7 @@ La doctrine capturee ici est simple :
 - quand une regie n'etait pas encore documentee, ou quand un flow documente est devenu obsolete, on ne met a jour le skill qu'apres avoir reussi a reproduire un chemin qui fonctionne en comportement reel
 - le skill doit donc apprendre en continu, mais uniquement a partir de learnings verifies en pratique, jamais a partir de theorie seule ou de docs non testees
 - les fichiers d'auth qui doivent absolument rester sur disque pour des outils officiels peuvent rester dans leurs emplacements standards, mais avec des permissions strictes
-- les secrets et blobs de bootstrap rematerialisables doivent aller dans un secret store local securise; si `1Password CLI` est reellement disponible et voulu, il peut devenir le backend privilegie, sinon le Keychain macOS est le fallback par defaut
+- les secrets et blobs de bootstrap rematerialisables vont dans 1Password (vault `Employee`), referencables via `op read "op://Employee/<item>/<field>"`
 - quand un nom canonique est utile pour les objets vendors, il doit decrire le mecanisme d'acces cree; la convention preferee est `Paid Media Vendor M2M API Access`, avec une variante courte seulement si une plateforme impose une limite de longueur
 
 ## Ce que ce skill couvre

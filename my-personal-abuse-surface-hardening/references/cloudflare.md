@@ -10,7 +10,7 @@ The goal is to use the currently verified programmatic path when Cloudflare is r
 Current verified path:
 
 - Wrapper: `~/.codex/mcp/cloudflare-wrapper.sh`
-- Auth source: macOS Keychain item `CLOUDFLARE_API_TOKEN`
+- Auth source: 1Password item `Cloudflare` in vault `Employee` (field `api_token`), accessed via `op read "op://Employee/Cloudflare/api_token"`
 - Access model: direct Cloudflare API via `curl`
 
 Do not default to `wrangler` here.

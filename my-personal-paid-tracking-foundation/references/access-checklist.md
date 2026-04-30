@@ -178,8 +178,7 @@ Treat this as "verified maximum for the current tested flow", not as a promise t
 ## Storage conventions
 
 - Reusable non-sensitive access state may be stored machine-globally, for example under `~/.config/tracking-skills/`
-- Secrets should be stored in a secure local secret store such as the macOS Keychain
-- If `1Password CLI` is actually available and the user wants a team/shareable secret backend, it can replace or complement the local Keychain
+- Secrets must be stored in 1Password (vault `Employee`) and accessed via `op read "op://Employee/<item>/<field>"`
 - Files that official tooling expects on disk, such as Google ADC files, may stay in their standard tool paths with restrictive permissions
 - Bootstrap blobs that can be re-materialized later, such as a Google OAuth desktop client JSON, should be copied into a secure local secret store as well
 - Project repos may contain non-sensitive setup manifests or wiring notes if useful
