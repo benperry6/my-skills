@@ -136,6 +136,51 @@ The audit rubric is:
 - `Runtime confidence`
 - `Test adequacy`
 
+## Claude Code Stop hook enforcement
+
+When Ben expects “Second Opinion obligatoire sur tout plan” inside Claude Code, enforce it with a global Stop hook rather than relying on Claude to remember the rule.
+
+Tested VPS pattern:
+
+1. Ensure `jq` exists: `command -v jq || sudo apt-get update && sudo apt-get install -y jq`.
+2. Create `~/.claude/hooks/plan-review.sh` with `#!/usr/bin/env bash` and `set -euo pipefail`.
+3. The hook must read Claude's Stop-hook JSON from stdin and exit `0` with empty stdout when:
+   - `stop_hook_active=true` to avoid recursion,
+   - the last assistant message is empty/null,
+   - `transcript_path` exists and the last ~20KB already contains `my-personal-second-opinion`,
+   - no plan is detected.
+4. Detect a plan when `permission_mode == "plan"`, or when the last assistant message has a plan-like header (`plan`, `phase`, `architecture`, `design`, `étape`, `strategy`, `approach`) plus at least 3 numbered/checkbox steps, or at least 2 subheaders like step/phase/étape/task.
+5. On plan detection, print compact JSON via `jq -nc`:
+   - `decision: "block"`
+   - `reason` containing `PLAN DETECTED — SECOND OPINION REQUIRED` and `my-personal-second-opinion`.
+6. `chmod +x ~/.claude/hooks/plan-review.sh`.
+7. Add to `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "~/.claude/hooks/plan-review.sh",
+        "timeout": 30,
+        "statusMessage": "Checking for plan to review..."
+      }]
+    }]
+  }
+}
+```
+
+Verification before reporting success:
+
+- direct non-plan input → exit `0`, stdout empty
+- direct `stop_hook_active=true` with plan text → exit `0`, stdout empty
+- direct obvious plan input → exit `0`, stdout JSON where `.decision == "block"` and `.reason` contains `my-personal-second-opinion`
+- parse `~/.claude/settings.json` with Python or `jq`
+- run a Claude smoke test: `claude -p 'Reply exactly: OK' --max-turns 1 --output-format json`
+
+Implementation pitfall: GNU grep `\b` after punctuation such as `1.` can fail to count numbered steps. Match numbered steps as `[0-9]+[.)][[:space:]]+` instead of `[0-9]+[.)]\b`.
+
 ## Failure handling
 
 ### Gemini CLI trusted-directory pitfall
