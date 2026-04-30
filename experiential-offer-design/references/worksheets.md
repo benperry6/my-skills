@@ -21,6 +21,7 @@ Delivery form (good / service / digital product / hybrid):
 Durability/use (durable / semi-durable / non-durable / consumable / one-off / recurring):
 Evaluation mode (search / experience / credence):
 Physical mode (worn / displayed / stored / consumed / used privately / used socially):
+Status/scarcity potential (none / access / rivalry / provenance / personalization / community gate):
 Main design implication from taxonomy:
 Moment of life:
 Before state:
@@ -118,4 +119,20 @@ Minimum viable experiment:
 -
 
 Decision threshold:
+-
+
+## 7) Luxury / Status Scarcity Layer (only if relevant)
+Real scarcity:
+-
+
+Rivalry/access mechanism:
+-
+
+Status signal:
+-
+
+Oversupply risk:
+-
+
+Guardrails:
 -

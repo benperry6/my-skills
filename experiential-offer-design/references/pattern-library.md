@@ -117,3 +117,17 @@ Digital assets:
 - FAQ and objection handling.
 - Transparent pricing section.
 - Proof request plan: reviews, pilot outcomes, before/after examples.
+
+## 9) Access Scarcity
+
+Use only when the target is premium/affluent and scarcity is real. For the full framework, see [luxury-status-scarcity.md](luxury-status-scarcity.md).
+
+Design moves:
+- Anchor scarcity in a real constraint: seats, dates, expert time, production capacity, access, provenance, or personalization.
+- Make the buyer feel they secured access, not just bought a product.
+- Preserve aura by avoiding overproduction, constant discounts, or fake urgency.
+
+Digital assets:
+- Landing section: "What access includes and why it is limited."
+- Checkout microcopy: "Your slot / edition / access is reserved."
+- Post-purchase email: private next step, preparation, or owner-only invitation.

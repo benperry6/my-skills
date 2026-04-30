@@ -1,8 +1,8 @@
 ---
 name: experiential-offer-design
-description: "Use when the user wants to sell a product or service as a lived experience rather than a commodity, or needs to classify an offer across consumption types before designing the offer. Also use when they mention experience economy, experiential vs material purchases, goods vs services, unboxing design, onboarding rituals, physical delivery, lifestyle branding, micro-experiences, or funnels that should feel like journeys. Applies to physical products, digital services, services, and hybrids without relying on retail stores. For final page copy, see copywriting; for email flows, see email-sequence; for pricing mechanics, see pricing-strategy."
+description: "Use when the user wants to sell a product or service as a lived experience rather than a commodity, or needs to classify an offer across consumption types before designing the offer. Also use when they mention experience economy, experiential vs material purchases, goods vs services, unboxing design, onboarding rituals, physical delivery, lifestyle branding, luxury/status scarcity, micro-experiences, or funnels that should feel like journeys. Applies to physical products, services, digital products, and hybrids without relying on retail stores. For final page copy, see copywriting; for email flows, see email-sequence; for pricing mechanics, see pricing-strategy."
 metadata:
-  version: 1.3.0
+  version: 1.4.0
 ---
 
 # Experiential Offer Design (Digital + Product + Delivery)
@@ -16,6 +16,7 @@ You do NOT rely on physical stores as a lever. You can propose offline experienc
 - Use concrete language. Make outputs copy-pastable.
 - Always segment: constrained vs mainstream vs affluent (even if briefly).
 - Do not force every offer into the same "experience" shape. First classify the consumption type, then choose the right experiential layer for that category.
+- Do not use scarcity, exclusivity, or status signaling unless it is strategically appropriate and genuinely true.
 
 ## Before Starting
 1. Check for product marketing context first:
@@ -37,6 +38,7 @@ Pick the deliverables that match the request:
 5) **Packaging and Pricing Tiers** (entry / core / premium with clear inclusions)
 6) **Proof Plan** (what to verify, how to measure, what to collect)
 7) **Bonus Offline Concepts** (2 to 3 plug-and-play experiences, no store dependency)
+8) **Luxury / Status Scarcity Layer** (only when relevant)
 
 ## Intake (ask only what's missing)
 A) Offer
@@ -57,6 +59,11 @@ C) Usage reality
 D) Constraints
 - What can NOT change? (packaging budget, shipping, manufacturing, compliance)
 
+E) Premium/luxury context (only if relevant)
+- What is genuinely scarce? (capacity, access, time window, expert attention, provenance, personalization)
+- Is status signaling explicit or quiet?
+- What would oversupply or discounting damage?
+
 ## The 5-step pipeline (always follow)
 
 ### Step 1: Consumption Classification
@@ -66,12 +73,14 @@ Classify the offer before designing the experience:
 - Durability and use: durable / semi-durable / non-durable / consumable / one-off / recurring
 - Evaluation mode: search / experience / credence
 - Experiential potential: ritual, identity, social, sensory, progression, living product
+- Status/scarcity potential: none / access / rivalry / provenance / personalization / community gate
 
 Important terminology guardrail:
 - "Experiential purchase" means the buyer mainly pays to live an event or series of events.
 - "Experience good" means quality is judged mainly after purchase. It is a different taxonomy.
 
 Use [references/consumption-taxonomy.md](references/consumption-taxonomy.md) when the offer type is unclear or when the user's request depends on the distinction between material, experiential, service, durable, consumable, search, experience, or credence categories.
+Use [references/luxury-status-scarcity.md](references/luxury-status-scarcity.md) when the target is affluent/ultra-affluent, the offer is premium/luxury, or the task depends on rarity, access, status, exclusivity, or Veblen-like signaling.
 
 ### Step 2: Experience Diagnosis
 Output a short "experience profile":
@@ -154,7 +163,8 @@ Always answer these as concrete design moves:
 
 ### Affluent (curated + frictionless)
 - Personalization, concierge simplicity, real exclusivity
-- Messaging: curated, rare access, bespoke, time saved
+- Use scarcity only when real: limited access, expert time, capacity, provenance, or non-replicable moments
+- Messaging: curated, rare access, bespoke, time saved, quiet status
 
 ## Output format (use this exact structure)
 
@@ -169,6 +179,7 @@ Always answer these as concrete design moves:
 - Durability/use:
 - Evaluation mode:
 - Experiential potential:
+- Status/scarcity potential:
 - Design implication:
 
 ### 2) Experience Profile
@@ -209,8 +220,16 @@ Always answer these as concrete design moves:
 - Concept 2: ...
 - Concept 3: ...
 
+### 8) Luxury / Status Scarcity Layer (only if relevant)
+- Real scarcity:
+- Rivalry/access mechanism:
+- Status signal:
+- Oversupply risk:
+- Guardrails:
+
 ## References
 For the consumption-type diagnostic, see [references/consumption-taxonomy.md](references/consumption-taxonomy.md).
+For premium, luxury, status, scarcity, and access mechanics, see [references/luxury-status-scarcity.md](references/luxury-status-scarcity.md).
 For pattern inspiration and concrete mechanics, see [references/pattern-library.md](references/pattern-library.md).
 For detailed worksheets and fill-in templates, see [references/worksheets.md](references/worksheets.md).
 

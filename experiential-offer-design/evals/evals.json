@@ -86,6 +86,36 @@
         "Includes proof and assumptions"
       ],
       "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "We are positioning a premium travel membership for affluent buyers. I want the experience to feel like rare access, not just an expensive subscription.",
+      "expected_output": "Should classify the offer and then apply the luxury/status scarcity layer. Should identify real scarcity, rivalry/access mechanism, status signal, oversupply risk, and guardrails. Should avoid fake urgency and avoid applying this logic to constrained buyers. Should propose digital, delivery, and post-purchase touchpoints that make access feel real.",
+      "assertions": [
+        "Classifies the offer before designing the layer",
+        "Applies luxury/status scarcity only because the premium context fits",
+        "Identifies real scarcity",
+        "Identifies rivalry or access mechanism",
+        "Identifies status signal",
+        "Calls out oversupply risk and guardrails",
+        "Avoids fake urgency",
+        "Includes digital and post-purchase touchpoints"
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Can we use luxury scarcity tactics for a low-cost product aimed at budget-conscious buyers?",
+      "expected_output": "Should push back. Should explain that scarcity/status tactics may be counterproductive for budget-constrained buyers. Should prioritize control, transparency, risk reduction, tangible lasting value, and affordability. May suggest ethical, real availability constraints only if true, but should not use luxury/Veblen framing.",
+      "assertions": [
+        "Pushes back on inappropriate luxury scarcity tactics",
+        "Applies constrained buyer rules",
+        "Prioritizes control and transparency",
+        "Avoids luxury/Veblen framing",
+        "Allows only real availability constraints if true",
+        "Explains the tradeoff"
+      ],
+      "files": []
     }
   ]
 }
