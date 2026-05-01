@@ -431,8 +431,11 @@ Two Gmail accounts are used for e-commerce operations:
 **OAuth credentials:**
 
 ```bash
-security add-generic-password -a "$USER" -s GMAIL_CLIENT_ID -w "your-client-id"
-security add-generic-password -a "$USER" -s GMAIL_CLIENT_SECRET -w "your-client-secret"
+op item create --category "API Credential" \
+  --title "Gmail OAuth Pa en Ma" \
+  --vault Employee \
+  client_id[concealed]="your-client-id" \
+  client_secret[concealed]="your-client-secret"
 ```
 
 **Token authorization (once per account):**
@@ -492,7 +495,7 @@ bash ~/.agents/skills/setup/verify.sh
 
 It checks the shared rules symlinks, the skill wiring, the persistent skill-sync guard, the project memory symlinks, the MCP wrapper layer, the Gemini global skill hook, and the local browser automation files.
 
-This script intentionally assumes the Mac workstation setup: LaunchAgents, Keychain-backed wrappers, local Brave/Chrome CDP, and browser guard scripts. On Hermes VPS, failures for those macOS-only layers are expected and should not be treated as calibration failures.
+This script intentionally assumes the Mac workstation setup: LaunchAgents, 1Password-backed MCP wrappers, local Brave/Chrome CDP, and browser guard scripts. On Hermes VPS, failures for those macOS-only layers are expected and should not be treated as calibration failures.
 
 ### Hermes VPS verifier
 
@@ -515,7 +518,7 @@ It checks the parts of this setup that are recommended on Hermes:
 It intentionally excludes:
 
 - macOS LaunchAgents / `launchctl`
-- macOS Keychain wrappers
+- local macOS MCP wrappers and 1Password app integration
 - AppleScript
 - live Mac Brave/Chrome CDP sessions
 - browser parasite guard scripts designed for the local Mac workstation
