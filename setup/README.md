@@ -478,15 +478,47 @@ Connected boutiques:
 
 Tool-specific config files serve two purposes: non-MCP settings (model, hooks, features) that you copy manually, and MCP server definitions that the sync script generates from the master file. The sync script only touches the MCP section — it preserves everything else. Don't edit MCP servers directly in tool configs; edit `setup/mcp-servers.json` and re-sync.
 
-## Full verification script
+## Full verification scripts
 
-Run the maintained script in this repo:
+### macOS workstation verifier
+
+Run the maintained macOS/local-workstation verifier:
 
 ```bash
 bash ~/.agents/skills/setup/verify.sh
 ```
 
 It checks the shared rules symlinks, the skill wiring, the persistent skill-sync guard, the project memory symlinks, the MCP wrapper layer, the Gemini global skill hook, and the local browser automation files.
+
+This script intentionally assumes the Mac workstation setup: LaunchAgents, Keychain-backed wrappers, local Brave/Chrome CDP, and browser guard scripts. On Hermes VPS, failures for those macOS-only layers are expected and should not be treated as calibration failures.
+
+### Hermes VPS verifier
+
+For Ben's Hermes VPS, run the targeted Linux verifier instead:
+
+```bash
+bash ~/.agents/skills/setup/verify-vps.sh
+```
+
+It checks the parts of this setup that are recommended on Hermes:
+
+- Linux `/home/hermes` baseline
+- global `CLAUDE.md` / `AGENTS.md` / `GEMINI.md` symlinks
+- Hermes skill discovery through `/home/hermes/.agents/skills`
+- Claude/Codex/Gemini personal-skill symlink sync
+- Linux `systemd --user` skill-sync timer
+- minimal VPS-safe MCP config (`context7`, `playwright-vps`)
+- absence of active macOS `/Users/...` MCP paths
+
+It intentionally excludes:
+
+- macOS LaunchAgents / `launchctl`
+- macOS Keychain wrappers
+- AppleScript
+- live Mac Brave/Chrome CDP sessions
+- browser parasite guard scripts designed for the local Mac workstation
+
+On Hermes VPS, those exclusions are by design. Browser automation should default to isolated/headless VPS sessions unless a dedicated authenticated VPS browser profile is explicitly configured.
 
 ## Design decisions and trade-offs
 
