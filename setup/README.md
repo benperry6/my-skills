@@ -280,6 +280,8 @@ This policy is defined in `~/.claude/CLAUDE.md`. The implementation lives in sha
 | Chrome launcher | `~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh` |
 | Brave MCP wrapper | `~/.codex/mcp/brave-devtools-wrapper.sh` |
 | Chrome MCP wrapper | `~/.codex/mcp/chrome-devtools-wrapper.sh` |
+| Browser parasite guard | `~/.codex/browser-control/cleanup-browser-parasites.sh` |
+| Chrome real-session guardian | `~/.codex/browser-control/chrome-session-guardian.sh` |
 
 #### How it works today
 
@@ -289,6 +291,7 @@ This policy is defined in `~/.claude/CLAUDE.md`. The implementation lives in sha
 - The Chrome sync deliberately excludes Chrome session-restore files (`Profile */Sessions`, `Last Session`, `Last Tabs`, `Current Session`, `Current Tabs`) so the AI-safe clone keeps its own cleaned session instead of re-importing the source profile's old tabs on every relaunch.
 - While `Chrome AI-safe` is running, a background mirror copies the clone's whole durable active profile back into the real Chrome profile, but only when the real Chrome app is not running. It uses broad `rsync --delete` with a blacklist for volatile files only (`Singleton*`, CDP ports, locks, WAL/SHM/journal files, caches, Crashpad, metrics, Safe Browsing model caches, etc.), then re-copies every detected SQLite DB through `.backup` for consistency. This prevents the user's next manual Chrome launch from reopening older tabs, losing accounts, or missing future durable profile state that was not in an auth-specific whitelist.
 - The Chrome mirror ignores isolated non-user Chrome instances such as Antigravity's `~/.gemini/antigravity-browser-profile` on port `9322`; those must not block persistence back into the real Chrome profile.
+- A persistent Chrome real-session guardian snapshots the real `Profile 3/Sessions` folder while Chrome is running, storing the latest known-good state under `~/.codex/browser-session-snapshots/chrome-profile3`. If Chrome is closed and the real profile's session files differ from that latest good snapshot, the guardian backs up the current files under `pre-restore/` and restores the latest snapshot before the next manual launch can reopen old tabs. This exists because the AI-safe mirror protects AI-controlled Chrome state, but a native Chrome crash can still leave the real profile pointing at stale session files.
 - `Brave` and `Chrome` both use the local MCP server at `~/.codex/brave-cdp-client/brave-devtools-server.mjs`, parameterized by wrapper so each server exposes its own verified browser identity.
 - The wrappers bind each browser to its own bootstrap, process-name expectation, and port: Brave → `9222` / `Brave Browser`; Chrome → `9223` / `Google Chrome`.
 - The MCP responses now include an explicit verified browser identity block, and the server exposes `verify_browser_identity` so agents can confirm the active browser instead of inferring it from tab memory.
@@ -345,6 +348,8 @@ Useful logs:
 - `/tmp/brave-cdp.log`
 - `/tmp/chrome-cdp.log`
 - `~/.codex/browser-control/cleanup.log`
+- `~/.codex/browser-control/chrome-session-guardian.log`
+- `~/.codex/browser-session-snapshots/chrome-profile3/latest`
 
 #### Claude in Chrome — "No Chrome extension connected"
 

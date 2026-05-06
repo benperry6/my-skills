@@ -151,7 +151,11 @@ for memdir in ~/.claude/projects/*/memory/; do
     elif [ -f "$memdir/MEMORY.md" ]; then
         size=$(wc -c < "$memdir/MEMORY.md" | tr -d ' ')
         if [ "$size" -gt 10 ]; then
-            fail "NOT MIGRATED ($size bytes): $encoded"
+            if [ "$encoded" = "-Users-$USER" ]; then
+                warn "Home-scoped Claude memory is not repo memory and is intentionally not migrated ($size bytes): $encoded"
+            else
+                fail "NOT MIGRATED ($size bytes): $encoded"
+            fi
         fi
     fi
 done
@@ -348,10 +352,12 @@ else
     warn "Chrome AI-safe launcher does not appear to start the background session mirror"
 fi
 
-if rg -Fq '"$clone_profile/Sessions/" "$source_profile/Sessions/"' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh; then
-    ok "Chrome AI-safe session mirror syncs clone session artifacts back to the real profile"
+if rg -q 'rsync -a --delete' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   rg -Fq '"$clone_profile/" "$source_profile/"' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
+   ! rg -q -- '--exclude=.*Sessions|--exclude=.*Last Session|--exclude=.*Last Tabs|--exclude=.*Current Session|--exclude=.*Current Tabs' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh; then
+    ok "Chrome AI-safe session artifacts are covered by the full durable profile mirror"
 else
-    warn "Chrome AI-safe session mirror does not appear to sync session artifacts back to the real profile"
+    warn "Chrome AI-safe session artifacts may be excluded from the durable profile mirror"
 fi
 
 if rg -q 'sync_durable_profile_once' ~/.codex/chrome-cdp-client/mirror-chrome-ai-safe-session.sh && \
@@ -393,6 +399,41 @@ if rg -q 'executable-path /Applications/Brave Browser.app/Contents/MacOS/Brave B
     ok "Browser parasite guard targets attached-browser Playwright, direct real-browser Playwright children, and stale temporary headless browsers"
 else
     warn "Browser parasite guard does not appear to target the expected parasite browser patterns"
+fi
+
+if [ -x ~/.codex/browser-control/chrome-session-guardian.sh ]; then
+    ok "Persistent Chrome real-session guardian script installed"
+else
+    fail "Persistent Chrome real-session guardian script missing at ~/.codex/browser-control/chrome-session-guardian.sh"
+fi
+
+if [ -f ~/Library/LaunchAgents/com.codex.chrome-session-guardian.plist ]; then
+    ok "LaunchAgent plist installed for Chrome real-session guardian"
+else
+    fail "LaunchAgent plist missing for Chrome real-session guardian"
+fi
+
+if launchctl print "gui/$(id -u)/com.codex.chrome-session-guardian" >/dev/null 2>&1; then
+    ok "LaunchAgent com.codex.chrome-session-guardian loaded"
+else
+    warn "LaunchAgent com.codex.chrome-session-guardian not currently loaded"
+fi
+
+if rg -q -- '--watch' ~/Library/LaunchAgents/com.codex.chrome-session-guardian.plist && \
+   rg -q 'KeepAlive' ~/Library/LaunchAgents/com.codex.chrome-session-guardian.plist && \
+   rg -q 'restore_latest_snapshot_if_needed' ~/.codex/browser-control/chrome-session-guardian.sh && \
+   rg -q 'snapshotted Chrome session state' ~/.codex/browser-control/chrome-session-guardian.sh; then
+    ok "Chrome real-session guardian snapshots and restores the real profile in continuous watch mode"
+else
+    warn "Chrome real-session guardian is not configured for continuous snapshot/restore mode"
+fi
+
+if [ -L ~/.codex/browser-session-snapshots/chrome-profile3/latest ] && \
+   find ~/.codex/browser-session-snapshots/chrome-profile3/latest/Sessions -maxdepth 1 -type f -name 'Session_*' -size +1024c -print -quit 2>/dev/null | rg -q . && \
+   find ~/.codex/browser-session-snapshots/chrome-profile3/latest/Sessions -maxdepth 1 -type f -name 'Tabs_*' -size +1024c -print -quit 2>/dev/null | rg -q .; then
+    ok "Chrome real-session guardian has a latest known-good session snapshot"
+else
+    warn "Chrome real-session guardian has no latest known-good real session snapshot yet"
 fi
 
 echo ""
