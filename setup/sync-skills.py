@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -18,6 +19,18 @@ TARGETS = {
     "codex": HOME / ".codex" / "skills",
 }
 GEMINI_LINK = HOME / ".gemini" / "antigravity" / "global_skills"
+CODEX_BROWSER_CONTROL = HOME / ".codex" / "browser-control"
+LAUNCH_AGENTS = HOME / "Library" / "LaunchAgents"
+BROWSER_CONTROL_ITEMS = {
+    CODEX_BROWSER_CONTROL / "cleanup-browser-parasites.sh": SOURCE_ROOT / "setup" / "browser-control" / "cleanup-browser-parasites.sh",
+    CODEX_BROWSER_CONTROL / "chrome-session-guardian.sh": SOURCE_ROOT / "setup" / "browser-control" / "chrome-session-guardian.sh",
+    LAUNCH_AGENTS / "com.codex.browser-parasite-guard.plist": SOURCE_ROOT / "setup" / "browser-control" / "com.codex.browser-parasite-guard.plist",
+    LAUNCH_AGENTS / "com.codex.chrome-session-guardian.plist": SOURCE_ROOT / "setup" / "browser-control" / "com.codex.chrome-session-guardian.plist",
+}
+BROWSER_LAUNCH_AGENTS = {
+    "com.codex.browser-parasite-guard": LAUNCH_AGENTS / "com.codex.browser-parasite-guard.plist",
+    "com.codex.chrome-session-guardian": LAUNCH_AGENTS / "com.codex.chrome-session-guardian.plist",
+}
 
 
 @dataclass
@@ -83,6 +96,69 @@ def ensure_symlink(link_path: Path, source: Path, apply: bool, findings: list[Fi
         findings.append(Finding("fix", f"Created symlink: {link_path} -> {expected}"))
     else:
         findings.append(Finding("drift", f"Missing symlink: {link_path} -> {expected}"))
+
+
+def ensure_managed_symlink(link_path: Path, source: Path, apply: bool, findings: list[Finding]) -> bool:
+    before = link_path.is_symlink() and os.readlink(link_path) == relative_target(link_path.parent, source)
+    ensure_dir(link_path.parent, apply, findings)
+    ensure_symlink(link_path, source, apply, findings)
+    after = link_path.is_symlink() and os.readlink(link_path) == relative_target(link_path.parent, source)
+    return before != after
+
+
+def launchctl_domain() -> str:
+    return f"gui/{os.getuid()}"
+
+
+def launchagent_loaded(label: str) -> bool:
+    result = subprocess.run(
+        ["launchctl", "print", f"{launchctl_domain()}/{label}"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    return result.returncode == 0
+
+
+def bootstrap_launchagent(label: str, plist_path: Path, apply: bool, force_reload: bool, findings: list[Finding]) -> None:
+    if sys.platform != "darwin":
+        findings.append(Finding("warn", f"Skipped macOS LaunchAgent management outside Darwin: {label}"))
+        return
+
+    loaded = launchagent_loaded(label)
+    if loaded and not force_reload:
+        findings.append(Finding("ok", f"LaunchAgent OK: {label}"))
+        return
+
+    if not apply:
+        findings.append(Finding("drift", f"LaunchAgent not loaded or needs reload: {label}"))
+        return
+
+    domain = launchctl_domain()
+    if loaded:
+        subprocess.run(["launchctl", "bootout", domain, str(plist_path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+
+    result = subprocess.run(["launchctl", "bootstrap", domain, str(plist_path)], capture_output=True, text=True, check=False)
+    if result.returncode == 0:
+        findings.append(Finding("fix", f"Loaded LaunchAgent: {label}"))
+    else:
+        details = (result.stderr or result.stdout).strip()
+        findings.append(Finding("warn", f"Could not load LaunchAgent {label}: {details}"))
+
+
+def ensure_browser_control(apply: bool, findings: list[Finding]) -> None:
+    reload_labels: set[str] = set()
+
+    for link_path, source in BROWSER_CONTROL_ITEMS.items():
+        if not source.exists():
+            findings.append(Finding("warn", f"Browser-control source missing: {source}"))
+            continue
+        changed = ensure_managed_symlink(link_path, source, apply, findings)
+        if changed and link_path.name.endswith(".plist"):
+            reload_labels.add(link_path.stem)
+
+    for label, plist_path in BROWSER_LAUNCH_AGENTS.items():
+        bootstrap_launchagent(label, plist_path, apply, label in reload_labels, findings)
 
 
 def clean_stale_symlinks(target_dir: Path, valid_names: set[str], apply: bool, findings: list[Finding]) -> None:
@@ -162,6 +238,7 @@ def main() -> int:
         clean_stale_symlinks(target_dir, valid_names, apply, findings)
 
     ensure_gemini_link(apply, findings)
+    ensure_browser_control(apply, findings)
 
     drift = [item for item in findings if item.level == "drift"]
     fixes = [item for item in findings if item.level == "fix"]

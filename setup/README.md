@@ -146,6 +146,8 @@ What it does:
 - keeps `~/.claude/skills/my-personal-*` in sync with `~/.agents/skills/my-personal-*`
 - keeps `~/.codex/skills/my-personal-*` in sync with `~/.agents/skills/my-personal-*`
 - keeps `~/.gemini/antigravity/global_skills` pointed at `~/.agents/skills`
+- keeps shared browser-control symlinks installed under `~/.codex/browser-control/` and `~/Library/LaunchAgents/`
+- reloads the persistent browser LaunchAgents if they disappear or are unloaded
 - runs at load, on relevant directory changes, and periodically
 
 Useful commands:
@@ -298,6 +300,7 @@ This policy is defined in `~/.claude/CLAUDE.md`. The implementation lives in sha
 - Brave and Chrome can run in parallel because they use separate ports and separate bootstrap logic.
 - Each `AI-safe` bootstrap is serialized with a per-browser lock under `~/.codex/browser-locks/` so concurrent tool sessions do not restart the same browser twice.
 - A persistent browser-parasite guard runs continuously from `~/.codex/browser-control/cleanup-browser-parasites.sh --watch`, is loaded by `~/Library/LaunchAgents/com.codex.browser-parasite-guard.plist`, and kills forbidden `@playwright/mcp` stacks or Playwright-launched real `Brave` / `Chrome` processes before they can keep waking existing live tabs. This is specifically to avoid IDE/tool launchers refreshing suspended browser tabs and freezing the machine.
+- The persistent skill-sync guard also self-heals the browser-control symlinks and reloads the browser LaunchAgents if they are missing or unloaded, so Chrome updates, reboots, or local drift should not require manually reinstalling browser control.
 - `Antigravity` must not share the Brave CDP port. Its browser launcher preferences are forced by `~/.agents/skills/setup/browser-control/configure-antigravity-browser.sh` to an isolated Chrome profile at `~/.gemini/antigravity-browser-profile` on CDP port `9322`, so opening the IDE does not attach to `Brave AI-safe` on `9222` and wake suspended tabs.
 - Today, the browser devtools wrappers are registered in Codex by default through `~/.codex/config.toml` and in Claude Code through `~/.claude.json`.
 - Browser-control changes do not stop at `~/.codex/`: if `/Users/benjaminperry/My Drive/ProStrike Holdings/TOOLS/Twitter:X Scraper` is present, re-check `src/lib/grok-browser.js` and `src/lib/browser-search.js` too, because that project still talks directly to CDP and must mirror the same guardrails locally instead of silently drifting away from the shared browser behavior.
