@@ -67,7 +67,7 @@ Do not treat "a Google account is already signed in" as sufficient proof that th
 
 - machine-global tracking access state such as `~/.config/tracking-skills/`
 - vendor CLI login state
-- 1Password vault `Employee` (queryable via `op item list` / `op read`)
+- 1Password vault `Agent Operations` (queryable via `op item list` / `op read`)
 - live account / business / project listing APIs
 
 ## Cross-vendor validation rule
@@ -83,7 +83,7 @@ Do not trust the UI selection alone.
 ## Storage convention
 
 - reusable non-sensitive access state may live in machine-global storage such as `~/.config/tracking-skills/`
-- secrets must live in 1Password (vault `Employee`) and be accessed via `op read "op://Agent Operations/<item>/<field>"`
+- secrets must live in 1Password (vault `Agent Operations`) and be accessed via `op read "op://Agent Operations/<item>/<field>"`
 - files that vendor tooling requires on disk may remain in the standard config paths that tooling expects, but with restrictive permissions
 - rematerializable bootstrap blobs should be kept in a secure local secret store even when a compatibility copy still exists on disk
 - project repos may contain non-sensitive vendor wiring manifests, IDs, or setup notes if useful
@@ -102,7 +102,7 @@ Apply it to:
 
 - vendor apps
 - business login / integration configurations
-- 1Password item titles in vault `Employee`
+- 1Password item titles in vault `Agent Operations`
 - reusable local compatibility files where practical
 
 If a vendor imposes naming limits, use the closest shorter variant that preserves the meaning, and document the exception.
