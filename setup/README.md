@@ -165,16 +165,16 @@ python3 ~/.agents/skills/setup/sync-skills.py
 
 ### Step 4 — Set up MCP wrapper scripts
 
-MCP servers need API keys. Instead of hardcoding them, we use 1Password (vault `Employee`) + wrapper scripts.
+MCP servers need API keys. Instead of hardcoding them, use 1Password (vault `Agent Operations`) + wrapper scripts.
 
 **Add API keys to 1Password:**
 
 ```bash
-op item create --category "API Credential" --title "Haloscan"      --vault Employee api_key[concealed]="your-key"
-op item create --category "API Credential" --title "Firecrawl"     --vault Employee api_key[concealed]="your-key"
-op item create --category "API Credential" --title "PageSpeed"     --vault Employee api_key[concealed]="your-key"
-op item create --category "API Credential" --title "DataForSEO"    --vault Employee username[text]="your-login" api_password[concealed]="your-password"
-op item create --category "API Credential" --title "Gemini Design" --vault Employee api_key[concealed]="your-key"
+op item create --category "API Credential" --title "Haloscan"      --vault "Agent Operations" api_key[concealed]="your-key"
+op item create --category "API Credential" --title "Firecrawl"     --vault "Agent Operations" api_key[concealed]="your-key"
+op item create --category "API Credential" --title "PageSpeed"     --vault "Agent Operations" api_key[concealed]="your-key"
+op item create --category "API Credential" --title "DataForSEO"    --vault "Agent Operations" username[text]="your-login" api_password[concealed]="your-password"
+op item create --category "API Credential" --title "Gemini Design" --vault "Agent Operations" api_key[concealed]="your-key"
 ```
 
 **Create wrapper scripts in `~/.codex/mcp/`:**
@@ -184,9 +184,9 @@ Each wrapper follows this pattern:
 ```bash
 #!/bin/bash
 set -eo pipefail
-KEY=$(op read "op://Employee/ItemTitle/api_key" 2>/dev/null || true)
+KEY=$(op read "op://Agent Operations/ItemTitle/api_key" 2>/dev/null || true)
 if [ -z "${KEY:-}" ]; then
-  echo "ItemTitle api_key introuvable dans 1Password (vault Employee). Vérifie que 'op' est signé." >&2
+  echo "ItemTitle api_key introuvable dans 1Password (vault Agent Operations)." >&2
   exit 1
 fi
 export ENV_VAR_NAME="$KEY"
@@ -442,7 +442,7 @@ Two Gmail accounts are used for e-commerce operations:
 ```bash
 op item create --category "API Credential" \
   --title "Gmail OAuth Pa en Ma" \
-  --vault Employee \
+  --vault "Agent Operations" \
   client_id[concealed]="your-client-id" \
   client_secret[concealed]="your-client-secret"
 ```
@@ -480,7 +480,7 @@ Connected boutiques:
 | Gemini settings (non-MCP) | `~/.gemini/settings.json` | Copy file (hooks, security) |
 | MCP wrappers | `~/.codex/mcp/*.sh` | Copy directory |
 | Browser CDP clients | `~/.codex/brave-cdp-client/`, `~/.codex/chrome-cdp-client/` | Copy directories |
-| API keys | 1Password (vault `Employee`) | Already cloud-synced — just `op signin` on the new machine |
+| API keys | 1Password (vault `Agent Operations`) | Already cloud-synced; use the local service-account env for non-interactive wrappers |
 | Gmail tokens | `.gmail_tokens.json` per repo | Copy file |
 | Shopify tokens | `.shopify_tokens.json` per repo | Copy file |
 | Project repos | Google Drive | Automatic sync |

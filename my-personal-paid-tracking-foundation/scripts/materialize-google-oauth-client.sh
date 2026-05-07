@@ -2,7 +2,7 @@
 set -eo pipefail
 
 TARGET_PATH="${1:-$HOME/.config/gcloud/paid-media-vendor-m2m-api-access-oauth-client.json}"
-OP_REF="${GOOGLE_TRACKING_OAUTH_OP_REF:-op://Employee/Google Paid Media Vendor M2M OAuth Client/client_json}"
+OP_REF="${GOOGLE_TRACKING_OAUTH_OP_REF:-op://Agent Operations/Google Paid Media Vendor M2M OAuth Client/client_json}"
 OP_READ_HELPER="${OP_READ_HELPER:-$HOME/.codex/mcp/op-read.sh}"
 
 mkdir -p "$(dirname "$TARGET_PATH")"

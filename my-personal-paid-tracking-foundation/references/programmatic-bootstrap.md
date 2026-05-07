@@ -83,7 +83,7 @@ Do not trust the UI selection alone.
 ## Storage convention
 
 - reusable non-sensitive access state may live in machine-global storage such as `~/.config/tracking-skills/`
-- secrets must live in 1Password (vault `Employee`) and be accessed via `op read "op://Employee/<item>/<field>"`
+- secrets must live in 1Password (vault `Employee`) and be accessed via `op read "op://Agent Operations/<item>/<field>"`
 - files that vendor tooling requires on disk may remain in the standard config paths that tooling expects, but with restrictive permissions
 - rematerializable bootstrap blobs should be kept in a secure local secret store even when a compatibility copy still exists on disk
 - project repos may contain non-sensitive vendor wiring manifests, IDs, or setup notes if useful

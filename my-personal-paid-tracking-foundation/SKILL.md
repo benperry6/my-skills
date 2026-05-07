@@ -309,7 +309,7 @@ This doctrine exists for a business reason, not a tooling reason:
 - when a documented vendor flow no longer works, treat the docs as potentially outdated, re-research it, debug it in real conditions, and replace the outdated instructions only after the new path is verified
 - persist reusable non-sensitive access state in machine-global storage when useful
 - keep vendor-required on-disk auth files only in the standard paths the official tooling expects, with restrictive permissions
-- store secrets and re-materializable bootstrap blobs in 1Password (vault `Employee`); reference them in scripts via `op read "op://Employee/<item>/<field>"`
+- store secrets and re-materializable bootstrap blobs in 1Password (vault `Employee`); reference them in scripts via `op read "op://Agent Operations/<item>/<field>"`
 - use the browser only for genuine bootstrap gaps or missing machine-to-machine permissions that cannot yet be solved programmatically
 - record runtime incidents with the shared loop when a paid-tracking trigger fires, using the paid-tracking `extensions` fields defined in `references/learning-overlay.md`
 

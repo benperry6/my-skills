@@ -82,6 +82,6 @@ If a real bootstrap gap forces browser fallback:
 ## Storage Convention
 
 - reusable non-sensitive access state may live in machine-global storage
-- secrets must live in 1Password (vault `Employee`) and be accessed via `op read "op://Employee/<item>/<field>"`
+- secrets must live in 1Password (vault `Employee`) and be accessed via `op read "op://Agent Operations/<item>/<field>"`
 - files that tooling requires on disk may stay in the standard config paths that tooling expects, with restrictive permissions
 - skill references should document the path, not store live credentials
