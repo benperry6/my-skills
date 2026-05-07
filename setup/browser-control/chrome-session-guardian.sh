@@ -1,9 +1,11 @@
 #!/bin/bash
 set -uo pipefail
 
-PROFILE_DIR="${CHROME_SESSION_GUARDIAN_PROFILE_DIR:-$HOME/Library/Application Support/Google/Chrome/Profile 3}"
-SESSIONS_DIR="$PROFILE_DIR/Sessions"
-SNAP_ROOT="${CHROME_SESSION_GUARDIAN_SNAPSHOT_ROOT:-$HOME/.codex/browser-session-snapshots/chrome-profile3}"
+CHROME_USER_DATA_DIR="${CHROME_SESSION_GUARDIAN_USER_DATA_DIR:-$HOME/Library/Application Support/Google/Chrome}"
+PROFILE_DIR_OVERRIDE="${CHROME_SESSION_GUARDIAN_PROFILE_DIR:-}"
+SNAP_ROOT_OVERRIDE="${CHROME_SESSION_GUARDIAN_SNAPSHOT_ROOT:-}"
+SNAP_ROOT_BASE="${CHROME_SESSION_GUARDIAN_SNAPSHOT_BASE:-$HOME/.codex/browser-session-snapshots/chrome-profiles}"
+LEGACY_PROFILE3_SNAP_ROOT="$HOME/.codex/browser-session-snapshots/chrome-profile3"
 LOG_PATH="${CHROME_SESSION_GUARDIAN_LOG:-$HOME/.codex/browser-control/chrome-session-guardian.log}"
 LOCK_ROOT="$HOME/.codex/browser-locks"
 LOCK_DIR="$LOCK_ROOT/chrome-session-guardian.lock"
@@ -12,7 +14,11 @@ MAX_SNAPSHOTS="${MAX_SNAPSHOTS:-120}"
 APP_BINARY="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 ANTIGRAVITY_PROFILE_DIR="${ANTIGRAVITY_BROWSER_PROFILE_DIR:-$HOME/.gemini/antigravity-browser-profile}"
 
-mkdir -p "$SNAP_ROOT/snapshots" "$SNAP_ROOT/pre-restore" "$(dirname "$LOG_PATH")" "$LOCK_ROOT"
+PROFILE_DIR=""
+SESSIONS_DIR=""
+SNAP_ROOT=""
+
+mkdir -p "$SNAP_ROOT_BASE" "$LEGACY_PROFILE3_SNAP_ROOT/snapshots" "$LEGACY_PROFILE3_SNAP_ROOT/pre-restore" "$(dirname "$LOG_PATH")" "$LOCK_ROOT"
 
 log() {
   printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >> "$LOG_PATH"
@@ -40,6 +46,55 @@ chrome_running() {
   done < <(ps -axo command=)
 
   return 1
+}
+
+profile_slug() {
+  local name="$1"
+  case "$name" in
+    Default)
+      printf 'default'
+      ;;
+    Profile\ *)
+      printf '%s' "$name" | tr '[:upper:] ' '[:lower:]-' | tr -cd '[:alnum:]_.-'
+      ;;
+    *)
+      printf '%s' "$name" | tr '[:upper:] /' '[:lower:]--' | tr -cd '[:alnum:]_.-'
+      ;;
+  esac
+}
+
+snapshot_root_for_profile() {
+  local profile_dir="$1"
+  local profile_name
+  profile_name="$(basename "$profile_dir")"
+
+  if [ -n "$SNAP_ROOT_OVERRIDE" ]; then
+    printf '%s\n' "$SNAP_ROOT_OVERRIDE"
+  elif [ "$profile_name" = "Profile 3" ]; then
+    # Keep the already-restored Profile 3 snapshot path stable.
+    printf '%s\n' "$LEGACY_PROFILE3_SNAP_ROOT"
+  else
+    printf '%s/%s\n' "$SNAP_ROOT_BASE" "$(profile_slug "$profile_name")"
+  fi
+}
+
+set_profile_context() {
+  PROFILE_DIR="$1"
+  SESSIONS_DIR="$PROFILE_DIR/Sessions"
+  SNAP_ROOT="$(snapshot_root_for_profile "$PROFILE_DIR")"
+  mkdir -p "$SNAP_ROOT/snapshots" "$SNAP_ROOT/pre-restore"
+}
+
+discover_profile_dirs() {
+  if [ -n "$PROFILE_DIR_OVERRIDE" ]; then
+    printf '%s\n' "$PROFILE_DIR_OVERRIDE"
+    return 0
+  fi
+
+  [ -d "$CHROME_USER_DATA_DIR" ] || return 0
+
+  find "$CHROME_USER_DATA_DIR" -maxdepth 1 -type d \( -name 'Default' -o -name 'Profile *' \) -print 2>/dev/null \
+    | LC_ALL=C sort
 }
 
 session_signature() {
@@ -82,17 +137,15 @@ latest_snapshot_dir() {
 
 snapshot_current_sessions() {
   if ! valid_session_pair "$SESSIONS_DIR"; then
-    log "skipped snapshot: no valid Chrome session pair in $SESSIONS_DIR"
     return 0
   fi
 
-  local sig_before sig_after last_sig snapshot_dir created_at
+  local sig_before sig_after last_sig snapshot_dir created_at profile_name
   sig_before="$(session_signature "$SESSIONS_DIR" || true)"
   sleep 0.4
   sig_after="$(session_signature "$SESSIONS_DIR" || true)"
 
   if [ "$sig_before" != "$sig_after" ] || [ -z "$sig_after" ]; then
-    log "skipped snapshot: session files are still changing"
     return 0
   fi
 
@@ -103,6 +156,7 @@ snapshot_current_sessions() {
 
   created_at="$(date '+%Y%m%d-%H%M%S')"
   snapshot_dir="$SNAP_ROOT/snapshots/$created_at"
+  profile_name="$(basename "$PROFILE_DIR")"
   mkdir -p "$snapshot_dir/Sessions"
   rsync -a --delete "$SESSIONS_DIR/" "$snapshot_dir/Sessions/" || return 1
 
@@ -111,16 +165,17 @@ snapshot_current_sessions() {
   fi
 
   printf '%s\n' "$sig_after" > "$snapshot_dir/signature.txt"
-  printf 'created_at=%s\nprofile_dir=%s\n' "$(date '+%Y-%m-%d %H:%M:%S %Z')" "$PROFILE_DIR" > "$snapshot_dir/manifest.txt"
+  printf 'created_at=%s\nprofile_dir=%s\nprofile_name=%s\n' "$(date '+%Y-%m-%d %H:%M:%S %Z')" "$PROFILE_DIR" "$profile_name" > "$snapshot_dir/manifest.txt"
   ln -sfn "$snapshot_dir" "$SNAP_ROOT/latest"
   printf '%s\n' "$sig_after" > "$SNAP_ROOT/latest.signature"
   rm -f "$SNAP_ROOT/last-skipped-at" "$SNAP_ROOT/last-skipped-signature"
-  log "snapshotted Chrome session state into $snapshot_dir"
+  log "snapshotted Chrome session state for $profile_name into $snapshot_dir"
 }
 
 restore_latest_snapshot_if_needed() {
-  local latest current_sig latest_sig backup_dir
+  local latest current_sig latest_sig backup_dir profile_name
   latest="$(latest_snapshot_dir)"
+  profile_name="$(basename "$PROFILE_DIR")"
 
   if [ -z "$latest" ] || [ ! -d "$latest/Sessions" ] || ! valid_session_pair "$latest/Sessions"; then
     if valid_session_pair "$SESSIONS_DIR"; then
@@ -138,7 +193,7 @@ restore_latest_snapshot_if_needed() {
 
   if valid_session_pair "$SESSIONS_DIR" && profile_exit_clean; then
     snapshot_current_sessions
-    log "accepted cleanly closed Chrome session as latest known-good state"
+    log "accepted cleanly closed Chrome session as latest known-good state for $profile_name"
     return 0
   fi
 
@@ -165,7 +220,7 @@ restore_latest_snapshot_if_needed() {
     fi
   fi
 
-  log "restored Chrome session snapshot $latest into profile; previous state saved to $backup_dir"
+  log "restored Chrome session snapshot $latest into $profile_name; previous state saved to $backup_dir"
   rm -f "$SNAP_ROOT/last-skipped-at" "$SNAP_ROOT/last-skipped-signature"
 }
 
@@ -178,8 +233,11 @@ prune_snapshots() {
       done
 }
 
-run_once() {
-  if chrome_running; then
+process_profile_once() {
+  local is_running="$1"
+  set_profile_context "$2"
+
+  if [ "$is_running" = "1" ]; then
     local current_sig latest_sig
     current_sig="$(session_signature "$SESSIONS_DIR" 2>/dev/null || true)"
     latest_sig="$(cat "$SNAP_ROOT/latest.signature" 2>/dev/null || true)"
@@ -191,14 +249,53 @@ run_once() {
       now="$(date '+%s')"
       last_skip_at="$(cat "$SNAP_ROOT/last-skipped-at" 2>/dev/null || echo 0)"
       if [ $((now - last_skip_at)) -gt 300 ]; then
-        log "skipped snapshot: Chrome profile is not cleanly exited, preserving latest known-good snapshot"
+        log "skipped snapshot for $(basename "$PROFILE_DIR"): Chrome profile is not cleanly exited, preserving latest known-good snapshot"
         printf '%s\n' "$now" > "$SNAP_ROOT/last-skipped-at"
       fi
     fi
   else
     restore_latest_snapshot_if_needed
   fi
+
   prune_snapshots
+}
+
+process_all_profiles_once() {
+  local is_running=0 profile_dir
+  if chrome_running; then
+    is_running=1
+  fi
+
+  while IFS= read -r profile_dir; do
+    [ -n "$profile_dir" ] || continue
+    [ -d "$profile_dir" ] || continue
+    process_profile_once "$is_running" "$profile_dir"
+  done < <(discover_profile_dirs)
+
+  trim_log
+}
+
+snapshot_all_profiles() {
+  local profile_dir
+  while IFS= read -r profile_dir; do
+    [ -n "$profile_dir" ] || continue
+    [ -d "$profile_dir" ] || continue
+    set_profile_context "$profile_dir"
+    snapshot_current_sessions
+    prune_snapshots
+  done < <(discover_profile_dirs)
+  trim_log
+}
+
+restore_all_profiles_if_needed() {
+  local profile_dir
+  while IFS= read -r profile_dir; do
+    [ -n "$profile_dir" ] || continue
+    [ -d "$profile_dir" ] || continue
+    set_profile_context "$profile_dir"
+    restore_latest_snapshot_if_needed
+    prune_snapshots
+  done < <(discover_profile_dirs)
   trim_log
 }
 
@@ -215,7 +312,7 @@ with_lock() {
 
   printf '%s\n' "$$" > "$LOCK_DIR/pid"
   trap 'rm -rf "$LOCK_DIR"' EXIT INT TERM
-  run_once
+  process_all_profiles_once
   rm -rf "$LOCK_DIR"
 }
 
@@ -227,10 +324,10 @@ case "${1:---once}" in
     done
     ;;
   --snapshot)
-    snapshot_current_sessions
+    snapshot_all_profiles
     ;;
   --restore-if-needed)
-    restore_latest_snapshot_if_needed
+    restore_all_profiles_if_needed
     ;;
   --once)
     with_lock

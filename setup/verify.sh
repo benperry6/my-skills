@@ -422,18 +422,43 @@ fi
 if rg -q -- '--watch' ~/Library/LaunchAgents/com.codex.chrome-session-guardian.plist && \
    rg -q 'KeepAlive' ~/Library/LaunchAgents/com.codex.chrome-session-guardian.plist && \
    rg -q 'restore_latest_snapshot_if_needed' ~/.codex/browser-control/chrome-session-guardian.sh && \
+   rg -q 'discover_profile_dirs' ~/.codex/browser-control/chrome-session-guardian.sh && \
+   rg -q 'CHROME_SESSION_GUARDIAN_USER_DATA_DIR' ~/.codex/browser-control/chrome-session-guardian.sh && \
    rg -q 'snapshotted Chrome session state' ~/.codex/browser-control/chrome-session-guardian.sh; then
-    ok "Chrome real-session guardian snapshots and restores the real profile in continuous watch mode"
+    ok "Chrome real-session guardian auto-discovers profiles and snapshots/restores them in continuous watch mode"
 else
-    warn "Chrome real-session guardian is not configured for continuous snapshot/restore mode"
+    warn "Chrome real-session guardian is not configured for continuous multi-profile snapshot/restore mode"
 fi
 
-if [ -L ~/.codex/browser-session-snapshots/chrome-profile3/latest ] && \
-   find ~/.codex/browser-session-snapshots/chrome-profile3/latest/Sessions -maxdepth 1 -type f -name 'Session_*' -size +1024c -print -quit 2>/dev/null | rg -q . && \
-   find ~/.codex/browser-session-snapshots/chrome-profile3/latest/Sessions -maxdepth 1 -type f -name 'Tabs_*' -size +1024c -print -quit 2>/dev/null | rg -q .; then
-    ok "Chrome real-session guardian has a latest known-good session snapshot"
+chrome_profile_snapshot_root() {
+    local profile_name="$1"
+    local slug
+    if [ "$profile_name" = "Profile 3" ]; then
+        printf '%s\n' "$HOME/.codex/browser-session-snapshots/chrome-profile3"
+    elif [ "$profile_name" = "Default" ]; then
+        printf '%s\n' "$HOME/.codex/browser-session-snapshots/chrome-profiles/default"
+    else
+        slug="$(printf '%s' "$profile_name" | tr '[:upper:] ' '[:lower:]-' | tr -cd '[:alnum:]_.-')"
+        printf '%s/%s\n' "$HOME/.codex/browser-session-snapshots/chrome-profiles" "$slug"
+    fi
+}
+
+missing_chrome_session_snapshots=()
+while IFS= read -r chrome_profile_dir; do
+    [ -n "$chrome_profile_dir" ] || continue
+    profile_name="$(basename "$chrome_profile_dir")"
+    profile_snapshot_root="$(chrome_profile_snapshot_root "$profile_name")"
+    if ! { [ -L "$profile_snapshot_root/latest" ] && \
+       find "$profile_snapshot_root/latest/Sessions" -maxdepth 1 -type f -name 'Session_*' -size +1024c -print -quit 2>/dev/null | rg -q . && \
+       find "$profile_snapshot_root/latest/Sessions" -maxdepth 1 -type f -name 'Tabs_*' -size +1024c -print -quit 2>/dev/null | rg -q .; }; then
+        missing_chrome_session_snapshots+=("$profile_name")
+    fi
+done < <(find "$HOME/Library/Application Support/Google/Chrome" -maxdepth 1 -type d \( -name 'Default' -o -name 'Profile *' \) -print 2>/dev/null | LC_ALL=C sort)
+
+if [ "${#missing_chrome_session_snapshots[@]}" -eq 0 ]; then
+    ok "Chrome real-session guardian has latest known-good snapshots for all discovered real profiles"
 else
-    warn "Chrome real-session guardian has no latest known-good real session snapshot yet"
+    warn "Chrome real-session guardian is missing latest known-good snapshots for: ${missing_chrome_session_snapshots[*]}"
 fi
 
 echo ""
