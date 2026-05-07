@@ -15,7 +15,7 @@ Promote entries here only after the behavior is verified locally or in the real 
 
 - Provider: `Cloudflare`
 - Local path: `~/.codex/mcp/cloudflare-wrapper.sh`
-- Auth source: 1Password item `Cloudflare` in vault `Agent Operations` (field `api_token`), accessed via `op read "op://Agent Operations/Cloudflare/api_token"`
+- Auth source: 1Password item `Cloudflare benjaminperry6-yahoo-fr` in vault `Agent Operations` (field `api_token`, username `benjaminperry6@yahoo.fr`), accessed via `op read "op://Agent Operations/Cloudflare benjaminperry6-yahoo-fr/api_token"`
 - Verified behavior:
   - `GET /user/tokens/verify` returned an active token
   - `GET "/zones?per_page=3"` returned a successful zone listing
