@@ -30,7 +30,24 @@ trim_log() {
   fi
 }
 
-chrome_running() {
+any_chrome_running() {
+  if [ "${CHROME_SESSION_GUARDIAN_ASSUME_STOPPED:-0}" = "1" ]; then
+    return 1
+  fi
+
+  local cmd
+  while IFS= read -r cmd; do
+    if [[ "$cmd" == "$APP_BINARY"* ]] \
+      && [[ "$cmd" != *"--user-data-dir=$ANTIGRAVITY_PROFILE_DIR"* ]] \
+      && [[ "$cmd" != *"--remote-debugging-port=9322"* ]]; then
+      return 0
+    fi
+  done < <(ps -axo command=)
+
+  return 1
+}
+
+real_chrome_running() {
   if [ "${CHROME_SESSION_GUARDIAN_ASSUME_STOPPED:-0}" = "1" ]; then
     return 1
   fi
@@ -262,8 +279,18 @@ process_profile_once() {
 
 process_all_profiles_once() {
   local is_running=0 profile_dir
-  if chrome_running; then
+  if real_chrome_running; then
     is_running=1
+  elif any_chrome_running; then
+    local last_skip_at now
+    now="$(date '+%s')"
+    last_skip_at="$(cat "$SNAP_ROOT_BASE/last-any-chrome-skip-at" 2>/dev/null || echo 0)"
+    if [ $((now - last_skip_at)) -gt 300 ]; then
+      log "skipped restore: a Chrome instance is still running, so real profile session files must not be modified"
+      printf '%s\n' "$now" > "$SNAP_ROOT_BASE/last-any-chrome-skip-at"
+    fi
+    trim_log
+    return 0
   fi
 
   while IFS= read -r profile_dir; do

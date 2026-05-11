@@ -377,6 +377,14 @@ else
     warn "Chrome AI-safe mirror may confuse isolated Antigravity Chrome with real Chrome"
 fi
 
+if rg -q 'launching Chrome AI-safe with profile' ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh && \
+   rg -q 'source Chrome is already running; launching Chrome AI-safe clone in parallel' ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh && \
+   ! rg -q 'tell application "Google Chrome" to quit|tell application "Google Chrome" to activate' ~/.codex/chrome-cdp-client/launch-chrome-ai-safe.sh; then
+    ok "Chrome AI-safe launcher starts the clone in parallel without quitting or activating real Chrome"
+else
+    fail "Chrome AI-safe launcher may still quit, restart, or activate real Chrome"
+fi
+
 if rg -q 'BROWSER_LABEL="Brave"' ~/.codex/mcp/brave-devtools-wrapper.sh && rg -q 'brave-devtools-server.mjs' ~/.codex/mcp/brave-devtools-wrapper.sh; then
     ok "brave-devtools wrapper uses the explicit-identity local browser MCP server"
 else
@@ -424,8 +432,10 @@ if rg -q -- '--watch' ~/Library/LaunchAgents/com.codex.chrome-session-guardian.p
    rg -q 'restore_latest_snapshot_if_needed' ~/.codex/browser-control/chrome-session-guardian.sh && \
    rg -q 'discover_profile_dirs' ~/.codex/browser-control/chrome-session-guardian.sh && \
    rg -q 'CHROME_SESSION_GUARDIAN_USER_DATA_DIR' ~/.codex/browser-control/chrome-session-guardian.sh && \
+   rg -q 'any_chrome_running' ~/.codex/browser-control/chrome-session-guardian.sh && \
+   rg -q 'a Chrome instance is still running' ~/.codex/browser-control/chrome-session-guardian.sh && \
    rg -q 'snapshotted Chrome session state' ~/.codex/browser-control/chrome-session-guardian.sh; then
-    ok "Chrome real-session guardian auto-discovers profiles and snapshots/restores them in continuous watch mode"
+    ok "Chrome real-session guardian auto-discovers profiles, snapshots/restores them, and does not restore while Chrome is running"
 else
     warn "Chrome real-session guardian is not configured for continuous multi-profile snapshot/restore mode"
 fi
