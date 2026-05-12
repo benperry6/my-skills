@@ -931,11 +931,41 @@ def claude_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
     ]
 
 
+_GEMINI_SUPPORTS_SKIP_TRUST: bool | None = None
+
+
+def gemini_supports_skip_trust() -> bool:
+    global _GEMINI_SUPPORTS_SKIP_TRUST
+    if _GEMINI_SUPPORTS_SKIP_TRUST is not None:
+        return _GEMINI_SUPPORTS_SKIP_TRUST
+
+    try:
+        completed = subprocess.run(
+            ["gemini", "--help"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except Exception:
+        # Preserve the legacy safer default if help probing is unavailable.
+        _GEMINI_SUPPORTS_SKIP_TRUST = True
+        return _GEMINI_SUPPORTS_SKIP_TRUST
+
+    help_text = f"{completed.stdout}\n{completed.stderr}"
+    _GEMINI_SUPPORTS_SKIP_TRUST = "--skip-trust" in help_text
+    return _GEMINI_SUPPORTS_SKIP_TRUST
+
+
 def gemini_command(*args: str) -> list[str]:
-    # Gemini CLI refuses non-interactive runs in untrusted directories unless
-    # explicitly told to skip the trust prompt. The second-opinion runner is a
-    # headless automation path, so always include --skip-trust for Gemini.
-    return ["gemini", "--skip-trust", *args]
+    # Older Gemini CLI builds required --skip-trust for non-interactive runs in
+    # untrusted directories. Newer builds removed that flag, so probe the local
+    # CLI surface and only include it when it exists.
+    command = ["gemini"]
+    if gemini_supports_skip_trust():
+        command.append("--skip-trust")
+    command.extend(args)
+    return command
 
 
 def gemini_attempts(prompt: str, _: Path, __: Path) -> list[dict[str, Any]]:
