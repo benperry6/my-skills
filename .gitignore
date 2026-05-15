@@ -6,7 +6,6 @@ ab-test-setup/
 analytics-tracking/
 competitor-alternatives/
 content-strategy/
-copy-editing/
 copywriting/
 email-sequence/
 form-cro/
@@ -28,9 +27,6 @@ seo-audit/
 signup-flow-cro/
 social-content/
 
-# Supabase security skills
-supabase-*/
-
 # Other external skills
 challenge/
 copywriting-tugan/
@@ -38,8 +34,6 @@ agent-email-inbox/
 email-best-practices/
 interview/
 react-email/
-resend/
-resend-cli/
 skill-creator/
 techdebt/
 vercel-react-best-practices/
