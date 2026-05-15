@@ -1,0 +1,4 @@
+interface:
+  display_name: "Knowledge Source Ingest"
+  short_description: "Ingest one source into a durable domain knowledge base."
+  default_prompt: "Use this skill to process one source into a durable knowledge base, score candidate learnings, deduplicate them, and update repo artifacts according to the domain contract."
