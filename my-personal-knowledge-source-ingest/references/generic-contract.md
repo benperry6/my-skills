@@ -1,4 +1,4 @@
-# Generic Contract for `knowledge-source-ingest`
+# Generic Contract for `my-personal-knowledge-source-ingest`
 
 ## Purpose
 

@@ -1,7 +1,9 @@
 ---
-name: audit-marketing-360
+name: my-personal-audit-marketing-360
 description: >
-  Orchestrate a comprehensive marketing audit using all available marketing skills as parallel subagents, with built-in applicability filtering and quality control. Use when the user wants to audit a brand, website, or business's entire marketing strategy. Triggers: "audit marketing," "audit 360," "rapport marketing complet," "analyse marketing globale," or when evaluating everything that could be improved for a client/prospect. Acts as team lead coordinating specialized subagents and compiling a consolidated report with only substantiated recommendations.
+  [My Personal Skill] Orchestrate a comprehensive marketing audit using all available marketing skills as parallel subagents, with built-in applicability filtering and quality control. Use when the user wants to audit a brand, website, or business's entire marketing strategy. Triggers: "audit marketing," "audit 360," "rapport marketing complet," "analyse marketing globale," or when evaluating everything that could be improved for a client/prospect. Acts as team lead coordinating specialized subagents and compiling a consolidated report with only substantiated recommendations.
+metadata:
+  version: 1.0.0
 ---
 
 # Audit Marketing 360
