@@ -1,5 +1,5 @@
 ---
-name: "my-personal-seo-market-mapper"
+name: my-personal-seo-market-mapper
 description: "[My Personal Skill] Turn a business offer into an actionable SEO market map. Use when the user wants SEO market research, keyword discovery, cluster mapping, page and hub prioritization, geo/programmatic/tool opportunities, or competitor refinement. Produces a business-aware SEO map with P1/P2/P3 priorities. Not for final domain selection, final content writing, or site implementation."
 ---
 
