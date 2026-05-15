@@ -1,4 +1,4 @@
-# Generic Decision Rules for `knowledge-source-ingest`
+# Generic Decision Rules for `my-personal-knowledge-source-ingest`
 
 ## Mechanics that stay generic
 

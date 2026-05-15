@@ -1,6 +1,8 @@
 ---
-name: knowledge-source-ingest
-description: Process one pasted source into a durable domain knowledge base. Use when a repo already has a clear domain contract and needs one-source-at-a-time ingestion with candidate extraction, scoring, duplicate vs enrichment vs hypothesis or technique candidate vs operator-verified vs new vs conflict decisions, and durable artifact updates. Use it directly for new domains that do not yet have a specialized variant, or as the parent pattern for building variants such as `seo-geo-source-ingest`. Do not use for direct execution work like rewriting content, shipping design changes, or optimizing live systems.
+name: my-personal-knowledge-source-ingest
+description: "[My Personal Skill] Process one pasted source into a durable domain knowledge base. Use when a repo already has a clear domain contract and needs one-source-at-a-time ingestion with candidate extraction, scoring, duplicate vs enrichment vs hypothesis or technique candidate vs operator-verified vs new vs conflict decisions, and durable artifact updates. Use it directly for new domains that do not yet have a specialized variant, or as the parent pattern for building variants such as `my-personal-seo-geo-source-ingest`. Do not use for direct execution work like rewriting content, shipping design changes, or optimizing live systems."
+metadata:
+  version: 1.0.0
 ---
 
 # Knowledge Source Ingest

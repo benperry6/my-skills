@@ -1,4 +1,4 @@
-# Decision Rules for `hermes-agent-source-ingest`
+# Decision Rules for `my-personal-hermes-agent-source-ingest`
 
 ## User-Curation Rule
 

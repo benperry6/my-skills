@@ -1,6 +1,8 @@
 ---
-name: seo-geo-source-ingest
-description: Process one pasted SEO/GEO source into the durable SEO/GEO brain for this repo. Use when a user provides a single tweet, LinkedIn post, blog article, video transcript, note, or other source that should be ingested into the SEO/GEO knowledge base. Treat user-selected sources as high-signal inputs, extract what is operationally useful, recover the mechanism behind advice when possible, decide duplicate vs enrichment vs hypothesis vs technique candidate vs operator-verified vs new vs conflict vs reject, and update the repo artifacts. This is the SEO/GEO specialization of `knowledge-source-ingest`. Do not use for direct site optimization, keyword research execution, content rewriting, or final execution skill generation.
+name: my-personal-seo-geo-source-ingest
+description: "[My Personal Skill] Process one pasted SEO/GEO source into the durable SEO/GEO brain for this repo. Use when a user provides a single tweet, LinkedIn post, blog article, video transcript, note, or other source that should be ingested into the SEO/GEO knowledge base. Treat user-selected sources as high-signal inputs, extract what is operationally useful, recover the mechanism behind advice when possible, decide duplicate vs enrichment vs hypothesis vs technique candidate vs operator-verified vs new vs conflict vs reject, and update the repo artifacts. This is the SEO/GEO specialization of `my-personal-knowledge-source-ingest`. Do not use for direct site optimization, keyword research execution, content rewriting, or final execution skill generation."
+metadata:
+  version: 1.0.0
 ---
 
 # SEO-GEO Source Ingest
@@ -16,7 +18,7 @@ Read the repo contract before acting:
 
 This skill is the ingestion and curation layer only. It must not optimize pages, rewrite content, or generate final execution skills too early.
 
-It is the SEO/GEO specialization of `knowledge-source-ingest`, so it keeps the generic ingestion mechanics but applies SEO/GEO-specific scope and examples.
+It is the SEO/GEO specialization of `my-personal-knowledge-source-ingest`, so it keeps the generic ingestion mechanics but applies SEO/GEO-specific scope and examples.
 
 ## Core doctrine
 

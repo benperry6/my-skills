@@ -1,10 +1,10 @@
-# Domain Contract for `hermes-agent-source-ingest`
+# Domain Contract for `my-personal-hermes-agent-source-ingest`
 
 ## Purpose
 
 This skill processes one external source at a time into durable improvements for Ben's Hermes VPS and AI-agent operating system.
 
-It is a specialization of `knowledge-source-ingest`: generic mechanics, Hermes/agent-specific judgment.
+It is a specialization of `my-personal-knowledge-source-ingest`: generic mechanics, Hermes/agent-specific judgment.
 
 ## Domain Scope
 

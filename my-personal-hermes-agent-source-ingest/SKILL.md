@@ -1,22 +1,22 @@
 ---
-name: hermes-agent-source-ingest
-description: "Use when Ben shares one external source in the Hermes & AI Agents Setup topic to improve Hermes VPS, agent workflows, prompts, memory, tools, MCPs, skills, Telegram operations, or future agent architecture. Process the source with knowledge-source-ingest mechanics: extract operational candidates, compare against the real setup, decide reject vs duplicate vs enrich vs hypothesis vs technique_candidate vs operator_verified vs new learning vs conflict, and update only safe durable artifacts. Do not use for direct unrelated project execution or broad unsourced brainstorming."
+name: my-personal-hermes-agent-source-ingest
+description: "[My Personal Skill] Use when Ben shares one external source in the Hermes & AI Agents Setup topic to improve Hermes VPS, agent workflows, prompts, memory, tools, MCPs, skills, Telegram operations, or future agent architecture. Process the source with knowledge-source-ingest mechanics: extract operational candidates, compare against the real setup, decide reject vs duplicate vs enrich vs hypothesis vs technique_candidate vs operator_verified vs new learning vs conflict, and update only safe durable artifacts. Do not use for direct unrelated project execution or broad unsourced brainstorming."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
 metadata:
   hermes:
     tags: [hermes, agents, ingestion, telegram, skills, knowledge]
-    related_skills: [knowledge-source-ingest, hermes-agent, ben-hermes-vps-primary-agent]
+    related_skills: [my-personal-knowledge-source-ingest, hermes-agent, ben-hermes-vps-primary-agent]
 ---
 
-# Hermes Agent Source Ingest
+# My Personal Hermes Agent Source Ingest
 
 ## Overview
 
 Use this skill to turn one user-selected source into durable improvements for Ben's Hermes VPS and AI-agent operating system.
 
-This is the Hermes/agent-setup specialization of `knowledge-source-ingest`. It keeps the same ingestion mechanics as the SEO/GEO source-ingest workflow, but the domain is Hermes itself: gateway behavior, Telegram topic workflows, prompts, memory, vault notes, tools, MCPs, skills, orchestration patterns, reliability, safety, and future agent architecture.
+This is the Hermes/agent-setup specialization of `my-personal-knowledge-source-ingest`. It keeps the same ingestion mechanics as the SEO/GEO source-ingest workflow, but the domain is Hermes itself: gateway behavior, Telegram topic workflows, prompts, memory, vault notes, tools, MCPs, skills, orchestration patterns, reliability, safety, and future agent architecture.
 
 The Telegram thread is intake and discussion, not the durable source of truth. Every retained item must either be applied safely, written to an appropriate durable artifact, or explicitly left as a bounded hypothesis/backlog item.
 
@@ -32,7 +32,7 @@ Use when Ben shares or asks you to process a source such as:
 
 Do not use for:
 
-- direct SEO/GEO source ingestion; use `seo-geo-source-ingest`
+- direct SEO/GEO source ingestion; use `my-personal-seo-geo-source-ingest`
 - direct coding implementation unrelated to Hermes/agent setup
 - broad brainstorming without a concrete source
 - storing secrets or credentials from a source
@@ -46,7 +46,8 @@ For a fresh work session or after any setup change, read or verify:
 - `/home/hermes/.hermes/config.yaml` only as needed, and never expose secrets
 - relevant vault notes under `/home/hermes/vault/ops/`
 - relevant Hermes docs or repo files when the source recommends Hermes configuration changes
-- `knowledge-source-ingest` and this skill's reference files when the workflow is uncertain
+- `my-personal-knowledge-source-ingest` and this skill's reference files when the workflow is uncertain
+- `references/skills-repo-update-lessons.md` when the task touches the skills repo itself, branch freshness, selective recovery from `origin/main`, or plain-language reporting of repo/setup fixes
 
 For short social posts after the control plane is already fresh, use a fast path: verify only the relevant current files and neighboring records before deciding.
 
@@ -156,6 +157,8 @@ Never dump raw source text into memory. Never store secrets. Redact tokens, pass
 5. **Applying risky changes too early.** Ask before destructive, credential, billing, cross-project, or architecture changes.
 6. **Confusing agent-general advice with Hermes-specific advice.** Classify before acting.
 7. **Preserving secrets from screenshots or pasted logs.** Redact aggressively.
+8. **Explaining repo/setup fixes with raw Git jargon.** When Ben asks what happened, translate first into plain human language: what was blocked, what harm it caused, what was changed, and current status. Keep commit hashes, branch names, and error strings as secondary detail only when useful.
+9. **Assuming the active branch contains the newest skill.** If a skill is missing after updating the active branch, check `origin/main` and other origin branches before concluding it does not exist. If `origin/main` has only the needed skill directories and a full merge would create broad conflicts, copy/check out those directories selectively and commit/push the result.
 
 ## Verification Checklist
 

@@ -1,0 +1,4 @@
+agent:
+  display_name: "My Personal Hermes Agent Source Ingest"
+  description: "Process one user-selected source into durable Hermes VPS and AI-agent setup improvements."
+  default_prompt: "Use $my-personal-hermes-agent-source-ingest to process one source for Hermes VPS / AI agent setup, extract actionable candidates, verify against the real setup, classify each candidate, and update only safe durable artifacts."
