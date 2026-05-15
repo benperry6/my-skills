@@ -1,0 +1,4 @@
+interface:
+  display_name: "SEO-GEO Source Ingest"
+  short_description: "Ingest one high-signal SEO/GEO source into the durable brain."
+  default_prompt: "Use $seo-geo-source-ingest to process one SEO/GEO source, recover the useful mechanisms and tactics, qualify them at the right status, and update the repo artifacts."
