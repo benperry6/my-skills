@@ -48,6 +48,9 @@ For a fresh work session or after any setup change, read or verify:
 - relevant Hermes docs or repo files when the source recommends Hermes configuration changes
 - `my-personal-knowledge-source-ingest` and this skill's reference files when the workflow is uncertain
 - `references/skills-repo-update-lessons.md` when the task touches the skills repo itself, branch freshness, selective recovery from `origin/main`, or plain-language reporting of repo/setup fixes
+- `references/personal-source-ingest-convention.md` when creating, recovering, or renaming source-ingest skills or deciding whether to create a vault workspace vs a new GitHub repo
+- `references/codex-jsonl-source-location.md` when ingesting a Codex/Claude/agent JSONL session export from Drive or when the requested session file is missing or ambiguous
+- `references/codex-era-solution-porting.md` when extracting lessons from older Codex/Claude sessions whose implemented solutions may not fit current Hermes architecture
 
 For short social posts after the control plane is already fresh, use a fast path: verify only the relevant current files and neighboring records before deciding.
 
@@ -79,6 +82,7 @@ Out of scope unless Ben explicitly asks:
 1. **Identify the source**
    - URL, screenshot, pasted text, transcript, repo, or user summary.
    - If practical, verify the URL or artifact directly. If blocked, record that and rely only on the supplied payload.
+   - For Codex/Claude/agent JSONL exports, validate source identity before ingestion: requested filename, first meaningful user message, last assistant message, embedded rollout/session path if present, and topical match. If a candidate is close but not confirmed, keep it in `sources/inbox/` with a `needs-confirmation-` prefix and ask Ben before substituting it.
 
 2. **Extract candidate recommendations**
    - Pull out concrete operational claims, patterns, warnings, tools, prompts, or architecture ideas.
@@ -113,19 +117,25 @@ Out of scope unless Ben explicitly asks:
 
 ## Output Contract
 
-For each processed source, return a compact verdict:
+For each processed source, return a clear ingestion receipt before moving on to unrelated infrastructure notes. The receipt must let Ben audit what was retained, rejected, and changed without opening the vault.
+
+Use this structure:
 
 ```md
 Source: <title/link/type>
+Status: ingested | blocked | rejected | partial
 Core recommendation: <one concise sentence>
 Classification: Hermes-specific | agent-general | project-specific | not applicable
-Decision: apply now | enrich | hypothesis | technique_candidate | backlog | reject | conflict
-Verification: <what was checked>
+Provenance confidence: <verified | qualified | supplied-only | blocked>
+Verification performed: <what was checked>
 Action taken: <files/config/skills changed, or none>
-Next step: <if any>
+New learnings: <accepted durable learnings, or none>
+Enrichments / hypotheses / technique candidates: <each retained non-canonical item>
+Rejected / duplicate candidates: <what was rejected/duplicated and why>
+Backlog / next step: <if any>
 ```
 
-When a source has multiple candidates, list each candidate with its status.
+When a source has multiple candidates, list each candidate with its decision status. If QMD indexing, embedding, Drive lookup, or another infra step partially fails, explain that separately after the receipt; do not let the infra issue replace the ingestion receipt.
 
 ## Durable Artifact Guidance
 
@@ -159,6 +169,9 @@ Never dump raw source text into memory. Never store secrets. Redact tokens, pass
 7. **Preserving secrets from screenshots or pasted logs.** Redact aggressively.
 8. **Explaining repo/setup fixes with raw Git jargon.** When Ben asks what happened, translate first into plain human language: what was blocked, what harm it caused, what was changed, and current status. Keep commit hashes, branch names, and error strings as secondary detail only when useful.
 9. **Assuming the active branch contains the newest skill.** If a skill is missing after updating the active branch, check `origin/main` and other origin branches before concluding it does not exist. If `origin/main` has only the needed skill directories and a full merge would create broad conflicts, copy/check out those directories selectively and commit/push the result.
+10. **Silently substituting a similar session export.** A topically related Codex/agent JSONL is not equivalent to the requested session. Validate identity first; if the exact file is missing, document the search, quarantine plausible candidates as `needs-confirmation`, and block rather than ingest the wrong source.
+11. **Porting Codex-era solutions literally.** Older Codex sessions may have created skills, scripts, or workflows because Codex lacked Hermes-native affordances such as native delegation, Telegram operations, toolsets, profiles, cron, or vault/QMD workflows. Preserve the findings, constraints, and failure modes first; treat the old implementation as a candidate adapter only. Before writing backlog items, ask: “What is the Hermes-native mechanism that satisfies this need today?” and word actions as tests/hypotheses unless real Hermes runs prove the old skill is load-bearing. If an old skill risks steering implementation before Hermes-native design, quarantine it into a non-discoverable archive and keep it as cold reference only.
+12. **Writing vault artifacts without refreshing retrieval.** After creating or updating durable vault notes, run a QMD collection update before assuming the new files are searchable. `qmd embed` alone may report existing hashes while the collection file list is stale. Verify with fast BM25/keyword search first; semantic embedding can remain pending if the VPS falls back to slow CPU.
 
 ## Verification Checklist
 
@@ -167,5 +180,6 @@ Never dump raw source text into memory. Never store secrets. Redact tokens, pass
 - [ ] Relevant setup files/docs/skills were checked before claiming applicability.
 - [ ] Each candidate has one decision status.
 - [ ] Any durable write is placed in the correct system: memory, vault, skill, or repo.
+- [ ] If vault artifacts were written under an indexed QMD collection, `qmd update` was run and keyword/BM25 retrieval was verified, or the reason for deferring it was recorded.
 - [ ] Sensitive changes were not made without approval.
 - [ ] Final answer states what changed and what did not.
